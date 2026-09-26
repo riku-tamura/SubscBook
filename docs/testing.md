@@ -14,7 +14,7 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform=iOS Simulator,name=iPhone 17' test -only-testing:SubscBookTests/NotificationPlannerTests
 ```
 
-今は 140件（32スイート）で、数秒で終わります。
+今は 141件（32スイート）で、数秒で終わります。
 
 ## 方針
 
@@ -92,7 +92,7 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 | レポートの状態（`ReportViewModelTests`） | 集計、共有画像はプラスで解約があるときだけ |
 | 節約の集計（`SavingsSummaryTests`） | 1年あたり・累計・件数 |
 | 設定の状態（`SettingsViewModelTests`） | 全削除、期限の表記、未加入のときの表記 |
-| 登録・編集フォーム（`SubscriptionFormViewModelTests`） | 金額の入力、保存できる条件と理由、カテゴリの初期値と自動設定、候補の選択、新規・編集の保存、過去の支払日、基準日 |
+| 登録・編集フォーム（`SubscriptionFormViewModelTests`） | 金額の入力、保存できる条件と理由、カテゴリの初期値と自動設定、候補の選択（自分で選んだカテゴリは変えない）、保存の時点での無料プランの上限、新規・編集の保存、過去の支払日、基準日 |
 | 一覧の並び替え（`SubscriptionListSectionsTests`） | 支払日順、解約済みは別セクション |
 | 一覧の状態（`SubscriptionListViewModelTests`） | 残り件数の案内、並び順の保存、解約済みの開閉 |
 

@@ -84,6 +84,32 @@ struct SubscriptionFormViewModelTests {
         viewModel.applySuggestion(preset)
         #expect(viewModel.name == "iCloud+")
         #expect(viewModel.category == .cloud)
+
+        // 自分で選んだカテゴリは、候補を選んでも変えない
+        let chosen = SubscriptionFormViewModel(mode: .add, now: now, calendar: .tokyo)
+        chosen.selectCategory(.work)
+        chosen.applySuggestion(preset)
+        #expect(chosen.name == "iCloud+")
+        #expect(chosen.category == .work)
+    }
+
+    @Test("保存の時点で無料プランの上限を確かめる（フォームを開いた後にプラスの期限が切れた場合）")
+    func saveChecksFreePlanLimit() throws {
+        let store = try TestStore()
+        for index in 0..<FreePlan.subscriptionLimit {
+            store.addSubscription(name: "サービス\(index)")
+        }
+        let viewModel = SubscriptionFormViewModel(mode: .add, now: now, calendar: .tokyo)
+        viewModel.name = "Netflix"
+        viewModel.updatePriceText("1590")
+
+        #expect(throws: SubscriptionFormViewModel.FormError.subscriptionLimitReached) {
+            try viewModel.save(in: store.context, isPremium: false, now: now, calendar: .tokyo)
+        }
+        #expect(try store.context.fetchCount(FetchDescriptor<Subscription>()) == FreePlan.subscriptionLimit)
+
+        try viewModel.save(in: store.context, isPremium: true, now: now, calendar: .tokyo)
+        #expect(try store.context.fetchCount(FetchDescriptor<Subscription>()) == FreePlan.subscriptionLimit + 1)
     }
 
     @Test("新規登録：名前の前後の空白を除き、登録日を記録する")
@@ -96,7 +122,7 @@ struct SubscriptionFormViewModelTests {
         viewModel.hasTrial = true
         viewModel.trialEndDate = date(2026, 10, 3, 15)
 
-        let subscription = try viewModel.save(in: store.context, now: now, calendar: .tokyo)
+        let subscription = try viewModel.save(in: store.context, isPremium: false, now: now, calendar: .tokyo)
 
         #expect(subscription.name == "Netflix")
         #expect(subscription.category == .video)
@@ -116,7 +142,7 @@ struct SubscriptionFormViewModelTests {
         viewModel.updatePriceText("980")
         viewModel.nextPaymentDate = date(2026, 7, 31)
 
-        let subscription = try viewModel.save(in: store.context, now: now, calendar: .tokyo)
+        let subscription = try viewModel.save(in: store.context, isPremium: false, now: now, calendar: .tokyo)
 
         // 7/31 → 8/31 → 9/30（9/26 以降で最初の支払日）
         #expect(subscription.nextPaymentDate == date(2026, 9, 30))
@@ -136,7 +162,7 @@ struct SubscriptionFormViewModelTests {
         viewModel.updatePriceText("10260")
         viewModel.cycle = .yearly
         viewModel.hasTrial = false
-        try viewModel.save(in: store.context, now: now, calendar: .tokyo)
+        try viewModel.save(in: store.context, isPremium: false, now: now, calendar: .tokyo)
 
         #expect(subscription.name == "Hulu 年額")
         #expect(subscription.price == 10260)
@@ -155,7 +181,7 @@ struct SubscriptionFormViewModelTests {
 
         let viewModel = SubscriptionFormViewModel(mode: .edit(subscription), now: date(2027, 2, 1), calendar: .tokyo)
         viewModel.updatePriceText("1200")
-        try viewModel.save(in: store.context, now: date(2027, 2, 1), calendar: .tokyo)
+        try viewModel.save(in: store.context, isPremium: false, now: date(2027, 2, 1), calendar: .tokyo)
 
         #expect(subscription.billingDay == 31)
         #expect(subscription.nextPaymentDate == date(2027, 2, 28))
@@ -166,7 +192,7 @@ struct SubscriptionFormViewModelTests {
         let store = try TestStore()
         let viewModel = SubscriptionFormViewModel(mode: .add, now: now, calendar: .tokyo)
         #expect(throws: SubscriptionFormViewModel.FormError.self) {
-            try viewModel.save(in: store.context, now: now, calendar: .tokyo)
+            try viewModel.save(in: store.context, isPremium: false, now: now, calendar: .tokyo)
         }
     }
 }

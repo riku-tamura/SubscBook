@@ -105,9 +105,12 @@ final class SubscriptionFormViewModel {
         isCategoryChosenByUser = true
     }
 
+    /// 候補を選ぶ。カテゴリは、ユーザーが自分で選んでいなければ候補のものにする。
     func applySuggestion(_ preset: ServicePreset) {
         name = preset.name
-        category = preset.category
+        if !isCategoryChosenByUser {
+            category = preset.category
+        }
     }
 
     private func applyPresetCategoryIfNeeded() {
@@ -117,9 +120,17 @@ final class SubscriptionFormViewModel {
 
     /// 入力内容を保存する。追加時は ModelContext に挿入する。
     /// 次回支払日が過去の場合は、今日以降の支払日まで進めて保存する。
+    /// - Parameter isPremium: 保存する時点のサブスク帳プラスの状態。フォームを開いた後にプラスの期限が切れた場合も、
+    ///   無料プランの上限を超えて追加しないよう、保存の時点で確かめる。
     @discardableResult
-    func save(in context: ModelContext, now: Date = .now, calendar: Calendar = .current) throws -> Subscription {
+    func save(in context: ModelContext, isPremium: Bool, now: Date = .now, calendar: Calendar = .current) throws -> Subscription {
         guard canSave, let price else { throw FormError.invalidInput }
+        if case .add = mode {
+            let activeCount = try context.fetchCount(FetchDescriptor(predicate: Subscription.activePredicate))
+            guard FreePlan.canAddSubscription(activeCount: activeCount, isPremium: isPremium) else {
+                throw FormError.subscriptionLimitReached
+            }
+        }
 
         let subscription: Subscription
         switch mode {
@@ -159,5 +170,7 @@ final class SubscriptionFormViewModel {
 
     enum FormError: Error {
         case invalidInput
+        /// 無料プランの上限に達している
+        case subscriptionLimitReached
     }
 }

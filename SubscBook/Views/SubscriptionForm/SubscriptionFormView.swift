@@ -228,8 +228,11 @@ struct SubscriptionFormView: View {
 
     private func save() {
         do {
-            try viewModel.save(in: modelContext)
+            try viewModel.save(in: modelContext, isPremium: entitlements.isPremium)
             finish()
+        } catch SubscriptionFormViewModel.FormError.subscriptionLimitReached {
+            // フォームを開いた後にプラスの期限が切れた場合など
+            isPaywallPresented = true
         } catch {
             errorMessage = "入力内容を確認してください。"
         }
@@ -255,7 +258,7 @@ struct SubscriptionFormView: View {
     /// 解約・再開の前に、フォームで編集中の内容（金額の修正など）を反映する
     private func applyPendingEdits() {
         guard viewModel.canSave else { return }
-        _ = try? viewModel.save(in: modelContext)
+        _ = try? viewModel.save(in: modelContext, isPremium: entitlements.isPremium)
     }
 
     private func delete() {
