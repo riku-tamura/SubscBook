@@ -4,7 +4,8 @@ import SwiftUI
 struct CheckInCard: View {
     let subscription: Subscription
     let month: YearMonth
-    let onAnswer: (Bool) -> Void
+    /// 回答を受け取り、記録できたかを返す（保存に失敗したらカードを元の位置に戻す）
+    let onAnswer: (Bool) -> Bool
 
     @State private var offset: CGSize = .zero
     /// スワイプで回答を確定し、カードが画面外へ出ていく間は他の操作を受け付けない
@@ -22,8 +23,8 @@ struct CheckInCard: View {
                 .gesture(dragGesture)
                 .accessibilityElement(children: .combine)
                 .accessibilityHint("右にスワイプで使った、左にスワイプで使っていない")
-                .accessibilityAction(named: "使った") { onAnswer(true) }
-                .accessibilityAction(named: "使っていない") { onAnswer(false) }
+                .accessibilityAction(named: "使った") { _ = onAnswer(true) }
+                .accessibilityAction(named: "使っていない") { _ = onAnswer(false) }
 
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 12) { answerButtons }
@@ -85,7 +86,7 @@ struct CheckInCard: View {
     @ViewBuilder
     private var answerButtons: some View {
         Button {
-            onAnswer(false)
+            _ = onAnswer(false)
         } label: {
             Label("使っていない", systemImage: "moon.zzz")
                 .frame(maxWidth: .infinity)
@@ -95,7 +96,7 @@ struct CheckInCard: View {
         .controlSize(.large)
 
         Button {
-            onAnswer(true)
+            _ = onAnswer(true)
         } label: {
             Label("使った", systemImage: "checkmark")
                 .frame(maxWidth: .infinity)
@@ -121,7 +122,11 @@ struct CheckInCard: View {
                     }
                     Task {
                         try? await Task.sleep(for: .milliseconds(200))
-                        onAnswer(used)
+                        if !onAnswer(used) {
+                            // 記録できなかったら、カードを戻してもう一度答えられるようにする
+                            withAnimation(.spring) { offset = .zero }
+                            isAnswering = false
+                        }
                     }
                 } else {
                     withAnimation(.spring) { offset = .zero }

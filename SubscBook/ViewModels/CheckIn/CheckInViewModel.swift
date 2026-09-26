@@ -56,13 +56,26 @@ final class CheckInViewModel {
         "\(min(index + 1, queue.count)) / \(queue.count)"
     }
 
+    /// 回答を保存できなかったときのメッセージ（アラートで表示する）
+    var saveErrorMessage: String?
+
     /// `subscription` への回答を記録して次へ進む。
     /// すでに別のサブスクに進んでいる場合（スワイプ中にボタンを押したなど）は何もしない。
-    func answer(used: Bool, for subscription: Subscription, in context: ModelContext, now: Date = .now) {
-        guard let current, current.id == subscription.id else { return }
+    /// 保存できなかった場合は回答を取り消して進まない（回答済みと表示したのに、再起動すると消えていることがないように）。
+    /// - Returns: 回答を記録して次へ進んだか
+    @discardableResult
+    func answer(used: Bool, for subscription: Subscription, in context: ModelContext, now: Date = .now) -> Bool {
+        guard let current, current.id == subscription.id else { return false }
         current.recordCheckIn(for: month, used: used, at: now)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            saveErrorMessage = "回答を保存できませんでした。もう一度お試しください。"
+            return false
+        }
         index += 1
+        return true
     }
 
     /// ひとつ前のサブスクに戻る（回答は上書きできる）

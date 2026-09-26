@@ -33,7 +33,7 @@ struct CheckInViewModelTests {
         let second = store.addSubscription(name: "B")
         let viewModel = CheckInViewModel(subscriptions: [first, second], now: now, calendar: .tokyo)
 
-        viewModel.answer(used: false, for: first, in: store.context, now: now)
+        #expect(viewModel.answer(used: false, for: first, in: store.context, now: now))
         #expect(first.checkIn(for: YearMonth("2026-08")!)?.used == false)
         #expect(viewModel.current?.name == "B")
         #expect(viewModel.progress == 0.5)
@@ -68,8 +68,8 @@ struct CheckInViewModelTests {
         let viewModel = CheckInViewModel(subscriptions: [first, second], now: now, calendar: .tokyo)
 
         viewModel.answer(used: true, for: first, in: store.context, now: now)
-        // A への遅れて届いた回答
-        viewModel.answer(used: false, for: first, in: store.context, now: now)
+        // A への遅れて届いた回答（記録せず、カードも進めない）
+        #expect(!viewModel.answer(used: false, for: first, in: store.context, now: now))
 
         #expect(viewModel.current?.name == "B")
         #expect(second.checkIns.isEmpty)

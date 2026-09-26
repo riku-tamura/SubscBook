@@ -49,5 +49,13 @@ struct CheckInQuestionView: View {
                 .navigationTitle("チェックイン")
             }
         }
+        .alert("保存できませんでした", isPresented: Binding(
+            get: { viewModel.saveErrorMessage != nil },
+            set: { if !$0 { viewModel.saveErrorMessage = nil } }
+        )) {
+            Button("OK") {}
+        } message: {
+            Text(viewModel.saveErrorMessage ?? "")
+        }
     }
 }
