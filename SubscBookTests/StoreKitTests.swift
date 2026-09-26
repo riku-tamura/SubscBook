@@ -2,7 +2,7 @@ import Foundation
 import StoreKit
 import StoreKitTest
 import Testing
-@testable import SubWatch
+@testable import SubscBook
 
 /// Products.storekit を使って、商品定義と購読状態の判定を確かめる
 @Suite("課金（StoreKit）", .serialized)

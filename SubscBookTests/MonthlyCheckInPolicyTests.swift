@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 import Testing
-@testable import SubWatch
+@testable import SubscBook
 
 @Suite("月次チェックイン（5.6）")
 struct MonthlyCheckInPolicyTests {

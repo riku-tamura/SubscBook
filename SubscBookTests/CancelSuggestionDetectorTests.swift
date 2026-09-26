@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import SubWatch
+@testable import SubscBook
 
 @Suite("解約候補の判定（5.3）")
 struct CancelSuggestionDetectorTests {

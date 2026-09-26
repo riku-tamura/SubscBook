@@ -1,6 +1,6 @@
 import Foundation
 import SwiftData
-@testable import SubWatch
+@testable import SubscBook
 
 extension Calendar {
     /// テストはタイムゾーンを固定して実行する

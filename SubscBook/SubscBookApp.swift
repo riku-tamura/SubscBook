@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 @main
-struct SubWatchApp: App {
+struct SubscBookApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var entitlements: EntitlementManager
     @State private var notifications: NotificationScheduler

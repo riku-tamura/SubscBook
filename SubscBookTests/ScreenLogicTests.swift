@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import SubWatch
+@testable import SubscBook
 
 @Suite("一覧の並び替え")
 struct SubscriptionListSectionsTests {

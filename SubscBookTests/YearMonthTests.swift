@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import SubWatch
+@testable import SubscBook
 
 @Suite("YearMonth")
 struct YearMonthTests {

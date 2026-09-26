@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import SubWatch
+@testable import SubscBook
 
 @Suite("節約額（5.5）")
 struct SavingsCalculatorTests {

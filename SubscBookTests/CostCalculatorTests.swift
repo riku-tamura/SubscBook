@@ -1,5 +1,5 @@
 import Testing
-@testable import SubWatch
+@testable import SubscBook
 
 @Suite("金額計算（5.1）")
 struct CostCalculatorTests {

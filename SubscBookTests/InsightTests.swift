@@ -1,7 +1,7 @@
 import Foundation
 import Synchronization
 import Testing
-@testable import SubWatch
+@testable import SubscBook
 
 @Suite("AI 出力のチェック")
 struct InsightSanitizerTests {

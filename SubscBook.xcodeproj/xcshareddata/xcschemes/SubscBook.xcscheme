@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A10000000000000000000008"
-               BuildableName = "SubWatch.app"
-               BlueprintName = "SubWatch"
-               ReferencedContainer = "container:SubWatch.xcodeproj">
+               BuildableName = "SubscBook.app"
+               BlueprintName = "SubscBook"
+               ReferencedContainer = "container:SubscBook.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -36,9 +36,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A10000000000000000000009"
-               BuildableName = "SubWatchTests.xctest"
-               BlueprintName = "SubWatchTests"
-               ReferencedContainer = "container:SubWatch.xcodeproj">
+               BuildableName = "SubscBookTests.xctest"
+               BlueprintName = "SubscBookTests"
+               ReferencedContainer = "container:SubscBook.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -58,9 +58,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A10000000000000000000008"
-            BuildableName = "SubWatch.app"
-            BlueprintName = "SubWatch"
-            ReferencedContainer = "container:SubWatch.xcodeproj">
+            BuildableName = "SubscBook.app"
+            BlueprintName = "SubscBook"
+            ReferencedContainer = "container:SubscBook.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <StoreKitConfigurationFileReference
@@ -78,9 +78,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A10000000000000000000008"
-            BuildableName = "SubWatch.app"
-            BlueprintName = "SubWatch"
-            ReferencedContainer = "container:SubWatch.xcodeproj">
+            BuildableName = "SubscBook.app"
+            BlueprintName = "SubscBook"
+            ReferencedContainer = "container:SubscBook.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

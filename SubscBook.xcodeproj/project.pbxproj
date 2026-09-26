@@ -12,25 +12,25 @@
 			containerPortal = A10000000000000000000001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = A10000000000000000000008;
-			remoteInfo = SubWatch;
+			remoteInfo = SubscBook;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		A1000000000000000000001B /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Products.storekit; sourceTree = "<group>"; };
-		A10000000000000000000006 /* SubWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SubWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A10000000000000000000007 /* SubWatchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SubWatchTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000006 /* SubscBook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SubscBook.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000007 /* SubscBookTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SubscBookTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		A10000000000000000000004 /* SubWatch */ = {
+		A10000000000000000000004 /* SubscBook */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SubWatch;
+			path = SubscBook;
 			sourceTree = "<group>";
 		};
-		A10000000000000000000005 /* SubWatchTests */ = {
+		A10000000000000000000005 /* SubscBookTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SubWatchTests;
+			path = SubscBookTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -56,8 +56,8 @@
 		A10000000000000000000002 = {
 			isa = PBXGroup;
 			children = (
-				A10000000000000000000004 /* SubWatch */,
-				A10000000000000000000005 /* SubWatchTests */,
+				A10000000000000000000004 /* SubscBook */,
+				A10000000000000000000005 /* SubscBookTests */,
 				A1000000000000000000001B /* Products.storekit */,
 				A10000000000000000000003 /* Products */,
 			);
@@ -66,8 +66,8 @@
 		A10000000000000000000003 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A10000000000000000000006 /* SubWatch.app */,
-				A10000000000000000000007 /* SubWatchTests.xctest */,
+				A10000000000000000000006 /* SubscBook.app */,
+				A10000000000000000000007 /* SubscBookTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -75,9 +75,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A10000000000000000000008 /* SubWatch */ = {
+		A10000000000000000000008 /* SubscBook */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A10000000000000000000015 /* Build configuration list for PBXNativeTarget "SubWatch" */;
+			buildConfigurationList = A10000000000000000000015 /* Build configuration list for PBXNativeTarget "SubscBook" */;
 			buildPhases = (
 				A1000000000000000000000A /* Sources */,
 				A1000000000000000000000B /* Frameworks */,
@@ -88,18 +88,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				A10000000000000000000004 /* SubWatch */,
+				A10000000000000000000004 /* SubscBook */,
 			);
-			name = SubWatch;
+			name = SubscBook;
 			packageProductDependencies = (
 			);
-			productName = SubWatch;
-			productReference = A10000000000000000000006 /* SubWatch.app */;
+			productName = SubscBook;
+			productReference = A10000000000000000000006 /* SubscBook.app */;
 			productType = "com.apple.product-type.application";
 		};
-		A10000000000000000000009 /* SubWatchTests */ = {
+		A10000000000000000000009 /* SubscBookTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A10000000000000000000018 /* Build configuration list for PBXNativeTarget "SubWatchTests" */;
+			buildConfigurationList = A10000000000000000000018 /* Build configuration list for PBXNativeTarget "SubscBookTests" */;
 			buildPhases = (
 				A1000000000000000000000D /* Sources */,
 				A1000000000000000000000E /* Frameworks */,
@@ -111,13 +111,13 @@
 				A10000000000000000000011 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				A10000000000000000000005 /* SubWatchTests */,
+				A10000000000000000000005 /* SubscBookTests */,
 			);
-			name = SubWatchTests;
+			name = SubscBookTests;
 			packageProductDependencies = (
 			);
-			productName = SubWatchTests;
-			productReference = A10000000000000000000007 /* SubWatchTests.xctest */;
+			productName = SubscBookTests;
+			productReference = A10000000000000000000007 /* SubscBookTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -139,7 +139,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A10000000000000000000012 /* Build configuration list for PBXProject "SubWatch" */;
+			buildConfigurationList = A10000000000000000000012 /* Build configuration list for PBXProject "SubscBook" */;
 			developmentRegion = ja;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -153,8 +153,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A10000000000000000000008 /* SubWatch */,
-				A10000000000000000000009 /* SubWatchTests */,
+				A10000000000000000000008 /* SubscBook */,
+				A10000000000000000000009 /* SubscBookTests */,
 			);
 		};
 /* End PBXProject section */
@@ -196,7 +196,7 @@
 /* Begin PBXTargetDependency section */
 		A10000000000000000000011 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A10000000000000000000008 /* SubWatch */;
+			target = A10000000000000000000008 /* SubscBook */;
 			targetProxy = A10000000000000000000010 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -342,7 +342,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.hachimaki.SubWatch;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hachimaki.SubscBook;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -375,7 +375,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.hachimaki.SubWatch;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hachimaki.SubscBook;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -395,7 +395,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.hachimaki.SubWatchTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hachimaki.SubscBookTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -404,7 +404,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SubWatch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SubWatch";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SubscBook.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SubscBook";
 			};
 			name = Debug;
 		};
@@ -416,7 +416,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.hachimaki.SubWatchTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hachimaki.SubscBookTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -425,14 +425,14 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SubWatch.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SubWatch";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SubscBook.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SubscBook";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A10000000000000000000012 /* Build configuration list for PBXProject "SubWatch" */ = {
+		A10000000000000000000012 /* Build configuration list for PBXProject "SubscBook" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A10000000000000000000013 /* Debug */,
@@ -441,7 +441,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A10000000000000000000015 /* Build configuration list for PBXNativeTarget "SubWatch" */ = {
+		A10000000000000000000015 /* Build configuration list for PBXNativeTarget "SubscBook" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A10000000000000000000016 /* Debug */,
@@ -450,7 +450,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A10000000000000000000018 /* Build configuration list for PBXNativeTarget "SubWatchTests" */ = {
+		A10000000000000000000018 /* Build configuration list for PBXNativeTarget "SubscBookTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A10000000000000000000019 /* Debug */,

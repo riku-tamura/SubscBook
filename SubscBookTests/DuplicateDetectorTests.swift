@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import SubWatch
+@testable import SubscBook
 
 @Suite("重複の検出（5.4）")
 struct DuplicateDetectorTests {

@@ -43,7 +43,7 @@ nonisolated struct FoundationModelInsightService: InsightService {
     static let reasonOptions = GenerationOptions(temperature: 0.5, maximumResponseTokens: 200)
 
     private let fallback = TemplateInsightService()
-    private static let logger = Logger(subsystem: "com.hachimaki.SubWatch", category: "Insight")
+    private static let logger = Logger(subsystem: "com.hachimaki.SubscBook", category: "Insight")
 
     func monthlyComment(for facts: MonthlyInsightFacts) async -> InsightResult {
         let prompt = """

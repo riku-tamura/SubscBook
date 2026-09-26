@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 import Testing
-@testable import SubWatch
+@testable import SubscBook
 
 @Suite("次回支払日の更新（5.2）")
 struct PaymentDateCalculatorTests {

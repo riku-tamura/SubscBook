@@ -5,7 +5,7 @@ import StoreKit
 /// 見張り番プラスの商品（7章）
 nonisolated enum StoreProducts {
     /// Product ID の接頭辞。Bundle ID を変えた場合はここと Products.storekit を合わせて変更する。
-    static let prefix = "com.hachimaki.SubWatch"
+    static let prefix = "com.hachimaki.SubscBook"
     static let monthly = "\(prefix).premium.monthly"
     static let yearly = "\(prefix).premium.yearly"
     /// 表示順（年額を上に）

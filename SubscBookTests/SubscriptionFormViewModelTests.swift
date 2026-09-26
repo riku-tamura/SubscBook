@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 import Testing
-@testable import SubWatch
+@testable import SubscBook
 
 @Suite("登録・編集フォーム")
 struct SubscriptionFormViewModelTests {

@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import SubWatch
+@testable import SubscBook
 
 @Suite("通知の予定（9章）")
 struct NotificationPlannerTests {
