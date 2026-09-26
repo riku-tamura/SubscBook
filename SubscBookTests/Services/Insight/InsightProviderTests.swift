@@ -126,4 +126,19 @@ struct InsightProviderTests {
         _ = await provider.cancelReason(for: reasonFacts, now: date(2026, 9, 2), calendar: .tokyo)
         #expect(service.calls.withLock { $0 } == 1)
     }
+
+    @Test("データの全削除の後は、生成中だったコメントを保存しない")
+    func clearCacheDropsInFlightResults() async {
+        let service = StubInsightService(isGenerated: true, delay: .milliseconds(200))
+        let provider = InsightProvider(service: service, cache: makeCache(), availability: .available)
+
+        async let pending = provider.monthlyComment(for: facts, now: date(2026, 9, 1), calendar: .tokyo)
+        try? await Task.sleep(for: .milliseconds(50))
+        provider.clearCache()
+        _ = await pending
+
+        // 保存されていないので、もう一度求めると生成し直す
+        _ = await provider.monthlyComment(for: facts, now: date(2026, 9, 1), calendar: .tokyo)
+        #expect(service.calls.withLock { $0 } == 2)
+    }
 }

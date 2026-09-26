@@ -14,7 +14,7 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform=iOS Simulator,name=iPhone 17' test -only-testing:SubscBookTests/NotificationPlannerTests
 ```
 
-今は 141件（32スイート）で、数秒で終わります。
+今は 142件（32スイート）で、数秒で終わります。
 
 ## 方針
 

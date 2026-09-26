@@ -10,6 +10,8 @@ final class InsightProvider {
     @ObservationIgnored private var service: any InsightService
     @ObservationIgnored private let cache: InsightCache
     @ObservationIgnored private var inFlight: [String: Task<InsightResult, Never>] = [:]
+    /// キャッシュを消した回数。生成中にデータの全削除があった場合に、終わった生成の結果を保存しないために使う。
+    @ObservationIgnored private var cacheGeneration = 0
 
     init(cache: InsightCache = InsightCache(), availability: InsightAvailability = .current()) {
         self.cache = cache
@@ -24,8 +26,10 @@ final class InsightProvider {
         self.service = service
     }
 
-    /// データの全削除時に、生成済みのコメントも消す
+    /// データの全削除時に、生成済みのコメントも消す。生成中のものは、終わっても保存しない。
     func clearCache() {
+        cacheGeneration += 1
+        inFlight.removeAll()
         cache.removeAll()
     }
 
@@ -46,13 +50,14 @@ final class InsightProvider {
         if let cached = cache.monthlyComment(for: key) {
             return InsightResult(text: cached, isGenerated: true)
         }
-        return await generate(key: key) { [service, cache] in
-            let result = await service.monthlyComment(for: facts)
-            if result.isGenerated {
-                cache.setMonthlyComment(result.text, for: key, month: month)
-            }
-            return result
+        let generation = cacheGeneration
+        let result = await generate(key: key) { [service] in
+            await service.monthlyComment(for: facts)
         }
+        if result.isGenerated && generation == cacheGeneration {
+            cache.setMonthlyComment(result.text, for: key, month: month)
+        }
+        return result
     }
 
     func cancelReason(for facts: CancelReasonFacts, now: Date = .now, calendar: Calendar = .current) async -> String {
@@ -61,13 +66,14 @@ final class InsightProvider {
         if let cached = cache.cancelReason(for: key) {
             return cached
         }
-        return await generate(key: key) { [service, cache] in
-            let result = await service.cancelReason(for: facts)
-            if result.isGenerated {
-                cache.setCancelReason(result.text, for: key, month: month)
-            }
-            return result
-        }.text
+        let generation = cacheGeneration
+        let result = await generate(key: key) { [service] in
+            await service.cancelReason(for: facts)
+        }
+        if result.isGenerated && generation == cacheGeneration {
+            cache.setCancelReason(result.text, for: key, month: month)
+        }
+        return result.text
     }
 
     /// ホームとレポートが同時に同じコメントを求めても、生成は1回にする
@@ -78,7 +84,10 @@ final class InsightProvider {
         let task = Task { await operation() }
         inFlight[key] = task
         let result = await task.value
-        inFlight[key] = nil
+        // 待っている間にキャッシュが消され、別の生成が始まっていたら、そちらは消さない
+        if inFlight[key] == task {
+            inFlight[key] = nil
+        }
         return result
     }
 
