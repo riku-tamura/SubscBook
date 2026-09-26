@@ -33,12 +33,12 @@ struct CheckInViewModelTests {
         let second = store.addSubscription(name: "B")
         let viewModel = CheckInViewModel(subscriptions: [first, second], now: now, calendar: .tokyo)
 
-        viewModel.answer(used: false, in: store.context, now: now)
+        viewModel.answer(used: false, for: first, in: store.context, now: now)
         #expect(first.checkIn(for: YearMonth("2026-08")!)?.used == false)
         #expect(viewModel.current?.name == "B")
         #expect(viewModel.progress == 0.5)
 
-        viewModel.answer(used: true, in: store.context, now: now)
+        viewModel.answer(used: true, for: second, in: store.context, now: now)
         #expect(second.checkIn(for: YearMonth("2026-08")!)?.used == true)
         #expect(viewModel.isFinished)
         #expect(viewModel.progress == 1)
@@ -50,14 +50,30 @@ struct CheckInViewModelTests {
         let subscription = store.addSubscription(name: "A")
         let viewModel = CheckInViewModel(subscriptions: [subscription, store.addSubscription(name: "B")], now: now, calendar: .tokyo)
 
-        viewModel.answer(used: false, in: store.context, now: now)
+        viewModel.answer(used: false, for: subscription, in: store.context, now: now)
         #expect(viewModel.canGoBack)
         viewModel.goBack()
         #expect(viewModel.current?.name == "A")
-        viewModel.answer(used: true, in: store.context, now: now)
+        viewModel.answer(used: true, for: subscription, in: store.context, now: now)
 
         #expect(subscription.checkIns.count == 1)
         #expect(subscription.checkIn(for: YearMonth("2026-08")!)?.used == true)
+    }
+
+    @Test("表示中でないサブスクへの回答は無視する（スワイプ中にボタンを押した場合など）")
+    func ignoresStaleAnswer() throws {
+        let store = try TestStore()
+        let first = store.addSubscription(name: "A")
+        let second = store.addSubscription(name: "B")
+        let viewModel = CheckInViewModel(subscriptions: [first, second], now: now, calendar: .tokyo)
+
+        viewModel.answer(used: true, for: first, in: store.context, now: now)
+        // A への遅れて届いた回答
+        viewModel.answer(used: false, for: first, in: store.context, now: now)
+
+        #expect(viewModel.current?.name == "B")
+        #expect(second.checkIns.isEmpty)
+        #expect(first.checkIn(for: YearMonth("2026-08")!)?.used == true)
     }
 
     @Test("未回答がなければすぐ完了")
@@ -69,13 +85,20 @@ struct CheckInViewModelTests {
     }
 
     @Test("通知をタップしたときの遷移")
-    func openNotification() {
+    func openNotification() async throws {
         let router = AppRouter()
-        router.paywall = .settings
         router.openNotification(.checkIn)
         #expect(router.selectedTab == .home)
         #expect(router.isCheckInPresented)
-        #expect(router.paywall == nil)
+
+        // シート表示中は閉じてからチェックインを出す
+        let presenting = AppRouter()
+        presenting.paywall = .settings
+        presenting.openNotification(.checkIn)
+        #expect(presenting.paywall == nil)
+        #expect(!presenting.isCheckInPresented)
+        try await Task.sleep(for: AppRouter.sheetDismissDelay + .milliseconds(200))
+        #expect(presenting.isCheckInPresented)
 
         let other = AppRouter()
         other.openNotification(.payment)

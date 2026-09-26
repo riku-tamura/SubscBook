@@ -9,13 +9,10 @@ struct SubscriptionListView: View {
     @Environment(AppRouter.self) private var router
     @Environment(EntitlementManager.self) private var entitlements
 
-    private var sections: SubscriptionListSections {
-        SubscriptionListSections(subscriptions: subscriptions, sortOrder: sortOrder)
-    }
-
     var body: some View {
+        let sections = SubscriptionListSections(subscriptions: subscriptions, sortOrder: sortOrder)
         NavigationStack {
-            content
+            content(sections)
                 .navigationTitle("サブスク一覧")
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
@@ -34,8 +31,7 @@ struct SubscriptionListView: View {
     }
 
     @ViewBuilder
-    private var content: some View {
-        let sections = sections
+    private func content(_ sections: SubscriptionListSections) -> some View {
         if subscriptions.isEmpty {
             ContentUnavailableView {
                 Label("サブスクがありません", systemImage: "tray")

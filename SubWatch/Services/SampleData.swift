@@ -1,6 +1,7 @@
 #if DEBUG
 import Foundation
 import SwiftData
+import SwiftUI
 
 /// 開発用の起動オプション（Scheme の Arguments や simctl launch で指定する）
 enum DebugLaunchOptions {
@@ -8,6 +9,25 @@ enum DebugLaunchOptions {
 
     /// 既存データを消してサンプルデータを入れる
     static let seedsSampleData = arguments.contains("-seedSampleData")
+}
+
+extension View {
+    /// プレビュー用に、アプリと同じ環境（インメモリのデータ）を用意する
+    func previewEnvironment(seeded: Bool = false) -> some View {
+        let container = try! ModelContainer(
+            for: Subscription.self, CheckIn.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        if seeded {
+            try? SampleData.seed(into: container.mainContext)
+        }
+        let entitlements = EntitlementManager()
+        return modelContainer(container)
+            .environment(AppRouter())
+            .environment(entitlements)
+            .environment(NotificationScheduler(modelContainer: container, entitlements: entitlements))
+            .environment(\.locale, .japanese)
+    }
 }
 
 /// 画面確認用のサンプルデータ

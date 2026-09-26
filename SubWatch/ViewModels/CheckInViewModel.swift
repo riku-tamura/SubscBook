@@ -33,8 +33,10 @@ final class CheckInViewModel {
         "\(min(index + 1, queue.count)) / \(queue.count)"
     }
 
-    func answer(used: Bool, in context: ModelContext, now: Date = .now) {
-        guard let current else { return }
+    /// `subscription` への回答を記録して次へ進む。
+    /// すでに別のサブスクに進んでいる場合（スワイプ中にボタンを押したなど）は何もしない。
+    func answer(used: Bool, for subscription: Subscription, in context: ModelContext, now: Date = .now) {
+        guard let current, current.id == subscription.id else { return }
         current.recordCheckIn(for: month, used: used, at: now)
         try? context.save()
         index += 1

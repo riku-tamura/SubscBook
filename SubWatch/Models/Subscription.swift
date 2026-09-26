@@ -116,6 +116,15 @@ extension Subscription {
         status = .canceled
         canceledAt = date
     }
+
+    /// 契約中に戻す。解約中に過ぎた支払日は今日以降に進める。
+    func reactivate(now: Date = .now, calendar: Calendar = .current) {
+        status = .active
+        canceledAt = nil
+        nextPaymentDate = PaymentDateCalculator.advancedPaymentDate(
+            from: nextPaymentDate, cycle: cycle, billingDay: billingDay, now: now, calendar: calendar
+        )
+    }
 }
 
 // MARK: - チェックイン

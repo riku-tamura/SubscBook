@@ -36,16 +36,27 @@ final class AppRouter {
     /// 通知をタップして起動したときの遷移
     func openNotification(_ kind: PlannedNotification.Kind?) {
         guard let kind else { return }
+        let wasPresentingSheet = subscriptionForm != nil || paywall != nil
         subscriptionForm = nil
         paywall = nil
         switch kind {
         case .checkIn:
             selectedTab = .home
-            isCheckInPresented = true
+            if wasPresentingSheet {
+                // シートを閉じるアニメーション中は全画面表示が無視されるため、閉じ終わってから出す
+                Task {
+                    try? await Task.sleep(for: Self.sheetDismissDelay)
+                    isCheckInPresented = true
+                }
+            } else {
+                isCheckInPresented = true
+            }
         case .payment, .trial:
             selectedTab = .list
         }
     }
+
+    static let sheetDismissDelay: Duration = .milliseconds(600)
 }
 
 enum SubscriptionFormRoute: Identifiable {

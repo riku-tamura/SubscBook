@@ -15,11 +15,12 @@ struct SubscriptionFormView: View {
     @State private var errorMessage: String?
     /// 削除後に、削除済みのモデルを描画しないためのフラグ
     @State private var isDeleted = false
+    /// 金額欄の表示文字列。数字以外を取り除いた結果を必ず表示に反映するため、ViewModel とは別に持つ。
+    @State private var priceInput: String
     @FocusState private var focusedField: Field?
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(EntitlementManager.self) private var entitlements
-    @Environment(NotificationScheduler.self) private var notifications
 
     private enum Field {
         case name
@@ -27,7 +28,9 @@ struct SubscriptionFormView: View {
     }
 
     init(mode: SubscriptionFormViewModel.Mode, isEmbedded: Bool = false, onFinish: (() -> Void)? = nil) {
-        _viewModel = State(initialValue: SubscriptionFormViewModel(mode: mode))
+        let viewModel = SubscriptionFormViewModel(mode: mode)
+        _viewModel = State(initialValue: viewModel)
+        _priceInput = State(initialValue: viewModel.priceText)
         self.isEmbedded = isEmbedded
         self.onFinish = onFinish
     }
@@ -119,10 +122,13 @@ struct SubscriptionFormView: View {
         Section {
             HStack {
                 Text("金額")
-                TextField("0", text: Binding(
-                    get: { viewModel.priceText },
-                    set: { viewModel.updatePriceText($0) }
-                ))
+                TextField("0", text: $priceInput)
+                .onChange(of: priceInput) { _, newValue in
+                    viewModel.updatePriceText(newValue)
+                    if priceInput != viewModel.priceText {
+                        priceInput = viewModel.priceText
+                    }
+                }
                 .keyboardType(.numberPad)
                 .multilineTextAlignment(.trailing)
                 .focused($focusedField, equals: .price)
@@ -191,10 +197,12 @@ struct SubscriptionFormView: View {
 
     private var deleteSection: some View {
         Section {
-            Button("削除", systemImage: "trash", role: .destructive) {
+            Button(role: .destructive) {
                 isConfirmingDelete = true
+            } label: {
+                Label("削除", systemImage: "trash")
+                    .foregroundStyle(.red)
             }
-            .tint(.red)
             .confirmationDialog(
                 "このサブスクを削除しますか？",
                 isPresented: $isConfirmingDelete,
@@ -219,6 +227,7 @@ struct SubscriptionFormView: View {
     }
 
     private func cancelSubscription(_ subscription: Subscription) {
+        applyPendingEdits()
         subscription.cancel()
         persistAndFinish()
     }
@@ -229,14 +238,15 @@ struct SubscriptionFormView: View {
             isPaywallPresented = true
             return
         }
-        subscription.status = .active
-        subscription.canceledAt = nil
-        subscription.nextPaymentDate = PaymentDateCalculator.advancedPaymentDate(
-            from: subscription.nextPaymentDate,
-            cycle: subscription.cycle,
-            billingDay: subscription.billingDay
-        )
+        applyPendingEdits()
+        subscription.reactivate()
         persistAndFinish()
+    }
+
+    /// 解約・再開の前に、フォームで編集中の内容（金額の修正など）を反映する
+    private func applyPendingEdits() {
+        guard viewModel.canSave else { return }
+        _ = try? viewModel.save(in: modelContext)
     }
 
     private func delete() {
@@ -256,7 +266,6 @@ struct SubscriptionFormView: View {
     }
 
     private func finish() {
-        notifications.reschedule()
         onFinish?()
         if !isEmbedded {
             dismiss()
@@ -268,7 +277,5 @@ struct SubscriptionFormView: View {
     NavigationStack {
         SubscriptionFormView(mode: .add)
     }
-    .modelContainer(for: [Subscription.self, CheckIn.self], inMemory: true)
-    .environment(EntitlementManager())
-    .environment(AppRouter())
+    .previewEnvironment()
 }

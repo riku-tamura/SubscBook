@@ -61,7 +61,7 @@ private struct CheckInFlow: View {
                     Spacer(minLength: 0)
                     CheckInCard(subscription: subscription, month: viewModel.month) { used in
                         withAnimation(.snappy) {
-                            viewModel.answer(used: used, in: modelContext)
+                            viewModel.answer(used: used, for: subscription, in: modelContext)
                         }
                     }
                     .id(subscription.id)
@@ -89,6 +89,8 @@ private struct CheckInCard: View {
     let onAnswer: (Bool) -> Void
 
     @State private var offset: CGSize = .zero
+    /// スワイプで回答を確定し、カードが画面外へ出ていく間は他の操作を受け付けない
+    @State private var isAnswering = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// この距離を超えてスワイプしたら回答する
@@ -109,6 +111,7 @@ private struct CheckInCard: View {
                 HStack(spacing: 12) { answerButtons }
                 VStack(spacing: 12) { answerButtons }
             }
+            .disabled(isAnswering)
         }
     }
 
@@ -179,11 +182,16 @@ private struct CheckInCard: View {
 
     private var dragGesture: some Gesture {
         DragGesture()
-            .onChanged { offset = $0.translation }
+            .onChanged { value in
+                guard !isAnswering else { return }
+                offset = value.translation
+            }
             .onEnded { value in
+                guard !isAnswering else { return }
                 let width = value.translation.width
                 if abs(width) > threshold {
                     let used = width > 0
+                    isAnswering = true
                     withAnimation(.easeIn(duration: 0.2)) {
                         offset = CGSize(width: used ? 600 : -600, height: value.translation.height)
                     }

@@ -14,10 +14,26 @@ final class NotificationScheduler {
     @ObservationIgnored private let modelContainer: ModelContainer
     @ObservationIgnored private let entitlements: EntitlementManager
     @ObservationIgnored private var rescheduleTask: Task<Void, Never>?
+    @ObservationIgnored private var saveObserver: (any NSObjectProtocol)?
 
     init(modelContainer: ModelContainer, entitlements: EntitlementManager) {
         self.modelContainer = modelContainer
         self.entitlements = entitlements
+        // サブスクの追加・編集・削除・解約はすべて保存を伴うので、保存のたびに登録し直す。
+        // 呼び出し側ごとに reschedule() を書かなくても通知が古いまま残らないようにする。
+        saveObserver = NotificationCenter.default.addObserver(
+            forName: ModelContext.didSave, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.reschedule()
+            }
+        }
+    }
+
+    isolated deinit {
+        if let saveObserver {
+            NotificationCenter.default.removeObserver(saveObserver)
+        }
     }
 
     var isAuthorized: Bool {
@@ -43,11 +59,14 @@ final class NotificationScheduler {
         authorizationStatus = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
     }
 
-    /// サブスクの追加・編集・削除・解約、購読状態や通知設定の変化の後に呼ぶ。
-    /// 続けて呼ばれた場合は最後の1回だけ実行する。
+    /// 通知を登録し直す。データの保存時は自動で呼ばれるので、購読状態や通知設定の変化、
+    /// フォアグラウンド復帰時に呼ぶ。続けて呼ばれた場合は最後の1回だけ実行する。
     func reschedule() {
-        rescheduleTask?.cancel()
+        let previous = rescheduleTask
+        previous?.cancel()
         rescheduleTask = Task {
+            // 実行中の登録が止まるのを待ってから始める（古い予定が後から追加されないように）
+            await previous?.value
             try? await Task.sleep(for: .milliseconds(300))
             guard !Task.isCancelled else { return }
             await performReschedule()
@@ -56,6 +75,7 @@ final class NotificationScheduler {
 
     private func performReschedule() async {
         await refreshAuthorizationStatus()
+        guard !Task.isCancelled else { return }
         let center = UNUserNotificationCenter.current()
         center.removeAllPendingNotificationRequests()
         guard isAuthorized else { return }
@@ -69,6 +89,8 @@ final class NotificationScheduler {
             preferences: .load()
         )
         for notification in plan {
+            // 新しい予定で登録し直すため中断する
+            guard !Task.isCancelled else { return }
             try? await center.add(request(for: notification))
         }
     }

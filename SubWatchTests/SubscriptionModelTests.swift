@@ -31,6 +31,19 @@ struct SubscriptionModelTests {
         #expect(subscription.canceledAt == date(2026, 9, 26))
     }
 
+    @Test("契約中に戻すと解約日を消し、過ぎた支払日を進める")
+    func reactivate() throws {
+        let store = try TestStore()
+        let subscription = store.addSubscription(nextPaymentDate: date(2026, 5, 31))
+        subscription.cancel(at: date(2026, 5, 20))
+
+        subscription.reactivate(now: date(2026, 9, 26), calendar: .tokyo)
+
+        #expect(subscription.status == .active)
+        #expect(subscription.canceledAt == nil)
+        #expect(subscription.nextPaymentDate == date(2026, 9, 30))
+    }
+
     @Test("activePredicate は有効なサブスクだけを取得する")
     func activePredicate() throws {
         let store = try TestStore()
