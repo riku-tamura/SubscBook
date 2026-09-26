@@ -26,6 +26,22 @@ struct SettingsViewModelTests {
         #expect(viewModel.deletionMessage == "すべてのデータを削除しました。")
     }
 
+    @Test("無料期間中は、課金が始まる日だとわかる表記にする", arguments: [
+        (true, true, "無料期間の終了日", true),
+        (true, false, "無料期間の終了日", true),
+        (false, true, "次回の更新日", false),
+        (false, false, "有効期限", true),
+    ])
+    func expirationWording(isInFreeTrial: Bool, willAutoRenew: Bool, label: String, hasNote: Bool) {
+        let plan = EntitlementManager.ActivePlan(
+            productID: PremiumProducts.yearly, expirationDate: date(2026, 10, 3),
+            willAutoRenew: willAutoRenew, isInFreeTrial: isInFreeTrial
+        )
+        let viewModel = SettingsViewModel()
+        #expect(viewModel.expirationLabel(for: plan) == label)
+        #expect((viewModel.renewalNote(for: plan) != nil) == hasNote)
+    }
+
     @Test("未加入のときのプラン名とバージョンの表記")
     func planNameAndVersion() {
         let viewModel = SettingsViewModel()

@@ -9,7 +9,7 @@ final class InsightProvider {
 
     @ObservationIgnored private var service: any InsightService
     @ObservationIgnored private let cache: InsightCache
-    @ObservationIgnored private var inFlight: [String: Task<String, Never>] = [:]
+    @ObservationIgnored private var inFlight: [String: Task<InsightResult, Never>] = [:]
 
     init(cache: InsightCache = InsightCache(), availability: InsightAvailability = .current()) {
         self.cache = cache
@@ -37,18 +37,21 @@ final class InsightProvider {
         service = Self.makeService(for: latest)
     }
 
-    func monthlyComment(for facts: MonthlyInsightFacts, now: Date = .now, calendar: Calendar = .current) async -> String {
+    /// 月次のひとこと。AI で作れたか（isGenerated）も返すので、画面で「Apple Intelligence で作成」と示せる。
+    func monthlyComment(for facts: MonthlyInsightFacts, now: Date = .now, calendar: Calendar = .current) async -> InsightResult {
         let month = YearMonth(date: now, calendar: calendar)
-        let key = "\(month.key)|\(facts.cacheKey)"
+        // AI は定型の文を言い換えるだけなので、元の文が同じ（伝える内容が同じ）なら今月作ったものを使う
+        let key = "\(month.key)|\(TemplateInsightService.monthlyText(for: facts))"
+        // キャッシュには AI で作れたものだけを入れている
         if let cached = cache.monthlyComment(for: key) {
-            return cached
+            return InsightResult(text: cached, isGenerated: true)
         }
         return await generate(key: key) { [service, cache] in
             let result = await service.monthlyComment(for: facts)
             if result.isGenerated {
                 cache.setMonthlyComment(result.text, for: key, month: month)
             }
-            return result.text
+            return result
         }
     }
 
@@ -63,20 +66,20 @@ final class InsightProvider {
             if result.isGenerated {
                 cache.setCancelReason(result.text, for: key, month: month)
             }
-            return result.text
-        }
+            return result
+        }.text
     }
 
     /// ホームとレポートが同時に同じコメントを求めても、生成は1回にする
-    private func generate(key: String, operation: @escaping () async -> String) async -> String {
+    private func generate(key: String, operation: @escaping () async -> InsightResult) async -> InsightResult {
         if let task = inFlight[key] {
             return await task.value
         }
         let task = Task { await operation() }
         inFlight[key] = task
-        let text = await task.value
+        let result = await task.value
         inFlight[key] = nil
-        return text
+        return result
     }
 
     private static func makeService(for availability: InsightAvailability) -> any InsightService {

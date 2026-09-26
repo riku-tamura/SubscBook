@@ -1,6 +1,6 @@
 import Foundation
 
-/// AI の月次振り返りに渡す事実（8.2）。数値の計算・判定は済ませてあり、AI には文章化だけを任せる。
+/// 月次のひとことを決めるための事実（8.2）。何を伝えるかはアプリが決め（定型の文）、AI には言い換えだけを任せる。
 nonisolated struct MonthlyInsightFacts: Hashable, Sendable {
     let activeCount: Int
     let trend: SpendingTrend
@@ -32,42 +32,15 @@ nonisolated struct MonthlyInsightFacts: Hashable, Sendable {
         !duplicateCategories.isEmpty || hiddenDuplicateCount > 0
     }
 
-    /// AI に渡す箇条書き。AI が数値をまねて書かないよう、件数などの数値は含めない。
-    var promptLines: [String] {
-        var lines: [String] = []
-        switch trend {
-        case .increased: lines.append("支払いの合計は先月より増えた")
-        case .decreased: lines.append("支払いの合計は先月より減った")
-        case .unchanged: lines.append("支払いの合計は先月と変わらない")
-        case .unknown: lines.append("先月と比べられるデータはまだない")
+    /// 事実にない話題の語。AI の文に含まれていたら使わない（例：解約候補がないのに「使っていない」と書く）。
+    var contradictingTerms: [String] {
+        var terms: [String] = []
+        if !hasCancelCandidates {
+            terms += ["使っていない", "利用していない"]
         }
-        if !cancelCandidates.isEmpty {
-            lines += cancelCandidates.map { "\($0.name) をしばらく使っていない" }
-        } else if hiddenCancelCandidateCount > 0 {
-            lines.append("しばらく使っていないサブスクがある")
-        } else {
-            lines.append("使っていないサブスクはない")
+        if !hasDuplicates {
+            terms += ["重な", "重複"]
         }
-        if !duplicateCategories.isEmpty {
-            lines += duplicateCategories.map { "\($0.categoryName)のサブスクが重なっている" }
-        } else if hiddenDuplicateCount > 0 {
-            lines.append("同じジャンルで重なっているサブスクがある")
-        } else {
-            lines.append("重なっているジャンルはない")
-        }
-        if canceledThisMonthCount > 0 {
-            lines.append("今月サブスクを解約した")
-        }
-        return lines.map { "- \($0)" }
-    }
-
-    /// 出力に含まれてもよい固有名詞（数字を含むサービス名など）
-    var allowedTerms: [String] {
-        cancelCandidates.map(\.name) + duplicateCategories.map(\.categoryName)
-    }
-
-    /// キャッシュの判定に使う。事実が変わったときだけ作り直す。
-    var cacheKey: String {
-        promptLines.joined(separator: "\n")
+        return terms
     }
 }

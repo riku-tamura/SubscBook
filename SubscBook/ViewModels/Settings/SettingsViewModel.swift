@@ -25,6 +25,26 @@ final class SettingsViewModel {
         return plan.isYearly ? "年額プラン" : "月額プラン"
     }
 
+    /// 期限の日付に付ける見出し。無料期間中は、課金が始まる日だとわかるようにする。
+    func expirationLabel(for plan: EntitlementManager.ActivePlan) -> String {
+        if plan.isInFreeTrial { return "無料期間の終了日" }
+        return plan.willAutoRenew ? "次回の更新日" : "有効期限"
+    }
+
+    /// 期限の後にどうなるかの説明（通常の自動更新中は表示しない）
+    func renewalNote(for plan: EntitlementManager.ActivePlan) -> String? {
+        switch (plan.isInFreeTrial, plan.willAutoRenew) {
+        case (true, true):
+            "無料期間が終わると、自動で有料プランに切り替わります。続けない場合は、終了日の24時間前までに解約してください。"
+        case (true, false):
+            "自動更新はオフです。無料期間が終わると、無料プランに戻ります。"
+        case (false, false):
+            "自動更新はオフです。有効期限を過ぎると、無料プランに戻ります。"
+        case (false, true):
+            nil
+        }
+    }
+
     func restorePurchases(using entitlements: EntitlementManager) async {
         isRestoring = true
         defer { isRestoring = false }

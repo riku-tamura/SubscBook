@@ -27,7 +27,7 @@ struct HomeView: View {
                             annualTotal: summary.annualTotal,
                             activeCount: summary.activeCount
                         )
-                        InsightCard(comment: viewModel.insight.comment)
+                        InsightCard(comment: viewModel.insight.comment, isGenerated: viewModel.insight.isCommentGenerated)
                         if !summary.cancelSuggestions.isEmpty {
                             HomeCancelSuggestionsCard(suggestions: summary.cancelSuggestions, reasons: viewModel.insight.cancelReasons)
                         }
@@ -59,7 +59,7 @@ struct HomeView: View {
                 .font(.system(size: 56))
                 .foregroundStyle(Color.accentColor)
                 .accessibilityHidden(true)
-            Text("サブスクを登録して、見張りを始めましょう")
+            Text("サブスクを登録して、1冊にまとめましょう")
                 .font(.headline)
                 .multilineTextAlignment(.center)
             Text("支払日の前日にお知らせし、毎月の合計を見える化します。データは端末の外に出ません。")

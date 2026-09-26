@@ -10,6 +10,8 @@ struct SubscriptionFormView: View {
 
     @State private var viewModel: SubscriptionFormViewModel
     @State private var isConfirmingCancel = false
+    /// 解約日のシートで選んだ日（シートが閉じてから記録する）
+    @State private var pendingCancelDate: Date?
     @State private var isConfirmingDelete = false
     @State private var isPaywallPresented = false
     @State private var errorMessage: String?
@@ -149,7 +151,13 @@ struct SubscriptionFormView: View {
         } header: {
             Text("支払い")
         } footer: {
-            Text("過去の日付を入れた場合は、次の支払日に自動で進めます。")
+            VStack(alignment: .leading, spacing: 6) {
+                // 保存ボタンが押せない理由を示す
+                if let message = viewModel.validationMessage {
+                    Label(message, systemImage: "info.circle")
+                }
+                Text("過去の日付を入れた場合は、次の支払日に自動で進めます。")
+            }
         }
     }
 
@@ -172,14 +180,15 @@ struct SubscriptionFormView: View {
                 Button("解約した", systemImage: "scissors") {
                     isConfirmingCancel = true
                 }
-                .confirmationDialog(
-                    "「\(subscription.name)」を解約済みにしますか？",
-                    isPresented: $isConfirmingCancel,
-                    titleVisibility: .visible
-                ) {
-                    Button("解約済みにする") { cancelSubscription(subscription) }
-                } message: {
-                    Text("年間\(subscription.annualCost.yenText)の節約として記録します。")
+                .sheet(isPresented: $isConfirmingCancel, onDismiss: {
+                    // シートが閉じてから記録し、この画面を閉じる
+                    guard let date = pendingCancelDate else { return }
+                    pendingCancelDate = nil
+                    cancelSubscription(subscription, at: date)
+                }) {
+                    SubscriptionFormCancelSheet(subscription: subscription) { date in
+                        pendingCancelDate = date
+                    }
                 }
             } else {
                 Button("契約中に戻す", systemImage: "arrow.uturn.backward") {
@@ -226,9 +235,9 @@ struct SubscriptionFormView: View {
         }
     }
 
-    private func cancelSubscription(_ subscription: Subscription) {
+    private func cancelSubscription(_ subscription: Subscription, at date: Date) {
         applyPendingEdits()
-        subscription.cancel()
+        subscription.cancel(at: date)
         persistAndFinish()
     }
 

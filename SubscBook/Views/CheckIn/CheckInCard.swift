@@ -30,6 +30,12 @@ struct CheckInCard: View {
                 VStack(spacing: 12) { answerButtons }
             }
             .disabled(isAnswering)
+
+            Text("カードを左右にスワイプしても答えられます")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                // VoiceOver ではカードの操作（使った・使っていない）で答えられる
+                .accessibilityHidden(true)
         }
     }
 

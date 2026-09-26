@@ -17,10 +17,10 @@ struct SettingsPremiumSection: View {
                         LabeledContent("状態", value: "無料トライアル中")
                     }
                     if let expirationDate = plan.expirationDate {
-                        LabeledContent(plan.willAutoRenew ? "次回の更新日" : "有効期限", value: expirationDate.fullDateText)
+                        LabeledContent(viewModel.expirationLabel(for: plan), value: expirationDate.fullDateText)
                     }
                 }
-                Button("サブスクリプションを管理") {
+                Button("サブスク帳プラスの契約を管理") {
                     isManagingSubscription = true
                 }
             } else {
@@ -50,6 +50,10 @@ struct SettingsPremiumSection: View {
             .disabled(viewModel.isRestoring)
         } header: {
             Text("サブスク帳プラス")
+        } footer: {
+            if entitlements.isPremium, let plan = entitlements.activePlan, let note = viewModel.renewalNote(for: plan) {
+                Text(note)
+            }
         }
         .manageSubscriptionsSheet(isPresented: $isManagingSubscription)
         .alert("購入の復元", isPresented: Binding(

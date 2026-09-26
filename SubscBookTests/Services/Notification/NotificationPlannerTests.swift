@@ -119,6 +119,28 @@ struct NotificationPlannerTests {
         #expect(checkIn.trigger == .monthly(day: 1, hour: 20))
     }
 
+    @Test("登録して1ヶ月たっていないサブスクしかない場合は、聞けるようになる月の1日だけに通知する")
+    func checkInReminderForNewUser() throws {
+        let store = try TestStore()
+        // 9/26 に登録 → 10/1 は登録から1ヶ月未満なので聞かず、11/1 から聞く
+        let subscription = store.addSubscription(createdAt: date(2026, 9, 26, 9))
+
+        let checkIn = try #require(plan([subscription]).first { $0.kind == .checkIn })
+
+        #expect(checkIn.trigger == .once(date(2026, 11, 1, 20)))
+    }
+
+    @Test("次の1日に聞けるサブスクがあれば、毎月の繰り返しにする")
+    func checkInReminderRepeatsWhenEligible() throws {
+        let store = try TestStore()
+        // 8/30 に登録 → 10/1 には登録から1ヶ月たっている
+        let subscription = store.addSubscription(createdAt: date(2026, 8, 30))
+
+        let checkIn = try #require(plan([subscription]).first { $0.kind == .checkIn })
+
+        #expect(checkIn.trigger == .monthly(day: 1, hour: 20))
+    }
+
     @Test("設定でオフにした通知は登録しない")
     func respectsPreferences() throws {
         let store = try TestStore()

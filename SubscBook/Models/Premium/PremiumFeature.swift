@@ -24,9 +24,9 @@ nonisolated enum PremiumFeature: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .unlimitedSubscriptions: "無料プランの5件を超えて登録できます"
         case .trialReminders: "終了の3日前と前日にお知らせします"
-        case .cancelSuggestions: "使っていないサブスクを理由付きでお知らせします"
+        case .cancelSuggestions: "チェックインで「使っていない」が続くサブスクを、理由付きでお知らせします"
         case .duplicateDetection: "同じジャンルで重なっているサブスクを見つけます"
-        case .savingsReport: "解約で浮いた金額をまとめて、画像でシェアできます"
+        case .savingsReport: "解約で浮くお金をまとめて、画像でシェアできます"
         }
     }
 

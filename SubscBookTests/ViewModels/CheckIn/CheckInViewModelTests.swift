@@ -82,5 +82,20 @@ struct CheckInViewModelTests {
         #expect(viewModel.isFinished)
         #expect(viewModel.progress == 1)
         #expect(!viewModel.canGoBack)
+        #expect(viewModel.emptyReason == .noSubscriptions)
+    }
+
+    @Test("聞くサブスクがない理由：登録から1ヶ月たっていない・回答済み")
+    func emptyReasons() throws {
+        let store = try TestStore()
+        let newSubscription = store.addSubscription(name: "新規", createdAt: date(2026, 9, 20))
+        #expect(CheckInViewModel(subscriptions: [newSubscription], now: now, calendar: .tokyo).emptyReason == .notYetEligible)
+
+        let answered = store.addSubscription(name: "回答済み")
+        answered.recordCheckIn(for: YearMonth("2026-08")!, used: true)
+        #expect(CheckInViewModel(subscriptions: [newSubscription, answered], now: now, calendar: .tokyo).emptyReason == .allAnswered)
+
+        let pending = store.addSubscription(name: "未回答")
+        #expect(CheckInViewModel(subscriptions: [pending], now: now, calendar: .tokyo).emptyReason == nil)
     }
 }

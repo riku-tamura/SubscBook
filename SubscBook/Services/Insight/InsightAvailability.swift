@@ -26,17 +26,17 @@ nonisolated enum InsightAvailability: Equatable, Sendable {
         case .available:
             "Apple Intelligence を使って、端末の中だけでコメントを作成しています。"
         case .unsupportedOS:
-            "AIコメントは iOS 26 以降で利用できます。現在はテンプレートのコメントを表示しています。"
+            "AIコメントは iOS 26 以降で利用できます。現在は定型のコメントを表示しています。"
         case .deviceNotEligible:
-            "この端末は Apple Intelligence に対応していないため、テンプレートのコメントを表示しています。"
+            "この端末は Apple Intelligence に対応していないため、定型のコメントを表示しています。"
         case .appleIntelligenceNotEnabled:
             "Apple Intelligence がオフになっています。設定アプリの「Apple Intelligence と Siri」でオンにすると、AIコメントが使えます。"
         case .modelNotReady:
-            "AIモデルを準備中です。準備ができるまではテンプレートのコメントを表示します。"
+            "AIモデルを準備中です。準備ができるまでは定型のコメントを表示します。"
         case .unsupportedLanguage:
-            "現在の設定では AIコメントを日本語で作成できないため、テンプレートのコメントを表示しています。"
+            "現在の設定では AIコメントを日本語で作成できないため、定型のコメントを表示しています。"
         case .unavailable:
-            "AIコメントを利用できないため、テンプレートのコメントを表示しています。"
+            "AIコメントを利用できないため、定型のコメントを表示しています。"
         }
     }
 

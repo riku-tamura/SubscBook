@@ -2,6 +2,8 @@ import SwiftUI
 
 /// オンボーディングの各ページで共通のレイアウト
 struct OnboardingPageLayout<Content: View>: View {
+    /// 何ページ目か（1から）
+    let step: Int
     let systemImage: String
     let title: String
     let primaryTitle: String
@@ -15,10 +17,12 @@ struct OnboardingPageLayout<Content: View>: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(spacing: 24) {
+                    OnboardingStepIndicator(step: step)
+                        .padding(.top, 16)
                     Image(systemName: systemImage)
                         .font(.system(size: 64))
                         .foregroundStyle(Color.accentColor)
-                        .padding(.top, 48)
+                        .padding(.top, 16)
                         .accessibilityHidden(true)
                     Text(title)
                         .font(.largeTitle.weight(.bold))

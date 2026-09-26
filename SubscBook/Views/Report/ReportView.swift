@@ -23,7 +23,7 @@ struct ReportView: View {
                             description: Text("サブスクを登録すると、月ごとの振り返りが見られます。")
                         )
                     } else {
-                        Text("\(summary.month.fullText)の振り返り")
+                        Text("今月のまとめ（\(summary.month.fullText)）")
                             .font(.headline)
                             .foregroundStyle(.secondary)
                         TotalsCard(
@@ -34,7 +34,11 @@ struct ReportView: View {
                         if !summary.breakdown.isEmpty {
                             ReportCategoryChartCard(breakdown: summary.breakdown)
                         }
-                        InsightCard(title: "AIの月次振り返り", comment: viewModel.insight.comment)
+                        InsightCard(
+                            title: "今月の振り返り",
+                            comment: viewModel.insight.comment,
+                            isGenerated: viewModel.insight.isCommentGenerated
+                        )
                         ReportPremiumSection(
                             summary: summary,
                             cancelReasons: viewModel.insight.cancelReasons,

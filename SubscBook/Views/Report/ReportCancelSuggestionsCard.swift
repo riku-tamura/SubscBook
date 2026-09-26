@@ -12,7 +12,7 @@ struct ReportCancelSuggestionsCard: View {
             CardHeader(title: "解約候補", systemImage: "scissors", tint: .pink)
             Group {
                 if suggestions.isEmpty {
-                    Text("2ヶ月続けて使っていないサブスクはありません。毎月のチェックインで見張りを続けます。")
+                    Text("チェックインで2ヶ月続けて「使っていない」と答えたサブスクはありません。毎月のチェックインで確認していきます。")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 } else {

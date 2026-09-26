@@ -8,11 +8,23 @@ struct HomeCancelSuggestionsCard: View {
     @Environment(AppRouter.self) private var router
     @Environment(EntitlementManager.self) private var entitlements
 
+    /// ホームに出す件数（残りはレポートで見る）
+    static let displayLimit = 3
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            CardHeader(title: "解約候補が\(suggestions.count)件あります", systemImage: "scissors", tint: .pink)
+            HStack {
+                CardHeader(title: "解約候補が\(suggestions.count)件あります", systemImage: "scissors", tint: .pink)
+                Spacer()
+                if suggestions.count > Self.displayLimit {
+                    Button("すべて見る") {
+                        router.selectedTab = .report
+                    }
+                    .font(.subheadline)
+                }
+            }
             VStack(alignment: .leading, spacing: 12) {
-                ForEach(suggestions.prefix(3)) { suggestion in
+                ForEach(suggestions.prefix(Self.displayLimit)) { suggestion in
                     Button {
                         router.edit(suggestion.subscription)
                     } label: {

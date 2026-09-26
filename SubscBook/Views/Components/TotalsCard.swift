@@ -27,7 +27,7 @@ struct TotalsCard: View {
 
     @ViewBuilder
     private var stats: some View {
-        stat(title: "年間", value: annualTotal.yenText)
+        stat(title: "1年あたり", value: annualTotal.yenText)
         stat(title: "契約中", value: "\(activeCount)件")
     }
 

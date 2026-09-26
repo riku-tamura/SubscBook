@@ -6,15 +6,16 @@ struct OnboardingValuePage: View {
 
     var body: some View {
         OnboardingPageLayout(
+            step: 1,
             systemImage: "text.book.closed.fill",
-            title: "あなたのサブスク、\n見張ります",
+            title: "サブスクを、\n1冊にまとめて管理",
             primaryTitle: "はじめる",
             primaryAction: onNext
         ) {
             VStack(alignment: .leading, spacing: 16) {
                 point("calendar.badge.clock", "支払日の前日にお知らせ")
                 point("chart.pie.fill", "毎月・毎年の合計がひと目でわかる")
-                point("scissors", "使っていないサブスクを見つける")
+                point("checklist", "毎月のチェックインで、使っているかを振り返る")
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .card()

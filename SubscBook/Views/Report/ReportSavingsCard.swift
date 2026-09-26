@@ -13,7 +13,7 @@ struct ReportSavingsCard: View {
                 if savings.hasSavings {
                     VStack(alignment: .leading, spacing: 12) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("年間の節約額")
+                            Text("解約で浮くお金（1年あたり）")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                             Text(savings.annualSavings.yenText)
@@ -24,7 +24,9 @@ struct ReportSavingsCard: View {
                                 .foregroundStyle(.green)
                         }
                         .accessibilityElement(children: .combine)
-                        Text("\(savings.canceledCount)件のサブスクを解約し、これまでに\(savings.realizedSavings.yenText)を節約しました。")
+                        Text(savings.realizedSavings > 0
+                             ? "\(savings.canceledCount)件のサブスクを解約し、これまでに\(savings.realizedSavings.yenText)を節約しました。"
+                             : "\(savings.canceledCount)件のサブスクを解約しました。これから毎月、節約した金額が積み上がっていきます。")
                             .font(.subheadline)
                         if let shareImage {
                             ShareLink(

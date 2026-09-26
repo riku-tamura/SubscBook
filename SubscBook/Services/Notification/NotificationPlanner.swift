@@ -33,24 +33,56 @@ enum NotificationPlanner {
             }
         }
 
-        var repeating: [PlannedNotification] = []
-        if preferences.checkInReminder && !active.isEmpty {
-            repeating.append(PlannedNotification(
-                identifier: "checkIn.monthly",
-                kind: .checkIn,
-                title: "月次チェックインの時間です",
-                body: "先月使ったサブスクを振り返って、見張りを続けましょう。",
-                trigger: .monthly(day: checkInDay, hour: checkInHour)
-            ))
+        // チェックインの通知は、支払いの通知が多くても必ず登録する
+        var reserved: [PlannedNotification] = []
+        if preferences.checkInReminder, let checkIn = checkInReminder(for: active, now: now, calendar: calendar) {
+            reserved.append(checkIn)
         }
 
         // 上限を超える場合は直近の予定を優先する
-        let limit = maxPendingRequests - repeating.count
+        let limit = maxPendingRequests - reserved.count
         let nearest = oneShots
             .sorted { $0.date < $1.date }
             .prefix(limit)
             .map(\.notification)
-        return repeating + nearest
+        return reserved + nearest
+    }
+
+    /// 月次チェックインの通知。登録から1ヶ月未満のサブスクは聞かないため、
+    /// 聞くサブスクがある最初の1日から通知する（次の1日から聞ける場合は毎月の繰り返しにする）。
+    private static func checkInReminder(for active: [Subscription], now: Date, calendar: Calendar) -> PlannedNotification? {
+        let dates = upcomingCheckInDates(after: now, count: 13, calendar: calendar)
+        guard let firstDate = dates.first(where: { date in
+            active.contains { CheckInPolicy.isEligible($0, now: date, calendar: calendar) }
+        }) else { return nil }
+
+        let title = "月次チェックインの時間です"
+        let body = "先月どのサブスクを使ったか、1件ずつ答えて振り返りましょう。"
+        if firstDate == dates.first {
+            return PlannedNotification(
+                identifier: "checkIn.monthly", kind: .checkIn, title: title, body: body,
+                trigger: .monthly(day: checkInDay, hour: checkInHour)
+            )
+        }
+        // まだ聞けるサブスクがない月は通知しない。聞けるようになった後にアプリを開くと、毎月の繰り返しに切り替わる。
+        return PlannedNotification(
+            identifier: "checkIn.first", kind: .checkIn, title: title, body: body,
+            trigger: .once(firstDate)
+        )
+    }
+
+    /// `now` より後の「毎月1日 20:00」を近い順に
+    private static func upcomingCheckInDates(after now: Date, count: Int, calendar: Calendar) -> [Date] {
+        var month = YearMonth(date: now, calendar: calendar)
+        var dates: [Date] = []
+        while dates.count < count {
+            let components = DateComponents(year: month.year, month: month.month, day: checkInDay, hour: checkInHour)
+            if let date = calendar.date(from: components), date > now {
+                dates.append(date)
+            }
+            month = month.next
+        }
+        return dates
     }
 
     private static func paymentReminders(

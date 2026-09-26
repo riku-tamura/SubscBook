@@ -11,6 +11,13 @@ struct OnboardingFirstSubscriptionPage: View {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("スキップ", action: onFinish)
                     }
+                    ToolbarItem(placement: .principal) {
+                        VStack(spacing: 4) {
+                            Text("最初のサブスクを登録")
+                                .font(.headline)
+                            OnboardingStepIndicator(step: 3)
+                        }
+                    }
                 }
         }
     }

@@ -24,7 +24,7 @@ struct SettingsDataDeletionSection: View {
                 Text("登録したサブスクとチェックインの記録をすべて削除します。この操作は取り消せません。")
             }
         } footer: {
-            Text("サブスク帳プラスの購読は削除されません。解約は「設定」アプリの「サブスクリプション」から行えます。")
+            Text("サブスク帳プラスの契約は削除されません。解約は「設定」アプリ →（自分の名前）→「サブスクリプション」から行えます。")
         }
         .alert("データの全削除", isPresented: Binding(
             get: { viewModel.deletionMessage != nil },

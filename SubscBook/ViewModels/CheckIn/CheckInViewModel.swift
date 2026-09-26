@@ -5,15 +5,38 @@ import SwiftData
 /// ⑤ 月次チェックイン。前月分が未回答のサブスクを1件ずつ聞く。
 @Observable
 final class CheckInViewModel {
+    /// 聞くサブスクがないときの理由
+    enum EmptyReason: Equatable {
+        /// 契約中のサブスクがない
+        case noSubscriptions
+        /// 登録から1ヶ月たったサブスクがまだない（1ヶ月未満は聞かない）
+        case notYetEligible
+        /// 先月分はすべて回答済み
+        case allAnswered
+    }
+
     let month: YearMonth
     /// 開始時点で未回答だったサブスク（回答しても並びは変えない）
     let queue: [Subscription]
+    /// 開始時点で聞くサブスクがなかった理由（聞くサブスクがある場合は nil）
+    let emptyReason: EmptyReason?
     private(set) var index = 0
 
     init(subscriptions: [Subscription], now: Date = .now, calendar: Calendar = .current) {
         month = CheckInPolicy.targetMonth(now: now, calendar: calendar)
         queue = CheckInPolicy.pendingSubscriptions(in: subscriptions, now: now, calendar: calendar)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+
+        let active = subscriptions.filter(\.isActive)
+        if !queue.isEmpty {
+            emptyReason = nil
+        } else if active.isEmpty {
+            emptyReason = .noSubscriptions
+        } else if !active.contains(where: { CheckInPolicy.isEligible($0, now: now, calendar: calendar) }) {
+            emptyReason = .notYetEligible
+        } else {
+            emptyReason = .allAnswered
+        }
     }
 
     var current: Subscription? {

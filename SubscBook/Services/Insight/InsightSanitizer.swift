@@ -5,7 +5,16 @@ nonisolated enum InsightSanitizer {
     /// 文字数の上限に対する許容量（多少の超過は表示できるので、テンプレートに落とさない）
     static let lengthTolerance = 20
 
-    static func sanitize(_ text: String, maxLength: Int, allowedTerms: [String] = []) -> String? {
+    /// アプリの目的（見直し・節約）と逆に、ほかのサービスを試す・探すようにすすめる表現。
+    /// 指示文で禁止していても端末内モデルが書くことがあるため、含まれていたら使わない。
+    static let forbiddenPhrases = [
+        "新しいサービス", "どんなサービス", "サービスを探", "他のサービス", "契約してみ", "登録してみ", "試してみ", "興味のある",
+    ]
+
+    /// - Parameters:
+    ///   - allowedTerms: 数字・英字を含んでいても使ってよい語（サービス名など）
+    ///   - forbiddenTerms: 事実にない話題の語。含まれていたら使わない。
+    static func sanitize(_ text: String, maxLength: Int, allowedTerms: [String] = [], forbiddenTerms: [String] = []) -> String? {
         var result = text.trimmingCharacters(in: .whitespacesAndNewlines)
         // 前後の括弧・引用符を外す
         let quotePairs: [(Character, Character)] = [("「", "」"), ("『", "』"), ("\"", "\""), ("“", "”")]
@@ -17,6 +26,7 @@ nonisolated enum InsightSanitizer {
             .trimmingCharacters(in: .whitespaces)
 
         guard !result.isEmpty, result.count <= maxLength + lengthTolerance else { return nil }
+        guard !(forbiddenPhrases + forbiddenTerms).contains(where: result.contains) else { return nil }
 
         // サービス名に含まれる数字・英字（例：Microsoft 365）は許可したうえで、
         // 数値・金額や、英単語の混入（日本語で書けていない）がないか確かめる

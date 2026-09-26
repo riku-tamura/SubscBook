@@ -35,7 +35,7 @@ struct SubscriptionListView: View {
             ContentUnavailableView {
                 Label("サブスクがありません", systemImage: "tray")
             } description: {
-                Text("契約中のサブスクを登録すると、支払日や合計金額を見張ります。")
+                Text("契約中のサブスクを登録すると、支払日や合計金額をまとめて確認できます。")
             } actions: {
                 Button("サブスクを登録") {
                     router.requestNewSubscription(activeCount: 0, isPremium: entitlements.isPremium)
@@ -46,7 +46,7 @@ struct SubscriptionListView: View {
             List {
                 Section {
                     if sections.active.isEmpty {
-                        Text("有効なサブスクはありません")
+                        Text("契約中のサブスクはありません")
                             .foregroundStyle(.secondary)
                     }
                     ForEach(sections.active) { subscription in

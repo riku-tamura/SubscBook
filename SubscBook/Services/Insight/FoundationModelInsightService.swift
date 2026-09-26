@@ -20,7 +20,7 @@ nonisolated struct FoundationModelInsightService: InsightService {
         条件：
         - です・ます調で、やさしく書いてください。
         - 事実に書かれていないこと（料金・手数料・違約金・他社サービスなど）は書かないでください。
-        - 新しいサービスの契約はすすめないでください。
+        - 新しいサービスの契約や、新しいサービス探しはすすめないでください。
         - 数字は使わないでください。
         """
     /// 長い出力が止まらずに文脈の上限を超えることがあるため、生成するトークン数を抑える
@@ -30,14 +30,15 @@ nonisolated struct FoundationModelInsightService: InsightService {
     private let fallback = TemplateInsightService()
     private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "SubscBook", category: "Insight")
 
+    /// 何を伝えるかはアプリが決め（定型の文）、AI にはその言い換えだけを任せる。
+    /// 事実の箇条書きから自由に書かせると、事実と食い違う文や、ほかのサービスをすすめる文が混ざりやすかったため。
     func monthlyComment(for facts: MonthlyInsightFacts) async -> InsightResult {
         let prompt = """
-            今月のサブスクの状況：
-            \(facts.promptLines.joined(separator: "\n"))
+            次の文を、意味を変えずに、やさしいひとことコメントに言い換えてください。
+            \(Self.withoutQuotes(TemplateInsightService.monthlyText(for: facts)))
             \(Self.rules)
-            この状況をふまえて、ユーザーへのひとことコメントを書いてください。
             """
-        if let text = await generate(maxLength: 60, allowedTerms: facts.allowedTerms, operation: {
+        if let text = await generate(maxLength: 60, forbiddenTerms: facts.contradictingTerms, operation: {
             let session = LanguageModelSession(instructions: Self.instructions)
             return try await session.respond(to: prompt, generating: MonthlyInsight.self, options: Self.monthlyOptions)
                 .content.comment
@@ -64,10 +65,16 @@ nonisolated struct FoundationModelInsightService: InsightService {
         return await fallback.cancelReason(for: facts)
     }
 
+    /// かぎ括弧を外す。プロンプトにあると、モデルが出力の文字列を 」 で閉じて読み取れなくなることがあるため。
+    private static func withoutQuotes(_ text: String) -> String {
+        text.replacingOccurrences(of: "「", with: "").replacingOccurrences(of: "」", with: "")
+    }
+
     /// 生成してチェックを通った文だけを返す。失敗の理由は端末内のログにだけ残す（本文は記録しない）。
     private func generate(
         maxLength: Int,
-        allowedTerms: [String],
+        allowedTerms: [String] = [],
+        forbiddenTerms: [String] = [],
         operation: @escaping @Sendable () async throws -> String
     ) async -> String? {
         let generated: String
@@ -78,7 +85,9 @@ nonisolated struct FoundationModelInsightService: InsightService {
             Self.logger.notice("AI generation fell back: \(String(describing: type(of: error)), privacy: .public)")
             return nil
         }
-        guard let text = InsightSanitizer.sanitize(generated, maxLength: maxLength, allowedTerms: allowedTerms) else {
+        guard let text = InsightSanitizer.sanitize(
+            generated, maxLength: maxLength, allowedTerms: allowedTerms, forbiddenTerms: forbiddenTerms
+        ) else {
             Self.logger.notice("AI output rejected by sanitizer (length \(generated.count, privacy: .public))")
             #if DEBUG
             Self.logger.debug("rejected output: \(generated, privacy: .public)")

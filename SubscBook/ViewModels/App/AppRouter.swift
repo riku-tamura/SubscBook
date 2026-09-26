@@ -20,6 +20,14 @@ final class AppRouter {
         paywall = reason
     }
 
+    /// 全画面表示やシートを閉じてから、ペイウォールを出す（閉じるアニメーション中は表示できないため）
+    func showPaywallAfterDismissal(_ reason: PaywallReason) {
+        Task {
+            try? await Task.sleep(for: Self.sheetDismissDelay)
+            paywall = reason
+        }
+    }
+
     /// サブスクの追加。無料プランの上限に達していればペイウォールを出す。
     func requestNewSubscription(activeCount: Int, isPremium: Bool) {
         if FreePlan.canAddSubscription(activeCount: activeCount, isPremium: isPremium) {

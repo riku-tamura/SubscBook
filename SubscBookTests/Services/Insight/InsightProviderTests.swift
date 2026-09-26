@@ -22,7 +22,8 @@ struct InsightProviderTests {
 
         let first = await provider.monthlyComment(for: facts, now: date(2026, 9, 1), calendar: .tokyo)
         let second = await provider.monthlyComment(for: facts, now: date(2026, 9, 30), calendar: .tokyo)
-        #expect(first == "生成したコメント")
+        #expect(first.text == "生成したコメント")
+        #expect(first.isGenerated)
         #expect(second == first)
         #expect(service.calls.withLock { $0 } == 1)
 
@@ -31,7 +32,7 @@ struct InsightProviderTests {
         #expect(service.calls.withLock { $0 } == 2)
     }
 
-    @Test("事実が変わったら作り直す")
+    @Test("伝える内容が変わったら作り直す")
     func regeneratesWhenFactsChange() async {
         let service = StubInsightService(isGenerated: true)
         let provider = InsightProvider(service: service, cache: makeCache(), availability: .available)
@@ -43,6 +44,25 @@ struct InsightProviderTests {
         _ = await provider.monthlyComment(for: facts, now: date(2026, 9, 1), calendar: .tokyo)
         _ = await provider.monthlyComment(for: changed, now: date(2026, 9, 1), calendar: .tokyo)
         #expect(service.calls.withLock { $0 } == 2)
+    }
+
+    @Test("事実が変わっても、伝える内容（AI が言い換える元の文）が同じなら再利用する")
+    func reusesWhenMessageIsSame() async {
+        let service = StubInsightService(isGenerated: true)
+        let provider = InsightProvider(service: service, cache: makeCache(), availability: .available)
+        // 解約候補があるときは、支払いの増減によらず解約候補について伝える
+        let unchanged = MonthlyInsightFacts(
+            activeCount: 3, trend: .unchanged, cancelCandidates: [], hiddenCancelCandidateCount: 1,
+            duplicateCategories: [], hiddenDuplicateCount: 0, canceledThisMonthCount: 0
+        )
+        let increased = MonthlyInsightFacts(
+            activeCount: 4, trend: .increased, cancelCandidates: [], hiddenCancelCandidateCount: 1,
+            duplicateCategories: [], hiddenDuplicateCount: 0, canceledThisMonthCount: 0
+        )
+
+        _ = await provider.monthlyComment(for: unchanged, now: date(2026, 9, 1), calendar: .tokyo)
+        _ = await provider.monthlyComment(for: increased, now: date(2026, 9, 1), calendar: .tokyo)
+        #expect(service.calls.withLock { $0 } == 1)
     }
 
     @Test("無料・プラスで事実が切り替わっても、今月生成したものは再利用する")
@@ -59,6 +79,15 @@ struct InsightProviderTests {
             _ = await provider.monthlyComment(for: premium, now: date(2026, 9, 1), calendar: .tokyo)
         }
         #expect(service.calls.withLock { $0 } == 2)
+    }
+
+    @Test("定型のコメント（生成失敗）は、AI で作ったものとして扱わない")
+    func fallbackIsNotGenerated() async {
+        let service = StubInsightService(isGenerated: false)
+        let provider = InsightProvider(service: service, cache: makeCache(), availability: .available)
+
+        let result = await provider.monthlyComment(for: facts, now: date(2026, 9, 1), calendar: .tokyo)
+        #expect(!result.isGenerated)
     }
 
     @Test("テンプレート文（生成失敗）はキャッシュしない")
@@ -80,7 +109,7 @@ struct InsightProviderTests {
         async let second = provider.monthlyComment(for: facts, now: date(2026, 9, 1), calendar: .tokyo)
         let results = await [first, second]
 
-        #expect(results == ["生成したコメント", "生成したコメント"])
+        #expect(results.map(\.text) == ["生成したコメント", "生成したコメント"])
         #expect(service.calls.withLock { $0 } == 1)
     }
 

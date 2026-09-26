@@ -34,7 +34,8 @@ final class SubscriptionFormViewModel {
         switch mode {
         case .add:
             name = ""
-            category = .video
+            // 候補にないサービス名のまま保存されても、別のジャンルと誤って集計されないように
+            category = .other
             priceText = ""
             cycle = .monthly
             nextPaymentDate = calendar.startOfDay(for: now)
@@ -72,9 +73,22 @@ final class SubscriptionFormViewModel {
         ServicePresetCatalog.suggestions(for: name)
     }
 
+    /// 保存できない理由（保存ボタンが押せないときに表示する）。保存できる場合は nil。
+    var validationMessage: String? {
+        if trimmedName.isEmpty {
+            return "サービス名を入力すると保存できます"
+        }
+        guard let price else {
+            return "金額を入力すると保存できます"
+        }
+        guard (1...Self.maxPrice).contains(price) else {
+            return "金額は1円以上で入力してください"
+        }
+        return nil
+    }
+
     var canSave: Bool {
-        guard !trimmedName.isEmpty, let price else { return false }
-        return (1...Self.maxPrice).contains(price)
+        validationMessage == nil
     }
 
     /// 金額の入力。数字以外（カンマ・全角数字の変換後に残る記号など）は取り除く。

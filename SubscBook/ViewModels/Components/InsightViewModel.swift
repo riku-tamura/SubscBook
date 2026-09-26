@@ -6,6 +6,8 @@ import Observation
 final class InsightViewModel {
     /// AI の月次のひとこと
     private(set) var comment: String?
+    /// ひとことを Apple Intelligence で作れたか（false は定型のコメント）
+    private(set) var isCommentGenerated = false
     /// 解約候補の理由（サブスク帳プラスのみ）
     private(set) var cancelReasons: [UUID: String] = [:]
 
@@ -31,10 +33,11 @@ final class InsightViewModel {
     }
 
     func loadComment(for facts: MonthlyInsightFacts, using insights: InsightProvider) async {
-        let text = await insights.monthlyComment(for: facts)
+        let result = await insights.monthlyComment(for: facts)
         // 生成中に事実が変わった場合は、古い結果で上書きしない
         guard !Task.isCancelled else { return }
-        comment = text
+        comment = result.text
+        isCommentGenerated = result.isGenerated
     }
 
     /// 理由は1件できるたびに表示する。候補から外れたサブスクの理由は消す。

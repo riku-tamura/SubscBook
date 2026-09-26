@@ -38,6 +38,30 @@ struct SubscriptionFormViewModelTests {
         #expect(!viewModel.canSave)
     }
 
+    @Test("新規登録のカテゴリは「その他」から始める")
+    func defaultCategory() {
+        let viewModel = SubscriptionFormViewModel(mode: .add, now: now, calendar: .tokyo)
+        #expect(viewModel.category == .other)
+        viewModel.name = "地元のジム"
+        #expect(viewModel.category == .other)
+    }
+
+    @Test("保存できない理由を示す")
+    func validationMessage() {
+        let viewModel = SubscriptionFormViewModel(mode: .add, now: now, calendar: .tokyo)
+        #expect(viewModel.validationMessage == "サービス名を入力すると保存できます")
+
+        viewModel.name = "Spotify"
+        #expect(viewModel.validationMessage == "金額を入力すると保存できます")
+
+        viewModel.updatePriceText("0")
+        #expect(viewModel.validationMessage == "金額は1円以上で入力してください")
+
+        viewModel.updatePriceText("980")
+        #expect(viewModel.validationMessage == nil)
+        #expect(viewModel.canSave)
+    }
+
     @Test("プリセットと一致する名前を入れるとカテゴリを自動で設定する")
     func appliesPresetCategory() {
         let viewModel = SubscriptionFormViewModel(mode: .add, now: now, calendar: .tokyo)

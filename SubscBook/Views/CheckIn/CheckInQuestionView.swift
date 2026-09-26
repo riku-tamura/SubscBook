@@ -43,6 +43,7 @@ struct CheckInQuestionView: View {
             } else {
                 CheckInCompletionView(
                     answeredCount: viewModel.queue.count,
+                    emptyReason: viewModel.emptyReason,
                     suggestions: viewModel.cancelSuggestions(among: activeSubscriptions)
                 )
                 .navigationTitle("チェックイン")

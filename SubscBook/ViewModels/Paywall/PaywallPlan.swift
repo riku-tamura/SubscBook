@@ -5,16 +5,16 @@ import StoreKit
 struct PaywallPlan: Identifiable, Equatable {
     let id: String
     let isYearly: Bool
-    /// "¥2,400"
+    /// "2,400円"
     let displayPrice: String
-    /// "月あたり¥200"（年額のみ）
+    /// "月あたり200円"（年額のみ）
     let perMonthText: String?
     /// "1週間無料"（導入オファーの利用資格がある場合のみ）
     let trialText: String?
 
     var title: String { isYearly ? "年額プラン" : "月額プラン" }
     var periodUnit: String { isYearly ? "年" : "月" }
-    /// "¥2,400/年"
+    /// "2,400円/年"
     var priceText: String { "\(displayPrice)/\(periodUnit)" }
 
     init(id: String, isYearly: Bool, displayPrice: String, perMonthText: String?, trialText: String?) {
@@ -27,12 +27,17 @@ struct PaywallPlan: Identifiable, Equatable {
 
     init(product: Product, isEligibleForIntroOffer: Bool) {
         let isYearly = product.subscription?.subscriptionPeriod.unit == .year
+        // 日本円はアプリ内のほかの金額と同じ「2,400円」の表記にそろえる（それ以外の通貨は App Store の表記のまま）
+        let isYen = product.priceFormatStyle.currencyCode == "JPY"
+        func priceText(_ price: Decimal) -> String {
+            isYen ? NSDecimalNumber(decimal: price).intValue.yenText : price.formatted(product.priceFormatStyle)
+        }
         var perMonthText: String?
         if isYearly {
             var perMonth = product.price / 12
             var rounded = Decimal()
             NSDecimalRound(&rounded, &perMonth, 0, .down)
-            perMonthText = "月あたり\(rounded.formatted(product.priceFormatStyle))"
+            perMonthText = "月あたり\(priceText(rounded))"
         }
         var trialText: String?
         if isEligibleForIntroOffer,
@@ -43,7 +48,7 @@ struct PaywallPlan: Identifiable, Equatable {
         self.init(
             id: product.id,
             isYearly: isYearly,
-            displayPrice: product.displayPrice,
+            displayPrice: isYen ? priceText(product.price) : product.displayPrice,
             perMonthText: perMonthText,
             trialText: trialText
         )
@@ -63,8 +68,8 @@ struct PaywallPlan: Identifiable, Equatable {
     #if DEBUG
     /// StoreKit の商品が読めない環境で画面を確認するためのサンプル
     static let samples = [
-        PaywallPlan(id: PremiumProducts.yearly, isYearly: true, displayPrice: "¥2,400", perMonthText: "月あたり¥200", trialText: "1週間無料"),
-        PaywallPlan(id: PremiumProducts.monthly, isYearly: false, displayPrice: "¥300", perMonthText: nil, trialText: nil),
+        PaywallPlan(id: PremiumProducts.yearly, isYearly: true, displayPrice: "2,400円", perMonthText: "月あたり200円", trialText: "1週間無料"),
+        PaywallPlan(id: PremiumProducts.monthly, isYearly: false, displayPrice: "300円", perMonthText: nil, trialText: nil),
     ]
     #endif
 }

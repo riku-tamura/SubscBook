@@ -10,12 +10,13 @@ nonisolated struct CancelReasonFacts: Hashable, Sendable {
     /// 同じカテゴリに他の有効なサブスクがあるか
     let hasSameCategoryAlternative: Bool
 
-    /// AI に渡す箇条書き（数値は含めない）
+    /// AI に渡す箇条書き（数値は含めない）。
+    /// かぎ括弧を使うと、モデルが出力の文字列を 」 で閉じて読み取れなくなることがあるため使わない。
     var promptLines: [String] {
         [
             "サービス名：\(name)",
             "ジャンル：\(categoryName)",
-            unusedMonths >= 3 ? "長いあいだ使っていない" : "最近使っていない",
+            unusedMonths >= 3 ? "チェックインで、使っていないという回答が長く続いている" : "チェックインで、使っていないという回答が続いている",
             cycle == .monthly ? "支払いは毎月" : "支払いは毎年",
             hasSameCategoryAlternative ? "同じジャンルの別のサブスクも契約している" : "同じジャンルの別のサブスクは契約していない",
         ].map { "- \($0)" }

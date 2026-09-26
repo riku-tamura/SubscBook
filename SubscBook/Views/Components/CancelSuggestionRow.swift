@@ -13,11 +13,11 @@ struct CancelSuggestionRow: View {
                     Text(suggestion.subscription.name)
                         .font(.body.weight(.medium))
                 } trailing: {
-                    Text("年間\(suggestion.annualCost.yenText)")
+                    Text("1年あたり\(suggestion.annualCost.yenText)")
                         .font(.subheadline.weight(.semibold))
                         .monospacedDigit()
                 }
-                Text("\(suggestion.unusedMonths)ヶ月続けて使っていません")
+                Text("チェックインで\(suggestion.unusedMonths)ヶ月続けて「使っていない」")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                 if let reason {

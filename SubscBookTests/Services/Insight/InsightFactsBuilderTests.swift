@@ -28,9 +28,6 @@ struct InsightFactsBuilderTests {
         #expect(facts.cancelCandidates.map(\.name) == ["U-NEXT"])
         #expect(facts.duplicateCategories.map(\.categoryName) == ["動画"])
         #expect(facts.canceledThisMonthCount == 1)
-        #expect(facts.promptLines.contains("- U-NEXT をしばらく使っていない"))
-        #expect(facts.promptLines.contains("- 動画のサブスクが重なっている"))
-        #expect(facts.promptLines.contains("- 今月サブスクを解約した"))
     }
 
     @Test("無料は有料機能の詳細を伏せる")
@@ -42,23 +39,38 @@ struct InsightFactsBuilderTests {
         #expect(facts.hiddenCancelCandidateCount == 1)
         #expect(facts.duplicateCategories.isEmpty)
         #expect(facts.hiddenDuplicateCount == 1)
-        let prompt = facts.promptLines.joined()
-        #expect(!prompt.contains("U-NEXT"))
-        #expect(!prompt.contains("動画"))
     }
 
-    @Test("AI に渡す文には数値を含めない")
-    func promptHasNoDigits() throws {
+    @Test("解約候補の理由に渡す文には、数値とかぎ括弧を含めない")
+    func reasonPromptHasNoDigits() throws {
         let store = try TestStore()
         let subscriptions = makeSubscriptions(store)
-        for isPremium in [true, false] {
-            let facts = InsightFactsBuilder.monthly(subscriptions: subscriptions, isPremium: isPremium, now: now, calendar: .tokyo)
-            #expect(facts.promptLines.joined().rangeOfCharacter(from: .decimalDigits) == nil)
-        }
         let suggestion = try #require(CancelSuggestionDetector.suggestions(for: subscriptions).first)
         let reasonFacts = InsightFactsBuilder.cancelReason(for: suggestion, among: subscriptions)
-        #expect(reasonFacts.promptLines.joined().rangeOfCharacter(from: .decimalDigits) == nil)
+        let prompt = reasonFacts.promptLines.joined()
+        #expect(prompt.rangeOfCharacter(from: .decimalDigits) == nil)
+        #expect(!prompt.contains("「"))
         #expect(reasonFacts.hasSameCategoryAlternative)
+    }
+
+    @Test("事実にない話題（解約候補・重複）に触れた AI の文は使わない")
+    func contradictingTerms() {
+        let none = MonthlyInsightFacts(
+            activeCount: 3, trend: .decreased, cancelCandidates: [], hiddenCancelCandidateCount: 0,
+            duplicateCategories: [], hiddenDuplicateCount: 0, canceledThisMonthCount: 1
+        )
+        #expect(none.contradictingTerms.contains("使っていない"))
+        #expect(none.contradictingTerms.contains("重な"))
+        #expect(InsightSanitizer.sanitize(
+            "今月は減りましたね。使っていないものや重なっているものを確認しましょう。",
+            maxLength: 60, forbiddenTerms: none.contradictingTerms
+        ) == nil)
+
+        let both = MonthlyInsightFacts(
+            activeCount: 3, trend: .unchanged, cancelCandidates: [], hiddenCancelCandidateCount: 1,
+            duplicateCategories: [], hiddenDuplicateCount: 1, canceledThisMonthCount: 0
+        )
+        #expect(both.contradictingTerms.isEmpty)
     }
 
     @Test("前月比：前月末に契約中だったサブスクの月額と比べる")

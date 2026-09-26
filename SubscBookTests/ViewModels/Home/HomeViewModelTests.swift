@@ -35,6 +35,7 @@ struct HomeViewModelTests {
         await viewModel.insight.loadCancelReasons(for: reasonFacts, using: insights)
 
         #expect(viewModel.insight.comment == "生成したコメント")
+        #expect(viewModel.insight.isCommentGenerated)
         #expect(viewModel.insight.cancelReasons == [subscriptions[0].id: "生成した理由"])
     }
 }

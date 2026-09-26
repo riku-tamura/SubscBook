@@ -7,7 +7,7 @@ struct SettingsInsightSection: View {
     var body: some View {
         Section {
             LabeledContent("AIコメント") {
-                Text(insights.availability.isAvailable ? "利用できます" : "テンプレートを表示中")
+                Text(insights.availability.isAvailable ? "利用できます" : "定型のコメントを表示中")
                     .foregroundStyle(insights.availability.isAvailable ? Color.green : .secondary)
             }
         } header: {

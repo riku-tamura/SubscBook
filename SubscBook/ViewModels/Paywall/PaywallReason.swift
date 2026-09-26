@@ -16,7 +16,7 @@ nonisolated enum PaywallReason: Hashable, Identifiable, Sendable {
 extension PaywallReason {
     var headline: String {
         switch self {
-        case .subscriptionLimit: "サブスクを無制限に見張る"
+        case .subscriptionLimit: "サブスクを無制限に登録"
         case .lockedFeature(let feature): feature.title
         case .settings: "節約をもっと確実に"
         }
@@ -25,11 +25,11 @@ extension PaywallReason {
     var message: String {
         switch self {
         case .subscriptionLimit:
-            "無料プランで登録できるのは\(FreePlan.subscriptionLimit)件までです。サブスク帳プラスなら、すべてのサブスクを見張れます。"
+            "無料プランで登録できるのは\(FreePlan.subscriptionLimit)件までです。サブスク帳プラスなら、すべてのサブスクをまとめて管理できます。"
         case .lockedFeature:
             "この機能はサブスク帳プラスでご利用いただけます。"
         case .settings:
-            "使っていないサブスクや重複を見つけて、解約を後押しします。"
+            "毎月のチェックインをもとに、使っていないサブスクや重複を見つけて、見直しを後押しします。"
         }
     }
 }

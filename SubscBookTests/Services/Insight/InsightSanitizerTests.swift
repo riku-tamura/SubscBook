@@ -20,6 +20,24 @@ struct InsightSanitizerTests {
         #expect(InsightSanitizer.sanitize(text, maxLength: 80) == nil)
     }
 
+    @Test("ほかのサービスを試す・探すようにすすめる出力は使わない", arguments: [
+        "今月のサブスクは順調ですね！次はどんなサービスが気になるでしょうか？",
+        "新しいサービスも検討してみてはいかがでしょうか。",
+        "使っていないので、他のサービスを確認してみませんか。",
+        "同じジャンルのサブスクは、いくつか試してみると良いかもしれません。",
+        "興味のあるジャンルがあれば、チェックしてみてください。",
+    ])
+    func rejectsNewServiceSuggestions(text: String) {
+        #expect(InsightSanitizer.sanitize(text, maxLength: 80) == nil)
+    }
+
+    @Test("呼び出し側が指定した、事実にない話題の語を含む出力は使わない")
+    func rejectsForbiddenTerms() {
+        let text = "同じジャンルのサブスクが重なっています。まとめてみませんか？"
+        #expect(InsightSanitizer.sanitize(text, maxLength: 60) == text)
+        #expect(InsightSanitizer.sanitize(text, maxLength: 60, forbiddenTerms: ["重な"]) == nil)
+    }
+
     @Test("サービス名に含まれる数字・英字は許可する")
     func allowsServiceNames() {
         let text = "Microsoft 365 はしばらく使っていないようです。見直してみませんか？"
