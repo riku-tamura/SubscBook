@@ -83,14 +83,16 @@ Models
 主な操作：
 
 - `requestNewSubscription(activeCount:isPremium:)`：無料プランの上限に達していればペイウォール、そうでなければ登録画面
-- `openNotification(_:)`：通知をタップしたとき。チェックインの通知はホームに切り替えてチェックインを開き、支払い・トライアルの通知は一覧を開く。シートを開いていた場合は閉じてから表示する
-- `showPaywallAfterDismissal(_:)`：全画面表示やシートを閉じ終わってから（600ミリ秒後）ペイウォールを開く。閉じるアニメーション中は新しいシートを表示できないため
+- `openNotification(_:)`：通知をタップしたとき。チェックインの通知はホームに切り替えてチェックインを開き（シートを開いていた場合は閉じ終わってから）、支払い・トライアルの通知は開いている画面をすべて閉じて一覧を開く
+- `showPaywallAfterDismissal(_:)`：いま閉じている全画面表示やシートが閉じ終わってから、ペイウォールを開く
+- `didDismissPresentation()`：シート・全画面表示の `onDismiss` から呼ぶ。待っている画面（`pendingPresentation`）があれば出す。閉じるアニメーション中は新しいシートを表示できないため、時間を決めて待たずに、閉じ終わったことを受けて出す
 
 ## 並行処理
 
 - 既定のアクター分離が MainActor なので、特に指定のない型はメインスレッドで動きます
 - 値型・列挙型のうち、バックグラウンドからも使うもの（`YearMonth`・`MonthlyInsightFacts` など）は `nonisolated` と `Sendable` を付けています
-- AI の生成は `FoundationModelInsightService`（`nonisolated`）で行い、`withTimeout` で5秒を超えたら打ち切ります
+- AI の生成は `FoundationModelInsightService`（`nonisolated`）で行い、`withTimeout` で5秒を超えたら打ち切ります（先に終われば見張りのタスクも止める）
+- 購読状態の読み込み（`refreshEntitlements`）は起動時・復帰時・取引の通知・購入後から同時に呼ばれることがあるため、後から始めた読み込みの結果だけを反映します
 - 同じコメントを同時に求められた場合（ホームとレポート）は、`InsightProvider` が1つの `Task` を共有して、生成を1回にします
 - 通知の登録し直しは、続けて呼ばれたら前の処理を取り消し、300ミリ秒待ってから最後の1回だけ行います
 

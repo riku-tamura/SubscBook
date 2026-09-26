@@ -16,15 +16,33 @@ final class AppRouter {
     var paywall: PaywallReason?
     var isCheckInPresented = false
 
+    /// 閉じ終わってから出す画面。閉じるアニメーション中に新しいシートや全画面表示を出すと無視されるため、
+    /// MainTabView の onDismiss（`didDismissPresentation`）で出す。
+    enum PendingPresentation: Equatable {
+        case paywall(PaywallReason)
+        case checkIn
+    }
+
+    private(set) var pendingPresentation: PendingPresentation?
+
     func showPaywall(_ reason: PaywallReason) {
         paywall = reason
     }
 
-    /// 全画面表示やシートを閉じてから、ペイウォールを出す（閉じるアニメーション中は表示できないため）
+    /// いま閉じている全画面表示・シートが閉じ終わってから、ペイウォールを出す
     func showPaywallAfterDismissal(_ reason: PaywallReason) {
-        Task {
-            try? await Task.sleep(for: Self.sheetDismissDelay)
+        pendingPresentation = .paywall(reason)
+    }
+
+    /// シート・全画面表示が閉じ終わったときに呼ぶ。待っている画面があれば出す。
+    func didDismissPresentation() {
+        guard let pending = pendingPresentation else { return }
+        pendingPresentation = nil
+        switch pending {
+        case .paywall(let reason):
             paywall = reason
+        case .checkIn:
+            isCheckInPresented = true
         }
     }
 
@@ -44,25 +62,26 @@ final class AppRouter {
     /// 通知をタップして起動したときの遷移
     func openNotification(_ kind: PlannedNotification.Kind?) {
         guard let kind else { return }
-        let wasPresentingSheet = subscriptionForm != nil || paywall != nil
-        subscriptionForm = nil
-        paywall = nil
         switch kind {
         case .checkIn:
             selectedTab = .home
-            if wasPresentingSheet {
-                // シートを閉じるアニメーション中は全画面表示が無視されるため、閉じ終わってから出す
-                Task {
-                    try? await Task.sleep(for: Self.sheetDismissDelay)
-                    isCheckInPresented = true
-                }
+            // すでにチェックインを開いている
+            guard !isCheckInPresented else { return }
+            if subscriptionForm != nil || paywall != nil {
+                // シートを閉じ終わってからチェックインを出す
+                pendingPresentation = .checkIn
+                subscriptionForm = nil
+                paywall = nil
             } else {
                 isCheckInPresented = true
             }
         case .payment, .trial:
+            // 開いている画面をすべて閉じて、一覧を見せる
+            pendingPresentation = nil
+            subscriptionForm = nil
+            paywall = nil
+            isCheckInPresented = false
             selectedTab = .list
         }
     }
-
-    static let sheetDismissDelay: Duration = .milliseconds(600)
 }

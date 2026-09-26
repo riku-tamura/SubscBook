@@ -20,7 +20,7 @@ struct MainTabView: View {
                 SettingsView()
             }
         }
-        .sheet(item: $router.subscriptionForm) { route in
+        .sheet(item: $router.subscriptionForm, onDismiss: router.didDismissPresentation) { route in
             NavigationStack {
                 switch route {
                 case .add:
@@ -30,10 +30,10 @@ struct MainTabView: View {
                 }
             }
         }
-        .sheet(item: $router.paywall) { reason in
+        .sheet(item: $router.paywall, onDismiss: router.didDismissPresentation) { reason in
             PaywallView(reason: reason)
         }
-        .fullScreenCover(isPresented: $router.isCheckInPresented) {
+        .fullScreenCover(isPresented: $router.isCheckInPresented, onDismiss: router.didDismissPresentation) {
             CheckInView()
         }
     }

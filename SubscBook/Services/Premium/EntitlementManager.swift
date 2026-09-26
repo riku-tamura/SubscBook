@@ -56,6 +56,8 @@ final class EntitlementManager {
 
     /// アプリの起動中ずっと監視する
     @ObservationIgnored private var updatesTask: Task<Void, Never>?
+    /// 購読状態の読み込みの通し番号。同時に読み込んだとき、後から始めたものの結果だけを反映する。
+    @ObservationIgnored private var refreshGeneration = 0
 
     /// - Parameter observesTransactions: 起動時から `Transaction.updates` を監視し、購読状態を読み込む
     init(observesTransactions: Bool = true) {
@@ -94,8 +96,12 @@ final class EntitlementManager {
         }
     }
 
-    /// `Transaction.currentEntitlements` から購読状態を判定する
+    /// `Transaction.currentEntitlements` から購読状態を判定する。
+    /// 起動時・復帰時・取引の通知・購入後から同時に呼ばれることがあるので、
+    /// 古い読み込みが後から終わっても新しい状態を上書きしないようにする。
     func refreshEntitlements() async {
+        refreshGeneration += 1
+        let generation = refreshGeneration
         var latest: Transaction?
         for await result in Transaction.currentEntitlements {
             guard case .verified(let transaction) = result,
@@ -108,6 +114,7 @@ final class EntitlementManager {
             }
         }
 
+        guard generation == refreshGeneration else { return }
         guard let latest else {
             hasActiveSubscription = false
             activePlan = nil
@@ -117,6 +124,7 @@ final class EntitlementManager {
         if let status = await latest.subscriptionStatus, case .verified(let renewalInfo) = status.renewalInfo {
             willAutoRenew = renewalInfo.willAutoRenew
         }
+        guard generation == refreshGeneration else { return }
         hasActiveSubscription = true
         activePlan = ActivePlan(
             productID: latest.productID,

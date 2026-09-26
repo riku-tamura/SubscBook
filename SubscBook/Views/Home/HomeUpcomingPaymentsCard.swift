@@ -42,8 +42,10 @@ struct HomeUpcomingPaymentsCard: View {
                         .foregroundStyle(.secondary)
                 }
             } trailing: {
-                Text(subscription.price.yenText)
+                // 年額が毎月の支払いに見えないよう、周期も付ける（"12,800円/年"）
+                Text(subscription.priceText)
                     .font(.callout.monospacedDigit())
+                    .accessibilityLabel(subscription.priceAccessibilityText)
             }
         }
         .contentShape(.rect)

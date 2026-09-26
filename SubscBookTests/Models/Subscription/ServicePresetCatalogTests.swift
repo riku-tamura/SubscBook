@@ -47,4 +47,11 @@ struct ServicePresetCatalogTests {
         let names = ServicePresetCatalog.all.map { ServicePresetCatalog.normalize($0.name) }
         #expect(Set(names).count == names.count)
     }
+
+    @Test("濁点・半濁点は区別する")
+    func distinguishesDakuten() {
+        #expect(ServicePresetCatalog.suggestions(for: "ダゾーン").map(\.name).contains("DAZN"))
+        #expect(!ServicePresetCatalog.suggestions(for: "タゾーン").map(\.name).contains("DAZN"))
+        #expect(ServicePresetCatalog.preset(named: "Ｄａｚｎ")?.name == "DAZN")
+    }
 }

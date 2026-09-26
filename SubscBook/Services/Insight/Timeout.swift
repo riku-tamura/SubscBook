@@ -13,6 +13,7 @@ nonisolated func withTimeout<T: Sendable>(
     operation: @escaping @Sendable () async throws -> T
 ) async throws -> T {
     let gate = ResumeGate()
+    let timer = TimerHolder()
     return try await withCheckedThrowingContinuation { continuation in
         let work = Task {
             do {
@@ -21,14 +22,38 @@ nonisolated func withTimeout<T: Sendable>(
             } catch {
                 if gate.open() { continuation.resume(throwing: error) }
             }
+            // 先に終わったら、時間切れを見張るタスクを止める（5秒間眠ったまま残さない）
+            timer.cancel()
         }
-        Task {
+        timer.set(Task {
             try? await Task.sleep(for: duration)
             if gate.open() {
                 work.cancel()
                 continuation.resume(throwing: TimeoutError.timedOut)
             }
+        })
+    }
+}
+
+/// 時間切れを見張るタスクを、処理の側から止めるための入れ物
+nonisolated private final class TimerHolder: Sendable {
+    private let state = Mutex<(task: Task<Void, Never>?, isCancelled: Bool)>((nil, false))
+
+    func set(_ task: Task<Void, Never>) {
+        let cancelled = state.withLock { state in
+            state.task = task
+            return state.isCancelled
         }
+        // 処理がタスクの登録より先に終わっていた場合
+        if cancelled { task.cancel() }
+    }
+
+    func cancel() {
+        let task = state.withLock { state in
+            state.isCancelled = true
+            return state.task
+        }
+        task?.cancel()
     }
 }
 

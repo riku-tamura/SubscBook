@@ -94,7 +94,7 @@ Xcode で ⌘U、またはコマンドラインで：
 xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform=iOS Simulator,name=iPhone 17' test
 ```
 
-- 137件（32スイート）。計算・判定のロジックと ViewModel を中心に確かめます
+- 140件（32スイート）。計算・判定のロジックと ViewModel を中心に確かめます
 - 日付はすべて東京時間に固定して確かめます（`Calendar.tokyo` と `date(2026, 9, 26)`）
 - StoreKit のテストは `Products.storekit` を読み、テスト後に購入履歴を消します
 

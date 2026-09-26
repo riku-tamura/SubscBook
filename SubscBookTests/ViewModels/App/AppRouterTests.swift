@@ -18,24 +18,50 @@ struct AppRouterTests {
     }
 
     @Test("通知をタップしたときの遷移")
-    func openNotification() async throws {
+    func openNotification() {
         let router = AppRouter()
         router.openNotification(.checkIn)
         #expect(router.selectedTab == .home)
         #expect(router.isCheckInPresented)
 
-        // シート表示中は閉じてからチェックインを出す
+        // シート表示中は、閉じ終わってからチェックインを出す
         let presenting = AppRouter()
         presenting.paywall = .settings
         presenting.openNotification(.checkIn)
         #expect(presenting.paywall == nil)
         #expect(!presenting.isCheckInPresented)
-        try await Task.sleep(for: AppRouter.sheetDismissDelay + .milliseconds(200))
+        #expect(presenting.pendingPresentation == .checkIn)
+        presenting.didDismissPresentation()
         #expect(presenting.isCheckInPresented)
+        #expect(presenting.pendingPresentation == nil)
 
         let other = AppRouter()
         other.openNotification(.payment)
         #expect(other.selectedTab == .list)
         #expect(!other.isCheckInPresented)
+    }
+
+    @Test("チェックインを開いているときに支払いの通知をタップすると、閉じて一覧を見せる")
+    func paymentNotificationClosesCheckIn() {
+        let router = AppRouter()
+        router.isCheckInPresented = true
+        router.openNotification(.trial)
+        #expect(!router.isCheckInPresented)
+        #expect(router.selectedTab == .list)
+    }
+
+    @Test("閉じ終わってからペイウォールを出す")
+    func paywallAfterDismissal() {
+        let router = AppRouter()
+        router.isCheckInPresented = true
+        router.isCheckInPresented = false
+        router.showPaywallAfterDismissal(.lockedFeature(.cancelSuggestions))
+        #expect(router.paywall == nil)
+        router.didDismissPresentation()
+        #expect(router.paywall == .lockedFeature(.cancelSuggestions))
+        // 待っているものがなければ何もしない
+        router.paywall = nil
+        router.didDismissPresentation()
+        #expect(router.paywall == nil)
     }
 }

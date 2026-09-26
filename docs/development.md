@@ -113,7 +113,7 @@ xcrun simctl launch --terminate-running-process booted com.hachimaki.SubscBook -
 | シミュレータで AIコメントが出ない | シミュレータにはモデルがありません（`ModelManagerError 1026`）。定型のコメントが出れば正常です。AI の出力は実機か Mac の端末内モデルで確かめます |
 | シミュレータで起動するとプラスになっている | StoreKit のテストの購入が残っています。Xcode の「Debug → StoreKit → Manage Transactions」で消します（テストは後片付けで消すようになっています） |
 | 期限切れにしてもプラスのまま | 期限切れは `Transaction.updates` に流れないことがあります。アプリをフォアグラウンドに戻すと読み直します |
-| 閉じた直後にペイウォールが出ない | シートや全画面表示を閉じるアニメーション中は、新しいシートを出せません。`AppRouter.showPaywallAfterDismissal` を使います |
+| 閉じた直後にペイウォールが出ない | シートや全画面表示を閉じるアニメーション中は、新しいシートを出せません。`AppRouter.showPaywallAfterDismissal` を使い、閉じ終わったとき（`onDismiss` → `didDismissPresentation`）に出します。時間を決めて待つ方法は使いません |
 | Release ビルドだけ失敗する | `#Preview` で Debug 専用のコードを使っています。`#if DEBUG` で囲みます |
 | 「型が見つからない」エラー | `MEMBER_IMPORT_VISIBILITY` のため、そのファイルに `import` がありません |
 | 通知が古いまま | 保存・起動・復帰で自動で登録し直します。保存（`context.save()`）を忘れていないか確かめます。設定画面の「デバッグ → 登録済みの通知」で確認できます |

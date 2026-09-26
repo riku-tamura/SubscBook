@@ -7,6 +7,8 @@ struct InsightSanitizerTests {
     @Test("前後の空白・括弧を取り除く")
     func trims() {
         #expect(InsightSanitizer.sanitize("  「見直してみませんか？」\n", maxLength: 60) == "見直してみませんか？")
+        // 別々の括弧の組は外さない
+        #expect(InsightSanitizer.sanitize("「使っていない」と「重なり」", maxLength: 60) == "「使っていない」と「重なり」")
     }
 
     @Test("数値・金額・英単語を含む出力は使わない", arguments: [

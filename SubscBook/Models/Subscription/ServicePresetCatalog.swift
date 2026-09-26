@@ -111,7 +111,7 @@ nonisolated enum ServicePresetCatalog {
     /// 大文字小文字・全角半角・ひらがなカタカナ・空白の違いを吸収する
     static func normalize(_ text: String) -> String {
         let folded = text.folding(
-            options: [.caseInsensitive, .widthInsensitive, .diacriticInsensitive],
+            options: [.caseInsensitive, .widthInsensitive],
             locale: Locale(identifier: "ja_JP")
         )
         let katakana = folded.applyingTransform(.hiraganaToKatakana, reverse: false) ?? folded

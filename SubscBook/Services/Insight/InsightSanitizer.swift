@@ -16,10 +16,13 @@ nonisolated enum InsightSanitizer {
     ///   - forbiddenTerms: 事実にない話題の語。含まれていたら使わない。
     static func sanitize(_ text: String, maxLength: Int, allowedTerms: [String] = [], forbiddenTerms: [String] = []) -> String? {
         var result = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        // 前後の括弧・引用符を外す
+        // 全体を囲む括弧・引用符を外す。中にも同じ括弧がある場合（「A」は「B」）は、別々の組なので外さない。
         let quotePairs: [(Character, Character)] = [("「", "」"), ("『", "』"), ("\"", "\""), ("“", "”")]
         for (open, close) in quotePairs where result.first == open && result.last == close && result.count >= 2 {
-            result = String(result.dropFirst().dropLast())
+            let inner = result.dropFirst().dropLast()
+            if !inner.contains(open) && !inner.contains(close) {
+                result = String(inner)
+            }
         }
         result = result
             .replacingOccurrences(of: "\n", with: "")

@@ -14,7 +14,7 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform=iOS Simulator,name=iPhone 17' test -only-testing:SubscBookTests/NotificationPlannerTests
 ```
 
-今は 137件（32スイート）で、数秒で終わります。
+今は 140件（32スイート）で、数秒で終わります。
 
 ## 方針
 
@@ -54,7 +54,7 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 | スイート | 確かめること |
 |---|---|
 | 無料プランの制限（`FreePlanTests`） | 無料は有効なサブスク5件まで、プラスは無制限 |
-| サービス名の候補（`ServicePresetCatalogTests`） | 大文字小文字・全角半角・ひらがなカタカナの違いを吸収、前方一致を先に、件数の上限、空文字・完全一致では出さない、名前の重複がない |
+| サービス名の候補（`ServicePresetCatalogTests`） | 大文字小文字・全角半角・ひらがなカタカナの違いを吸収、濁点は区別、前方一致を先に、件数の上限、空文字・完全一致では出さない、名前の重複がない |
 | Subscription / CheckIn モデル（`SubscriptionTests`） | 列挙型の変換、解約・契約中に戻す、`activePredicate`、同じ月のチェックインの上書き、削除でチェックインも消える |
 | YearMonth（`YearMonthTests`） | 文字列との変換、不正な文字列、年をまたぐ加減算、日付から作る、順序 |
 
@@ -71,7 +71,7 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 | 通知の予定（`NotificationPlannerTests`） | 前日 9:00・月額は3回先まで、月末払い、年額は1回、過ぎた時刻は登録しない、古い支払日から計算、解約済みは除く、トライアルはプラスのみ、チェックインの繰り返しと初回の1回、設定のオフ、上限64件、識別子の重複なし |
 | AI に渡す事実（`InsightFactsBuilderTests`） | プラスは名前、無料は件数だけ、理由の事実に数字・かぎ括弧を入れない、事実にない話題の語、前月比 |
 | AI コメントのキャッシュ（`InsightProviderTests`） | 同じ月・同じ内容では生成しない、内容が変わったら作り直す、無料・プラスの両方を残す、定型文はキャッシュしない、同時の要求は1回の生成、理由のキャッシュ |
-| AI 出力のチェック（`InsightSanitizerTests`） | 前後の括弧、数字・金額・英単語、ほかのサービスをすすめる表現、事実にない話題の語、サービス名の英数字は許可、長さ |
+| AI 出力のチェック（`InsightSanitizerTests`） | 全体を囲む括弧だけを外す、数字・金額・英単語、ほかのサービスをすすめる表現、事実にない話題の語、サービス名の英数字は許可、長さ |
 | テンプレート文（`TemplateInsightServiceTests`） | 事実に合わせた文の選び方 |
 | タイムアウト（`TimeoutTests`） | 時間内なら結果を返す、超えたら待たずにエラー |
 | 課金（`StoreKitTests`） | 商品定義、ペイウォールの表記、購入でプラス・期限切れで無料、トライアル中の扱い、ペイウォールでの購入 |
@@ -80,7 +80,7 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 
 | スイート | 確かめること |
 |---|---|
-| 画面遷移（`AppRouterTests`） | 上限でペイウォール、通知のタップでの遷移 |
+| 画面遷移（`AppRouterTests`） | 上限でペイウォール、通知のタップでの遷移（チェックイン中の支払い通知で閉じる）、閉じ終わってからペイウォールを出す |
 | 月次チェックインの進行（`CheckInViewModelTests`） | 名前順、回答して進む、戻って上書き、表示中でないサブスクへの回答は無視、聞くものがない理由 |
 | AI コメントの読み込み（`InsightViewModelTests`） | 理由の読み込みと、候補から外れたものの削除、理由はプラスのみ |
 | ホームの集計（`HomeSummaryTests`） | 合計・件数・直近3件・解約候補・チェックインの要否 |
