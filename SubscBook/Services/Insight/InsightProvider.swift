@@ -67,6 +67,16 @@ final class InsightProvider {
         }
     }
 
+    /// 複数の解約候補の理由を作る（生成は1件ずつ。キャンセルされたらそこで止める）
+    func cancelReasons(for facts: [CancelReasonFacts], now: Date = .now, calendar: Calendar = .current) async -> [UUID: String] {
+        var reasons: [UUID: String] = [:]
+        for item in facts {
+            guard !Task.isCancelled else { break }
+            reasons[item.subscriptionID] = await cancelReason(for: item, now: now, calendar: calendar)
+        }
+        return reasons
+    }
+
     /// ホームとレポートが同時に同じコメントを求めても、生成は1回にする
     private func generate(key: String, operation: @escaping () async -> String) async -> String {
         if let task = inFlight[key] {

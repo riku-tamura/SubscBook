@@ -10,14 +10,23 @@ struct StoreKitTests {
     private let session: SKTestSession
 
     init() throws {
-        let configuration = URL(filePath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .appending(path: "Products.storekit")
-        session = try SKTestSession(contentsOf: configuration)
+        session = try SKTestSession(contentsOf: Self.configurationURL())
         session.resetToDefaultState()
         session.disableDialogs = true
         session.clearTransactions()
+    }
+
+    /// リポジトリ直下の Products.storekit（テストファイルの場所から上へたどって探す）
+    private static func configurationURL() throws -> URL {
+        var directory = URL(filePath: #filePath).deletingLastPathComponent()
+        while directory.path() != "/" {
+            let candidate = directory.appending(path: "Products.storekit")
+            if FileManager.default.fileExists(atPath: candidate.path()) {
+                return candidate
+            }
+            directory.deleteLastPathComponent()
+        }
+        throw CocoaError(.fileNoSuchFile)
     }
 
     @Test("月額300円・年額2,400円（1週間無料）が同じグループにある")
@@ -41,7 +50,7 @@ struct StoreKitTests {
     }
 
     @Test("ペイウォールの表示：年額は月あたりの金額と無料期間を併記する")
-    func planOptions() async throws {
+    func paywallPlans() async throws {
         let entitlements = EntitlementManager(observesTransactions: false)
         await entitlements.loadProducts()
 
@@ -101,11 +110,19 @@ struct StoreKitTests {
         #expect(!entitlements.isEligibleForIntroOffer)
     }
 
-    @Test("期間の表記")
-    func periodText() {
-        #expect(PaywallPlan.periodText(value: 1, unit: .week) == "1週間")
-        #expect(PaywallPlan.periodText(value: 3, unit: .day) == "3日間")
-        #expect(PaywallPlan.periodText(value: 1, unit: .month) == "1ヶ月")
-        #expect(PaywallPlan.periodText(value: 1, unit: .year) == "1年")
+    @Test("ペイウォールで購入すると完了メッセージを出し、プラスになる")
+    func paywallPurchase() async throws {
+        let entitlements = EntitlementManager(observesTransactions: false)
+        let viewModel = PaywallViewModel()
+        await viewModel.loadProductsIfNeeded(using: entitlements)
+        let plan = try #require(viewModel.selectedPlan(in: viewModel.plans(from: entitlements)))
+        #expect(plan.id == PremiumProducts.yearly)
+
+        await viewModel.purchase(plan, using: entitlements)
+
+        #expect(viewModel.message?.title == "ありがとうございます")
+        #expect(viewModel.message?.dismissesPaywall == true)
+        #expect(entitlements.hasActiveSubscription)
+        #expect(!viewModel.isBusy)
     }
 }

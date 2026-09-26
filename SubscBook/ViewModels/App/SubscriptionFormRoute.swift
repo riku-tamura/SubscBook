@@ -1,5 +1,6 @@
 import Foundation
 
+/// 登録・編集画面をどちらで開くか
 enum SubscriptionFormRoute: Identifiable {
     case add
     case edit(Subscription)

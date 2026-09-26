@@ -4,30 +4,16 @@ import SwiftUI
 struct PaywallView: View {
     let reason: PaywallReason
 
+    @State private var viewModel = PaywallViewModel()
     @Environment(EntitlementManager.self) private var entitlements
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedPlanID = PremiumProducts.yearly
-    @State private var isPurchasing = false
-    @State private var isRestoring = false
-    @State private var message: PaywallMessage?
 
     private var plans: [PaywallPlan] {
-        let plans = entitlements.products.map {
-            PaywallPlan(product: $0, isEligibleForIntroOffer: entitlements.isEligibleForIntroOffer)
-        }
-        #if DEBUG
-        if plans.isEmpty && DebugLaunchOptions.usesSamplePlans {
-            return PaywallPlan.samples
-        }
-        #endif
-        return plans
-    }
-
-    private var selectedPlan: PaywallPlan? {
-        plans.first { $0.id == selectedPlanID } ?? plans.first
+        viewModel.plans(from: entitlements)
     }
 
     var body: some View {
+        @Bindable var viewModel = viewModel
         NavigationStack {
             ScrollView {
                 VStack(spacing: 28) {
@@ -50,11 +36,9 @@ struct PaywallView: View {
                 }
             }
             .task {
-                if entitlements.products.isEmpty {
-                    await entitlements.loadProducts()
-                }
+                await viewModel.loadProductsIfNeeded(using: entitlements)
             }
-            .alert(item: $message) { message in
+            .alert(item: $viewModel.message) { message in
                 Alert(
                     title: Text(message.title),
                     message: Text(message.body),
@@ -134,25 +118,26 @@ struct PaywallView: View {
             .card()
         } else {
             VStack(spacing: 12) {
+                let selectedPlan = viewModel.selectedPlan(in: plans)
                 ForEach(plans) { plan in
                     PaywallPlanCard(plan: plan, isSelected: plan.id == selectedPlan?.id) {
-                        selectedPlanID = plan.id
+                        viewModel.selectedPlanID = plan.id
                     }
                 }
-                purchaseButton
+                purchaseButton(for: selectedPlan)
             }
         }
     }
 
     @ViewBuilder
-    private var purchaseButton: some View {
-        if let plan = selectedPlan {
+    private func purchaseButton(for plan: PaywallPlan?) -> some View {
+        if let plan {
             VStack(spacing: 8) {
                 Button {
-                    Task { await purchase(plan) }
+                    Task { await viewModel.purchase(plan, using: entitlements) }
                 } label: {
                     Group {
-                        if isPurchasing {
+                        if viewModel.isPurchasing {
                             ProgressView()
                                 .tint(.white)
                         } else if let trialText = plan.trialText {
@@ -167,7 +152,7 @@ struct PaywallView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
-                .disabled(isPurchasing || isRestoring)
+                .disabled(viewModel.isBusy)
 
                 Text(plan.trialText != nil
                      ? "無料期間の終了後は\(plan.priceText)で自動更新されます。無料期間中に解約すれば料金はかかりません。"
@@ -225,59 +210,15 @@ struct PaywallView: View {
             PrivacyPolicyView()
         }
         Button {
-            Task { await restore() }
+            Task { await viewModel.restore(using: entitlements) }
         } label: {
-            if isRestoring {
+            if viewModel.isRestoring {
                 ProgressView()
             } else {
                 Text("購入を復元")
             }
         }
-        .disabled(isPurchasing || isRestoring)
-    }
-
-    // MARK: - 操作
-
-    private func purchase(_ plan: PaywallPlan) async {
-        guard let product = entitlements.product(for: plan.id) else {
-            message = PaywallMessage(title: "購入できません", body: "プランの情報を読み込めませんでした。")
-            return
-        }
-        isPurchasing = true
-        defer { isPurchasing = false }
-        do {
-            switch try await entitlements.purchase(product) {
-            case .purchased:
-                message = PaywallMessage(
-                    title: "ありがとうございます",
-                    body: "サブスク帳プラスのすべての機能が使えるようになりました。",
-                    dismissesPaywall: true
-                )
-            case .pending:
-                message = PaywallMessage(
-                    title: "承認を待っています",
-                    body: "購入が承認されると、サブスク帳プラスが使えるようになります。",
-                    dismissesPaywall: true
-                )
-            case .cancelled:
-                break
-            }
-        } catch {
-            message = PaywallMessage(title: "購入を完了できませんでした", body: "時間をおいて、もう一度お試しください。")
-        }
-    }
-
-    private func restore() async {
-        isRestoring = true
-        defer { isRestoring = false }
-        do {
-            try await entitlements.restore()
-            message = entitlements.isPremium
-                ? PaywallMessage(title: "購入を復元しました", body: "サブスク帳プラスが使えるようになりました。", dismissesPaywall: true)
-                : PaywallMessage(title: "復元できる購入がありません", body: "この Apple ID でサブスク帳プラスの購入が見つかりませんでした。")
-        } catch {
-            message = PaywallMessage(title: "復元できませんでした", body: "時間をおいて、もう一度お試しください。")
-        }
+        .disabled(viewModel.isBusy)
     }
 }
 

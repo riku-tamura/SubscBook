@@ -1,6 +1,7 @@
 import SwiftData
 import SwiftUI
 
+/// チェックインの進行（進み具合と、回答中のカード）
 struct CheckInQuestionView: View {
     let viewModel: CheckInViewModel
     let activeSubscriptions: [Subscription]

@@ -1,6 +1,7 @@
 import SwiftData
 import SwiftUI
 
+/// サブスク帳（アプリの入口）
 @main
 struct SubscBookApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate

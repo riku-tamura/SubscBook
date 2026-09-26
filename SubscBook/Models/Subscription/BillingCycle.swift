@@ -1,5 +1,6 @@
 import Foundation
 
+/// 支払い周期
 nonisolated enum BillingCycle: String, Codable, CaseIterable, Identifiable, Sendable {
     case monthly
     case yearly

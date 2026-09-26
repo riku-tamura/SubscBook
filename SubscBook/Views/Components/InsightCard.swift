@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// AI のひとことコメントのカード（ホーム・レポート共通）
 struct InsightCard: View {
     var title = "今月のひとこと"
     let comment: String?

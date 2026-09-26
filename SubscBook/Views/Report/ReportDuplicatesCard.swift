@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// 同じカテゴリで重複しているサブスク（サブスク帳プラス）
 struct ReportDuplicatesCard: View {
     let groups: [DuplicateGroup]
     @Environment(EntitlementManager.self) private var entitlements

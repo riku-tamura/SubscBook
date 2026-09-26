@@ -3,14 +3,13 @@ import SwiftUI
 
 /// カテゴリ別の円グラフと、名前・金額・割合の凡例（凡例が表の役割も兼ねる）
 struct ReportCategoryChartCard: View {
-    let slices: [CategorySlice]
-    let monthlyTotal: Int
+    let breakdown: CategoryBreakdown
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             CardHeader(title: "カテゴリ別（月額換算）", systemImage: "chart.pie.fill")
 
-            Chart(slices) { slice in
+            Chart(breakdown.slices) { slice in
                 SectorMark(
                     angle: .value("月額", slice.monthlyTotal),
                     innerRadius: .ratio(0.62),
@@ -30,7 +29,7 @@ struct ReportCategoryChartCard: View {
                             Text("合計")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                            Text(monthlyTotal.yenText)
+                            Text(breakdown.monthlyTotal.yenText)
                                 .font(.headline)
                                 .monospacedDigit()
                         }
@@ -45,7 +44,7 @@ struct ReportCategoryChartCard: View {
             .frame(height: 220)
 
             VStack(spacing: 10) {
-                ForEach(slices) { slice in
+                ForEach(breakdown.slices) { slice in
                     legendRow(slice)
                 }
             }
@@ -53,7 +52,7 @@ struct ReportCategoryChartCard: View {
         .card()
     }
 
-    private func legendRow(_ slice: CategorySlice) -> some View {
+    private func legendRow(_ slice: CategoryBreakdown.Slice) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
             RoundedRectangle(cornerRadius: 3)
                 .fill(slice.category.color)

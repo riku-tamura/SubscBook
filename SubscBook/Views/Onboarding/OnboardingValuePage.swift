@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// オンボーディング 1ページ目：価値の説明
 struct OnboardingValuePage: View {
     let onNext: () -> Void
 

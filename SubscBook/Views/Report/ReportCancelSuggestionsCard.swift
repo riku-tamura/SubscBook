@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// 解約候補の一覧（AI の理由付き・サブスク帳プラス）
 struct ReportCancelSuggestionsCard: View {
     let suggestions: [CancelSuggestion]
     let reasons: [UUID: String]

@@ -2,8 +2,8 @@ import Foundation
 import Testing
 @testable import SubscBook
 
-@Suite("節約レポート")
-struct ReportTests {
+@Suite("節約の集計")
+struct SavingsSummaryTests {
     @Test("年間節約額・節約累計・解約件数をまとめる")
     func savingsSummary() throws {
         let store = try TestStore()
@@ -20,11 +20,5 @@ struct ReportTests {
         #expect(summary.canceledCount == 2)
         #expect(summary.hasSavings)
         #expect(!SavingsSummary(subscriptions: [], now: date(2026, 9, 26), calendar: .tokyo).hasSavings)
-    }
-
-    @Test("共有用の画像を作れる")
-    func rendersShareImage() {
-        let summary = SavingsSummary(annualSavings: 24_072, realizedSavings: 3_966, canceledCount: 2)
-        #expect(ReportShareImage.render(savings: summary) != nil)
     }
 }

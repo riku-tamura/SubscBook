@@ -4,13 +4,15 @@ import SwiftUI
 /// ⑥ 振り返りレポート
 struct ReportView: View {
     @Query private var subscriptions: [Subscription]
+    @State private var viewModel = ReportViewModel()
     @Environment(EntitlementManager.self) private var entitlements
     @Environment(InsightProvider.self) private var insights
-    @State private var comment: String?
 
     var body: some View {
-        let active = subscriptions.filter(\.isActive)
-        let facts = InsightFactsBuilder.monthly(subscriptions: subscriptions, isPremium: entitlements.isPremium)
+        let isPremium = entitlements.isPremium
+        let summary = viewModel.summary(of: subscriptions)
+        let facts = viewModel.insightFacts(of: subscriptions, summary: summary, isPremium: isPremium)
+        let reasonFacts = viewModel.cancelReasonFacts(of: subscriptions, summary: summary, isPremium: isPremium)
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
@@ -21,20 +23,23 @@ struct ReportView: View {
                             description: Text("サブスクを登録すると、月ごとの振り返りが見られます。")
                         )
                     } else {
-                        Text("\(YearMonth(date: .now).fullText)の振り返り")
+                        Text("\(summary.month.fullText)の振り返り")
                             .font(.headline)
                             .foregroundStyle(.secondary)
                         TotalsCard(
-                            monthlyTotal: CostCalculator.monthlyTotal(of: active),
-                            annualTotal: CostCalculator.annualTotal(of: active),
-                            activeCount: active.count
+                            monthlyTotal: summary.monthlyTotal,
+                            annualTotal: summary.annualTotal,
+                            activeCount: summary.activeCount
                         )
-                        let slices = CategoryBreakdown.slices(of: active)
-                        if !slices.isEmpty {
-                            ReportCategoryChartCard(slices: slices, monthlyTotal: CostCalculator.monthlyTotal(of: active))
+                        if !summary.breakdown.isEmpty {
+                            ReportCategoryChartCard(breakdown: summary.breakdown)
                         }
-                        InsightCard(title: "AIの月次振り返り", comment: comment)
-                        ReportPremiumSection(subscriptions: subscriptions)
+                        InsightCard(title: "AIの月次振り返り", comment: viewModel.comment)
+                        ReportPremiumSection(
+                            summary: summary,
+                            cancelReasons: viewModel.cancelReasons,
+                            shareImage: viewModel.shareImage
+                        )
                     }
                 }
                 .padding()
@@ -43,9 +48,13 @@ struct ReportView: View {
             .navigationTitle("レポート")
             .task(id: facts) {
                 guard !subscriptions.isEmpty else { return }
-                let text = await insights.monthlyComment(for: facts)
-                guard !Task.isCancelled else { return }
-                comment = text
+                await viewModel.loadComment(for: facts, using: insights)
+            }
+            .task(id: reasonFacts) {
+                await viewModel.loadCancelReasons(for: reasonFacts, using: insights)
+            }
+            .task(id: isPremium ? summary.savings : nil) {
+                viewModel.updateShareImage(for: summary.savings, isPremium: isPremium)
             }
         }
     }

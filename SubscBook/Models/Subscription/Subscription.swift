@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 
+/// 登録したサブスク
 @Model
 final class Subscription {
     var id: UUID

@@ -1,6 +1,7 @@
 import Foundation
 import Synchronization
 
+/// `withTimeout` の時間切れ
 enum TimeoutError: Error {
     case timedOut
 }

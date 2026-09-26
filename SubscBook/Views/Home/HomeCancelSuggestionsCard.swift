@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// 解約候補のカード（無料はぼかし＋鍵）
 struct HomeCancelSuggestionsCard: View {
     let suggestions: [CancelSuggestion]
     /// AI が作った理由（サブスク帳プラスのみ）

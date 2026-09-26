@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// チェックインの完了画面。解約候補が出た場合はレポートへ案内する
 struct CheckInCompletionView: View {
     let answeredCount: Int
     let suggestions: [CancelSuggestion]

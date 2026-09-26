@@ -1,9 +1,10 @@
 import SwiftUI
 
+/// 年間節約額・節約累計と、SNS 共有用の画像（サブスク帳プラス）
 struct ReportSavingsCard: View {
     let savings: SavingsSummary
+    let shareImage: Image?
     @Environment(EntitlementManager.self) private var entitlements
-    @State private var shareImage: Image?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -45,12 +46,5 @@ struct ReportSavingsCard: View {
             .premiumLocked(!entitlements.isPremium, feature: .savingsReport)
         }
         .card()
-        .task(id: entitlements.isPremium ? savings : nil) {
-            guard entitlements.isPremium, savings.hasSavings else {
-                shareImage = nil
-                return
-            }
-            shareImage = ReportShareImage.render(savings: savings)
-        }
     }
 }

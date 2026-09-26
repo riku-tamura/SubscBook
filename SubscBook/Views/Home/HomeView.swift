@@ -4,23 +4,15 @@ import SwiftUI
 /// ② ホーム
 struct HomeView: View {
     @Query private var subscriptions: [Subscription]
+    @State private var viewModel = HomeViewModel()
     @Environment(AppRouter.self) private var router
     @Environment(EntitlementManager.self) private var entitlements
     @Environment(InsightProvider.self) private var insights
-    @State private var comment: String?
-    @State private var cancelReasons: [UUID: String] = [:]
 
     var body: some View {
-        let summary = HomeSummary(subscriptions: subscriptions)
-        let facts = InsightFactsBuilder.monthly(
-            subscriptions: subscriptions,
-            isPremium: entitlements.isPremium,
-            suggestions: summary.cancelSuggestions
-        )
-        // 解約候補の理由はサブスク帳プラスのみ AI で作る（無料はぼかし表示なので作らない）
-        let reasonFacts = entitlements.isPremium
-            ? summary.cancelSuggestions.map { InsightFactsBuilder.cancelReason(for: $0, among: subscriptions) }
-            : []
+        let summary = viewModel.summary(of: subscriptions)
+        let facts = viewModel.insightFacts(of: subscriptions, summary: summary, isPremium: entitlements.isPremium)
+        let reasonFacts = viewModel.cancelReasonFacts(of: subscriptions, summary: summary, isPremium: entitlements.isPremium)
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
@@ -35,9 +27,9 @@ struct HomeView: View {
                             annualTotal: summary.annualTotal,
                             activeCount: summary.activeCount
                         )
-                        InsightCard(comment: comment)
+                        InsightCard(comment: viewModel.comment)
                         if !summary.cancelSuggestions.isEmpty {
-                            HomeCancelSuggestionsCard(suggestions: summary.cancelSuggestions, reasons: cancelReasons)
+                            HomeCancelSuggestionsCard(suggestions: summary.cancelSuggestions, reasons: viewModel.cancelReasons)
                         }
                         HomeUpcomingPaymentsCard(subscriptions: summary.upcomingPayments)
                     }
@@ -53,17 +45,10 @@ struct HomeView: View {
             }
             .task(id: facts) {
                 guard summary.activeCount > 0 else { return }
-                let text = await insights.monthlyComment(for: facts)
-                // 生成中に事実が変わった場合は、古い結果で上書きしない
-                guard !Task.isCancelled else { return }
-                comment = text
+                await viewModel.loadComment(for: facts, using: insights)
             }
             .task(id: reasonFacts) {
-                for facts in reasonFacts {
-                    let text = await insights.cancelReason(for: facts)
-                    guard !Task.isCancelled else { return }
-                    cancelReasons[facts.subscriptionID] = text
-                }
+                await viewModel.loadCancelReasons(for: reasonFacts, using: insights)
             }
         }
     }

@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// 「先月使いましたか？」のカード（ボタン・スワイプ・VoiceOver で回答できる）
 struct CheckInCard: View {
     let subscription: Subscription
     let month: YearMonth

@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// 次の支払い予定（直近3件）のカード
 struct HomeUpcomingPaymentsCard: View {
     let subscriptions: [Subscription]
     @Environment(AppRouter.self) private var router

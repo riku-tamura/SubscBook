@@ -2,32 +2,18 @@ import SwiftUI
 
 /// ⑥ レポートのサブスク帳プラス部分。無料ユーザーにはぼかして表示する。
 struct ReportPremiumSection: View {
-    let subscriptions: [Subscription]
+    let summary: ReportSummary
+    /// AI が作った解約候補の理由（サブスク帳プラスのみ）
+    let cancelReasons: [UUID: String]
+    let shareImage: Image?
     @Environment(EntitlementManager.self) private var entitlements
-    @Environment(InsightProvider.self) private var insights
-    @State private var reasons: [UUID: String] = [:]
 
     var body: some View {
-        let active = subscriptions.filter(\.isActive)
-        let suggestions = CancelSuggestionDetector.suggestions(for: active)
-        let duplicates = DuplicateDetector.duplicateGroups(in: active)
-        let savings = SavingsSummary(subscriptions: subscriptions)
-        let reasonFacts = entitlements.isPremium
-            ? suggestions.map { InsightFactsBuilder.cancelReason(for: $0, among: subscriptions) }
-            : []
-
         VStack(spacing: 16) {
             SectionTitle(title: "サブスク帳プラス", isLocked: !entitlements.isPremium)
-            ReportCancelSuggestionsCard(suggestions: suggestions, reasons: reasons)
-            ReportDuplicatesCard(groups: duplicates)
-            ReportSavingsCard(savings: savings)
-        }
-        .task(id: reasonFacts) {
-            for facts in reasonFacts {
-                let text = await insights.cancelReason(for: facts)
-                guard !Task.isCancelled else { return }
-                reasons[facts.subscriptionID] = text
-            }
+            ReportCancelSuggestionsCard(suggestions: summary.cancelSuggestions, reasons: cancelReasons)
+            ReportDuplicatesCard(groups: summary.duplicateGroups)
+            ReportSavingsCard(savings: summary.savings, shareImage: shareImage)
         }
     }
 }

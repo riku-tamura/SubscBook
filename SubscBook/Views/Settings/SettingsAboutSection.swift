@@ -2,12 +2,7 @@ import SwiftUI
 
 /// 利用規約・プライバシーポリシー・バージョン
 struct SettingsAboutSection: View {
-    private var version: String {
-        let info = Bundle.main.infoDictionary
-        let version = info?["CFBundleShortVersionString"] as? String ?? "-"
-        let build = info?["CFBundleVersion"] as? String ?? "-"
-        return "\(version)（\(build)）"
-    }
+    let appVersion: String
 
     var body: some View {
         Section("このアプリについて") {
@@ -24,7 +19,7 @@ struct SettingsAboutSection: View {
             NavigationLink("プライバシーポリシー") {
                 PrivacyPolicyView()
             }
-            LabeledContent("バージョン", value: version)
+            LabeledContent("バージョン", value: appVersion)
         }
     }
 }

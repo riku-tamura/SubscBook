@@ -4,7 +4,7 @@ import Testing
 @testable import SubscBook
 
 @Suite("Subscription / CheckIn モデル")
-struct SubscriptionModelTests {
+struct SubscriptionTests {
     @Test("enum アクセサは rawValue と相互変換する")
     func enumAccessors() throws {
         let store = try TestStore()

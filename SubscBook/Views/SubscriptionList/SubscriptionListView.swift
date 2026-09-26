@@ -5,12 +5,12 @@ import SwiftUI
 struct SubscriptionListView: View {
     @Query private var subscriptions: [Subscription]
     @AppStorage("list.sortOrder") private var sortOrder: SubscriptionSortOrder = .paymentDate
-    @State private var isCanceledExpanded = false
+    @State private var viewModel = SubscriptionListViewModel()
     @Environment(AppRouter.self) private var router
     @Environment(EntitlementManager.self) private var entitlements
 
     var body: some View {
-        let sections = SubscriptionListSections(subscriptions: subscriptions, sortOrder: sortOrder)
+        let sections = viewModel.sections(of: subscriptions, sortOrder: sortOrder)
         NavigationStack {
             content(sections)
                 .navigationTitle("サブスク一覧")
@@ -57,13 +57,13 @@ struct SubscriptionListView: View {
                     Text("契約中（\(sections.active.count)件）")
                 } footer: {
                     if !entitlements.isPremium {
-                        freePlanFooter(activeCount: sections.active.count)
+                        Text(viewModel.freePlanMessage(activeCount: sections.active.count))
                     }
                 }
 
                 if !sections.canceled.isEmpty {
                     Section {
-                        if isCanceledExpanded {
+                        if viewModel.isCanceledExpanded {
                             ForEach(sections.canceled) { subscription in
                                 row(subscription)
                             }
@@ -98,32 +98,23 @@ struct SubscriptionListView: View {
         }
     }
 
-    private func freePlanFooter(activeCount: Int) -> some View {
-        let remaining = max(0, FreePlan.subscriptionLimit - activeCount)
-        return Text(
-            remaining > 0
-                ? "無料プランでは\(FreePlan.subscriptionLimit)件まで登録できます（あと\(remaining)件）。"
-                : "無料プランの上限（\(FreePlan.subscriptionLimit)件）に達しました。サブスク帳プラスなら無制限に登録できます。"
-        )
-    }
-
     private func canceledHeader(count: Int) -> some View {
         Button {
             withAnimation {
-                isCanceledExpanded.toggle()
+                viewModel.toggleCanceledSection()
             }
         } label: {
             HStack {
                 Text("解約済み（\(count)件）")
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .rotationEffect(.degrees(isCanceledExpanded ? 90 : 0))
+                    .rotationEffect(.degrees(viewModel.isCanceledExpanded ? 90 : 0))
                     .accessibilityHidden(true)
             }
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
-        .accessibilityValue(isCanceledExpanded ? "展開" : "折りたたみ")
-        .accessibilityHint(isCanceledExpanded ? "解約済みのサブスクを隠します" : "解約済みのサブスクを表示します")
+        .accessibilityValue(viewModel.isCanceledExpanded ? "展開" : "折りたたみ")
+        .accessibilityHint(viewModel.isCanceledExpanded ? "解約済みのサブスクを隠します" : "解約済みのサブスクを表示します")
     }
 }

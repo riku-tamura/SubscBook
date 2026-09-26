@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// 前月分のチェックインが未回答のときのバナー
 struct HomeCheckInBanner: View {
     let month: YearMonth
     let count: Int

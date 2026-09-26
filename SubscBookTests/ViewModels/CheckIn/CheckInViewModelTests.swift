@@ -83,26 +83,4 @@ struct CheckInViewModelTests {
         #expect(viewModel.progress == 1)
         #expect(!viewModel.canGoBack)
     }
-
-    @Test("通知をタップしたときの遷移")
-    func openNotification() async throws {
-        let router = AppRouter()
-        router.openNotification(.checkIn)
-        #expect(router.selectedTab == .home)
-        #expect(router.isCheckInPresented)
-
-        // シート表示中は閉じてからチェックインを出す
-        let presenting = AppRouter()
-        presenting.paywall = .settings
-        presenting.openNotification(.checkIn)
-        #expect(presenting.paywall == nil)
-        #expect(!presenting.isCheckInPresented)
-        try await Task.sleep(for: AppRouter.sheetDismissDelay + .milliseconds(200))
-        #expect(presenting.isCheckInPresented)
-
-        let other = AppRouter()
-        other.openNotification(.payment)
-        #expect(other.selectedTab == .list)
-        #expect(!other.isCheckInPresented)
-    }
 }

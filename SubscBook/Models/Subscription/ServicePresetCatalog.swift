@@ -1,5 +1,6 @@
 import Foundation
 
+/// 主要サービスの候補の一覧と検索
 nonisolated enum ServicePresetCatalog {
     static let all: [ServicePreset] = [
         // 動画

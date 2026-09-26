@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// オンボーディングの各ページで共通のレイアウト
 struct OnboardingPageLayout<Content: View>: View {
     let systemImage: String
     let title: String

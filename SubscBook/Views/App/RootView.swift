@@ -8,7 +8,7 @@ struct RootView: View {
     @Environment(EntitlementManager.self) private var entitlements
     @Environment(NotificationScheduler.self) private var notifications
     @Environment(InsightProvider.self) private var insights
-    @AppStorage(OnboardingView.completedKey) private var hasCompletedOnboarding = false
+    @AppStorage(OnboardingViewModel.completedKey) private var hasCompletedOnboarding = false
 
     var body: some View {
         Group {

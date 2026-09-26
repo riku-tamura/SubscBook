@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// オンボーディング 3ページ目：最初のサブスクの登録（スキップ可）
 struct OnboardingFirstSubscriptionPage: View {
     let onFinish: () -> Void
 

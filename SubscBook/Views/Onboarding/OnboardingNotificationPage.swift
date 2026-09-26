@@ -1,18 +1,19 @@
 import SwiftUI
 
+/// オンボーディング 2ページ目：通知の許可（理由を説明してから許可ダイアログを出す）
 struct OnboardingNotificationPage: View {
-    let onNext: () -> Void
-    @Environment(NotificationScheduler.self) private var notifications
-    @State private var isRequesting = false
+    let isRequesting: Bool
+    let onAllow: () -> Void
+    let onSkip: () -> Void
 
     var body: some View {
         OnboardingPageLayout(
             systemImage: "bell.badge.fill",
             title: "支払日の前日に\nお知らせします",
             primaryTitle: "通知を許可する",
-            primaryAction: requestAuthorization,
+            primaryAction: onAllow,
             secondaryTitle: "あとで",
-            secondaryAction: onNext,
+            secondaryAction: onSkip,
             isBusy: isRequesting
         ) {
             VStack(alignment: .leading, spacing: 12) {
@@ -26,15 +27,6 @@ struct OnboardingNotificationPage: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .card()
-        }
-    }
-
-    private func requestAuthorization() {
-        isRequesting = true
-        Task {
-            await notifications.requestAuthorization()
-            isRequesting = false
-            onNext()
         }
     }
 }
