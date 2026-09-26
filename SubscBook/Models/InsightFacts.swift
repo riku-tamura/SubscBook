@@ -22,11 +22,11 @@ nonisolated enum SpendingTrend: String, Hashable, Sendable {
 nonisolated struct MonthlyInsightFacts: Hashable, Sendable {
     let activeCount: Int
     let trend: SpendingTrend
-    /// 解約候補（見張り番プラスのみサービス名を渡す）
+    /// 解約候補（サブスク帳プラスのみサービス名を渡す）
     let cancelCandidates: [CandidateFact]
     /// 名前を伏せた解約候補の件数（無料プラン）
     let hiddenCancelCandidateCount: Int
-    /// 重複カテゴリ（見張り番プラスのみカテゴリ名を渡す）
+    /// 重複カテゴリ（サブスク帳プラスのみカテゴリ名を渡す）
     let duplicateCategories: [DuplicateFact]
     /// 名前を伏せた重複カテゴリの件数（無料プラン）
     let hiddenDuplicateCount: Int

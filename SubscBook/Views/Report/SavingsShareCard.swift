@@ -19,7 +19,7 @@ struct SavingsShareCard: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("サブスク見張り番")
+            Text("サブスク帳")
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.9))
 

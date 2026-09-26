@@ -71,7 +71,7 @@ private struct NotificationSettingsSection: View {
                     }
                 }
                 .tint(.primary)
-                .accessibilityLabel("無料トライアル終了のお知らせ。見張り番プラスで利用できます")
+                .accessibilityLabel("無料トライアル終了のお知らせ。サブスク帳プラスで利用できます")
             }
 
             Toggle("月次チェックイン（毎月1日 20:00）", isOn: $checkInReminder)
@@ -107,7 +107,7 @@ private struct AISettingsSection: View {
     }
 }
 
-/// 見張り番プラスの状態・管理・購入の復元
+/// サブスク帳プラスの状態・管理・購入の復元
 private struct PremiumSettingsSection: View {
     @Environment(EntitlementManager.self) private var entitlements
     @Environment(AppRouter.self) private var router
@@ -135,7 +135,7 @@ private struct PremiumSettingsSection: View {
                     router.showPaywall(.settings)
                 } label: {
                     HStack {
-                        Label("見張り番プラスにアップグレード", systemImage: "star.fill")
+                        Label("サブスク帳プラスにアップグレード", systemImage: "star.fill")
                         Spacer()
                         Image(systemName: "chevron.right")
                             .font(.footnote.weight(.semibold))
@@ -156,7 +156,7 @@ private struct PremiumSettingsSection: View {
             }
             .disabled(isRestoring)
         } header: {
-            Text("見張り番プラス")
+            Text("サブスク帳プラス")
         }
         .manageSubscriptionsSheet(isPresented: $isManagingSubscription)
         .alert("購入の復元", isPresented: Binding(
@@ -170,7 +170,7 @@ private struct PremiumSettingsSection: View {
     }
 
     private var planName: String {
-        guard let plan = entitlements.activePlan else { return "見張り番プラス" }
+        guard let plan = entitlements.activePlan else { return "サブスク帳プラス" }
         return plan.isYearly ? "年額プラン" : "月額プラン"
     }
 
@@ -180,8 +180,8 @@ private struct PremiumSettingsSection: View {
         do {
             try await entitlements.restore()
             restoreMessage = entitlements.isPremium
-                ? "見張り番プラスの購入を復元しました。"
-                : "この Apple ID で見張り番プラスの購入が見つかりませんでした。"
+                ? "サブスク帳プラスの購入を復元しました。"
+                : "この Apple ID でサブスク帳プラスの購入が見つかりませんでした。"
         } catch {
             restoreMessage = "復元できませんでした。時間をおいて、もう一度お試しください。"
         }
@@ -240,7 +240,7 @@ private struct DataDeletionSection: View {
                 Text("登録したサブスクとチェックインの記録をすべて削除します。この操作は取り消せません。")
             }
         } footer: {
-            Text("見張り番プラスの購読は削除されません。解約は「設定」アプリの「サブスクリプション」から行えます。")
+            Text("サブスク帳プラスの購読は削除されません。解約は「設定」アプリの「サブスクリプション」から行えます。")
         }
         .alert("データの全削除", isPresented: Binding(
             get: { resultMessage != nil },

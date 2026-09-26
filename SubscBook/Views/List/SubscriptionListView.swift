@@ -103,7 +103,7 @@ struct SubscriptionListView: View {
         return Text(
             remaining > 0
                 ? "無料プランでは\(FreePlan.subscriptionLimit)件まで登録できます（あと\(remaining)件）。"
-                : "無料プランの上限（\(FreePlan.subscriptionLimit)件）に達しました。見張り番プラスなら無制限に登録できます。"
+                : "無料プランの上限（\(FreePlan.subscriptionLimit)件）に達しました。サブスク帳プラスなら無制限に登録できます。"
         )
     }
 

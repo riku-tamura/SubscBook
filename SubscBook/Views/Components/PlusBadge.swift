@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 見張り番プラスの機能であることを示す小さなバッジ
+/// サブスク帳プラスの機能であることを示す小さなバッジ
 struct PlusBadge: View {
     var body: some View {
         Label("プラス", systemImage: "lock.fill")
@@ -10,6 +10,6 @@ struct PlusBadge: View {
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .background(Color.accentColor.opacity(0.12), in: .capsule)
-            .accessibilityLabel("見張り番プラス")
+            .accessibilityLabel("サブスク帳プラス")
     }
 }

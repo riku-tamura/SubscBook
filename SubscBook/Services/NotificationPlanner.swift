@@ -52,7 +52,7 @@ enum NotificationPlanner {
                 oneShots += paymentReminders(for: subscription, now: now, calendar: calendar)
             }
         }
-        // トライアル終了の通知は見張り番プラスの機能
+        // トライアル終了の通知はサブスク帳プラスの機能
         if preferences.trialReminder && isPremium {
             for subscription in active {
                 oneShots += trialReminders(for: subscription, now: now, calendar: calendar)

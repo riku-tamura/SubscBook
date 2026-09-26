@@ -2,7 +2,7 @@ import Foundation
 import Observation
 import StoreKit
 
-/// 見張り番プラスの商品（7章）
+/// サブスク帳プラスの商品（7章）
 nonisolated enum StoreProducts {
     /// Product ID の接頭辞。Bundle ID を変えた場合はここと Products.storekit を合わせて変更する。
     static let prefix = "com.hachimaki.SubscBook"
@@ -12,7 +12,7 @@ nonisolated enum StoreProducts {
     static let all = [yearly, monthly]
 }
 
-/// 見張り番プラスの購読状態を一元管理する（7章）。全画面から参照する。
+/// サブスク帳プラスの購読状態を一元管理する（7章）。全画面から参照する。
 @Observable
 final class EntitlementManager {
     /// 加入中のプラン

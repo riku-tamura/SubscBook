@@ -1,6 +1,6 @@
 import Foundation
 
-/// 見張り番プラスで使える機能（6章）
+/// サブスク帳プラスで使える機能（6章）
 nonisolated enum PremiumFeature: String, CaseIterable, Identifiable, Sendable {
     case unlimitedSubscriptions
     case trialReminders

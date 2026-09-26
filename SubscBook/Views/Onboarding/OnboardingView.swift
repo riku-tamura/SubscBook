@@ -53,7 +53,7 @@ private struct ValuePage: View {
 
     var body: some View {
         OnboardingPage(
-            systemImage: "binoculars.fill",
+            systemImage: "text.book.closed.fill",
             title: "あなたのサブスク、\n見張ります",
             primaryTitle: "はじめる",
             primaryAction: onNext

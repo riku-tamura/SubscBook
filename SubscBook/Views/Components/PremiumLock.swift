@@ -25,7 +25,7 @@ private struct PremiumLockModifier: ViewModifier {
                         VStack(spacing: 6) {
                             Image(systemName: "lock.fill")
                                 .font(.title2)
-                            Text("見張り番プラスで利用できます")
+                            Text("サブスク帳プラスで利用できます")
                                 .font(.subheadline.weight(.semibold))
                                 .multilineTextAlignment(.center)
                         }
@@ -35,8 +35,8 @@ private struct PremiumLockModifier: ViewModifier {
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(Color.accentColor)
-                    .accessibilityLabel("\(feature.title)。見張り番プラスで利用できます")
-                    .accessibilityHint("見張り番プラスの案内を開きます")
+                    .accessibilityLabel("\(feature.title)。サブスク帳プラスで利用できます")
+                    .accessibilityHint("サブスク帳プラスの案内を開きます")
                 }
                 .clipped()
         } else {

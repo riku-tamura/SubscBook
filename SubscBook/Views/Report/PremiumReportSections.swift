@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// ⑥ レポートの見張り番プラス部分。無料ユーザーにはぼかして表示する。
+/// ⑥ レポートのサブスク帳プラス部分。無料ユーザーにはぼかして表示する。
 struct PremiumReportSections: View {
     let subscriptions: [Subscription]
     @Environment(EntitlementManager.self) private var entitlements
@@ -17,7 +17,7 @@ struct PremiumReportSections: View {
             : []
 
         VStack(spacing: 16) {
-            SectionTitle(title: "見張り番プラス", isLocked: !entitlements.isPremium)
+            SectionTitle(title: "サブスク帳プラス", isLocked: !entitlements.isPremium)
             CancelSuggestionsReportCard(suggestions: suggestions, reasons: reasons)
             DuplicatesReportCard(groups: duplicates)
             SavingsReportCard(savings: savings)
@@ -181,7 +181,7 @@ private struct SavingsReportCard: View {
                         if let shareImage {
                             ShareLink(
                                 item: shareImage,
-                                preview: SharePreview("サブスク見張り番の節約レポート", image: shareImage)
+                                preview: SharePreview("サブスク帳の節約レポート", image: shareImage)
                             ) {
                                 Label("画像でシェア", systemImage: "square.and.arrow.up")
                                     .frame(maxWidth: .infinity)

@@ -71,11 +71,11 @@ struct PaywallView: View {
 
     private var header: some View {
         VStack(spacing: 12) {
-            Image(systemName: "binoculars.fill")
+            Image(systemName: "text.book.closed.fill")
                 .font(.system(size: 52))
                 .foregroundStyle(Color.accentColor)
                 .accessibilityHidden(true)
-            Text("見張り番プラス")
+            Text("サブスク帳プラス")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Color.accentColor)
             Text(reason.headline)
@@ -183,7 +183,7 @@ struct PaywallView: View {
 
     private var subscribedNotice: some View {
         VStack(spacing: 8) {
-            Label("見張り番プラスをご利用中です", systemImage: "checkmark.seal.fill")
+            Label("サブスク帳プラスをご利用中です", systemImage: "checkmark.seal.fill")
                 .font(.headline)
                 .foregroundStyle(Color.accentColor)
             Text("すべての機能をお使いいただけます。")
@@ -251,13 +251,13 @@ struct PaywallView: View {
             case .purchased:
                 message = PaywallMessage(
                     title: "ありがとうございます",
-                    body: "見張り番プラスのすべての機能が使えるようになりました。",
+                    body: "サブスク帳プラスのすべての機能が使えるようになりました。",
                     dismissesPaywall: true
                 )
             case .pending:
                 message = PaywallMessage(
                     title: "承認を待っています",
-                    body: "購入が承認されると、見張り番プラスが使えるようになります。",
+                    body: "購入が承認されると、サブスク帳プラスが使えるようになります。",
                     dismissesPaywall: true
                 )
             case .cancelled:
@@ -274,8 +274,8 @@ struct PaywallView: View {
         do {
             try await entitlements.restore()
             message = entitlements.isPremium
-                ? PaywallMessage(title: "購入を復元しました", body: "見張り番プラスが使えるようになりました。", dismissesPaywall: true)
-                : PaywallMessage(title: "復元できる購入がありません", body: "この Apple ID で見張り番プラスの購入が見つかりませんでした。")
+                ? PaywallMessage(title: "購入を復元しました", body: "サブスク帳プラスが使えるようになりました。", dismissesPaywall: true)
+                : PaywallMessage(title: "復元できる購入がありません", body: "この Apple ID でサブスク帳プラスの購入が見つかりませんでした。")
         } catch {
             message = PaywallMessage(title: "復元できませんでした", body: "時間をおいて、もう一度お試しください。")
         }

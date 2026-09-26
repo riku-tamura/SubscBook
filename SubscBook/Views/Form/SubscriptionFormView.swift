@@ -161,7 +161,7 @@ struct SubscriptionFormView: View {
             }
         } footer: {
             if viewModel.hasTrial && !entitlements.isPremium {
-                Text("トライアル終了前のお知らせは見張り番プラスの機能です。")
+                Text("トライアル終了前のお知らせはサブスク帳プラスの機能です。")
             }
         }
     }

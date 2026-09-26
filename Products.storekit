@@ -30,11 +30,11 @@
       "localizations" : [
         {
           "description" : "",
-          "displayName" : "見張り番プラス",
+          "displayName" : "サブスク帳プラス",
           "locale" : "ja"
         }
       ],
-      "name" : "見張り番プラス",
+      "name" : "サブスク帳プラス",
       "subscriptions" : [
         {
           "adHocOffers" : [
@@ -55,7 +55,7 @@
           "localizations" : [
             {
               "description" : "解約候補の提案や節約レポートなど、すべての機能が使えます",
-              "displayName" : "見張り番プラス（年額）",
+              "displayName" : "サブスク帳プラス（年額）",
               "locale" : "ja"
             }
           ],
@@ -83,7 +83,7 @@
           "localizations" : [
             {
               "description" : "解約候補の提案や節約レポートなど、すべての機能が使えます",
-              "displayName" : "見張り番プラス（月額）",
+              "displayName" : "サブスク帳プラス（月額）",
               "locale" : "ja"
             }
           ],

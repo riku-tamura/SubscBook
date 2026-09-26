@@ -92,9 +92,9 @@ extension PaywallReason {
     var message: String {
         switch self {
         case .subscriptionLimit:
-            "無料プランで登録できるのは\(FreePlan.subscriptionLimit)件までです。見張り番プラスなら、すべてのサブスクを見張れます。"
+            "無料プランで登録できるのは\(FreePlan.subscriptionLimit)件までです。サブスク帳プラスなら、すべてのサブスクを見張れます。"
         case .lockedFeature:
-            "この機能は見張り番プラスでご利用いただけます。"
+            "この機能はサブスク帳プラスでご利用いただけます。"
         case .settings:
             "使っていないサブスクや重複を見つけて、解約を後押しします。"
         }

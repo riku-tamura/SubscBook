@@ -17,7 +17,7 @@ struct HomeView: View {
             isPremium: entitlements.isPremium,
             suggestions: summary.cancelSuggestions
         )
-        // 解約候補の理由は見張り番プラスのみ AI で作る（無料はぼかし表示なので作らない）
+        // 解約候補の理由はサブスク帳プラスのみ AI で作る（無料はぼかし表示なので作らない）
         let reasonFacts = entitlements.isPremium
             ? summary.cancelSuggestions.map { InsightFactsBuilder.cancelReason(for: $0, among: subscriptions) }
             : []
@@ -70,7 +70,7 @@ struct HomeView: View {
 
     private var emptyCard: some View {
         VStack(spacing: 16) {
-            Image(systemName: "binoculars.circle.fill")
+            Image(systemName: "text.book.closed.fill")
                 .font(.system(size: 56))
                 .foregroundStyle(Color.accentColor)
                 .accessibilityHidden(true)
@@ -138,7 +138,7 @@ private struct CheckInBanner: View {
 // MARK: - AI のひとこと
 
 struct InsightCard: View {
-    var title = "見張り番のひとこと"
+    var title = "今月のひとこと"
     let comment: String?
 
     var body: some View {
@@ -163,7 +163,7 @@ struct InsightCard: View {
 
 private struct CancelSuggestionsCard: View {
     let suggestions: [CancelSuggestion]
-    /// AI が作った理由（見張り番プラスのみ）
+    /// AI が作った理由（サブスク帳プラスのみ）
     let reasons: [UUID: String]
     @Environment(AppRouter.self) private var router
     @Environment(EntitlementManager.self) private var entitlements
