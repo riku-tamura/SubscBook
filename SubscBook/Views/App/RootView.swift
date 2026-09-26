@@ -1,0 +1,53 @@
+import SwiftData
+import SwiftUI
+
+/// アプリのルート
+struct RootView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(EntitlementManager.self) private var entitlements
+    @Environment(NotificationScheduler.self) private var notifications
+    @Environment(InsightProvider.self) private var insights
+    @AppStorage(OnboardingViewModel.completedKey) private var hasCompletedOnboarding = false
+
+    var body: some View {
+        Group {
+            if hasCompletedOnboarding {
+                MainTabView()
+            } else {
+                OnboardingView()
+            }
+        }
+        .onAppear(perform: skipOnboardingIfNeeded)
+        .onChange(of: scenePhase, initial: true) { _, phase in
+            if phase == .active {
+                // 起動時・フォアグラウンド復帰時に、過ぎた支払日を次の周期へ進めて通知を登録し直す（5.2・9章）
+                _ = try? PaymentDateCalculator.refreshPaymentDates(in: modelContext)
+                notifications.reschedule()
+                // AI モデルの準備完了や Apple Intelligence の設定変更を反映する（8.1）
+                insights.refreshAvailability()
+                // 期限切れ・返金は Transaction.updates に流れないことがあるので、復帰時にも確かめる
+                Task { await entitlements.refreshEntitlements() }
+            }
+        }
+        .onChange(of: entitlements.isPremium) {
+            // トライアル終了の通知はプラスのみ
+            notifications.reschedule()
+        }
+    }
+
+    /// すでにデータがある場合（開発時のサンプルデータなど）はオンボーディングを出さない
+    private func skipOnboardingIfNeeded() {
+        guard !hasCompletedOnboarding else { return }
+        #if DEBUG
+        if DebugLaunchOptions.skipsOnboarding {
+            hasCompletedOnboarding = true
+            return
+        }
+        #endif
+        let count = (try? modelContext.fetchCount(FetchDescriptor<Subscription>())) ?? 0
+        if count > 0 {
+            hasCompletedOnboarding = true
+        }
+    }
+}

@@ -1,0 +1,136 @@
+import SwiftUI
+
+/// 「先月使いましたか？」のカード（ボタン・スワイプ・VoiceOver で回答できる）
+struct CheckInCard: View {
+    let subscription: Subscription
+    let month: YearMonth
+    /// 回答を受け取り、記録できたかを返す（保存に失敗したらカードを元の位置に戻す）
+    let onAnswer: (Bool) -> Bool
+
+    @State private var offset: CGSize = .zero
+    /// スワイプで回答を確定し、カードが画面外へ出ていく間は他の操作を受け付けない
+    @State private var isAnswering = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// この距離を超えてスワイプしたら回答する
+    private let threshold: CGFloat = 110
+
+    var body: some View {
+        VStack(spacing: 24) {
+            card
+                .offset(x: offset.width, y: offset.height * 0.2)
+                .rotationEffect(.degrees(reduceMotion ? 0 : Double(offset.width / 20)))
+                .gesture(dragGesture)
+                .accessibilityElement(children: .combine)
+                .accessibilityHint("右にスワイプで使った、左にスワイプで使っていない")
+                .accessibilityAction(named: "使った") { _ = onAnswer(true) }
+                .accessibilityAction(named: "使っていない") { _ = onAnswer(false) }
+
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) { answerButtons }
+                VStack(spacing: 12) { answerButtons }
+            }
+            .disabled(isAnswering)
+
+            Text("カードを左右にスワイプしても答えられます")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                // VoiceOver ではカードの操作（使った・使っていない）で答えられる
+                .accessibilityHidden(true)
+        }
+    }
+
+    private var card: some View {
+        VStack(spacing: 16) {
+            CategoryIcon(name: subscription.name, category: subscription.category, size: 72)
+            Text(subscription.name)
+                .font(.title2.weight(.bold))
+                .multilineTextAlignment(.center)
+            Text(subscription.priceText)
+                .font(.subheadline.monospacedDigit())
+                .foregroundStyle(.secondary)
+            Text("先月（\(month.monthText)）、\(subscription.name)を使いましたか？")
+                .font(.headline)
+                .multilineTextAlignment(.center)
+                .padding(.top, 8)
+        }
+        .padding(28)
+        .frame(maxWidth: .infinity)
+        .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 24))
+        .overlay { swipeHint }
+        .shadow(color: .black.opacity(0.08), radius: 12, y: 4)
+    }
+
+    /// スワイプ中に回答を示すラベル
+    @ViewBuilder
+    private var swipeHint: some View {
+        let progress = min(abs(offset.width) / threshold, 1)
+        if offset.width != 0 {
+            let used = offset.width > 0
+            RoundedRectangle(cornerRadius: 24)
+                .strokeBorder(used ? Color.green : Color.orange, lineWidth: 4)
+                .overlay(alignment: used ? .topLeading : .topTrailing) {
+                    Text(used ? "使った" : "使っていない")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(used ? Color.green : Color.orange, in: .capsule)
+                        .padding(16)
+                }
+                .opacity(progress)
+                .accessibilityHidden(true)
+        }
+    }
+
+    @ViewBuilder
+    private var answerButtons: some View {
+        Button {
+            _ = onAnswer(false)
+        } label: {
+            Label("使っていない", systemImage: "moon.zzz")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
+        .tint(.orange)
+        .controlSize(.large)
+
+        Button {
+            _ = onAnswer(true)
+        } label: {
+            Label("使った", systemImage: "checkmark")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
+    }
+
+    private var dragGesture: some Gesture {
+        DragGesture()
+            .onChanged { value in
+                guard !isAnswering else { return }
+                offset = value.translation
+            }
+            .onEnded { value in
+                guard !isAnswering else { return }
+                let width = value.translation.width
+                if abs(width) > threshold {
+                    let used = width > 0
+                    isAnswering = true
+                    withAnimation(.easeIn(duration: 0.2)) {
+                        offset = CGSize(width: used ? 600 : -600, height: value.translation.height)
+                    }
+                    Task {
+                        try? await Task.sleep(for: .milliseconds(200))
+                        if !onAnswer(used) {
+                            // 記録できなかったら、カードを戻してもう一度答えられるようにする
+                            withAnimation(.spring) { offset = .zero }
+                            isAnswering = false
+                        }
+                    }
+                } else {
+                    withAnimation(.spring) { offset = .zero }
+                }
+            }
+    }
+}
