@@ -69,6 +69,8 @@ enum PaymentDateCalculator {
     ) throws -> [Subscription] {
         let subscriptions = try context.fetch(FetchDescriptor(predicate: Subscription.activePredicate))
         let updated = refreshPaymentDates(of: subscriptions, now: now, calendar: calendar)
+        // 保存に失敗しても取り消さない。進めた支払日は正しい値で、次に保存したときに保存されればよいため
+        // （ユーザーに失敗を伝える操作ではないので、伝えた内容と保存された内容が食い違うこともない）。
         if !updated.isEmpty {
             try context.save()
         }

@@ -73,6 +73,8 @@ final class SettingsViewModel {
             insights.clearCache()
             deletionMessage = "すべてのデータを削除しました。"
         } catch {
+            // 取り消さないと、削除できなかったと伝えたデータが、ほかの保存のときに削除されてしまう
+            context.rollback()
             deletionMessage = "削除できませんでした。もう一度お試しください。"
         }
     }
