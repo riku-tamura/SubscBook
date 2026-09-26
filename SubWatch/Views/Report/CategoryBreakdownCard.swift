@@ -54,22 +54,28 @@ struct CategoryBreakdownCard: View {
     }
 
     private func legendRow(_ slice: CategorySlice) -> some View {
-        HStack(spacing: 10) {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
             RoundedRectangle(cornerRadius: 3)
                 .fill(slice.category.color)
                 .frame(width: 12, height: 12)
                 .accessibilityHidden(true)
-            Text(slice.category.displayName)
-            Text("\(slice.count)件")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-            Spacer(minLength: 8)
-            Text(slice.monthlyTotal.yenText)
-                .monospacedDigit()
-            Text(percentText(slice.share))
-                .font(.footnote.monospacedDigit())
-                .foregroundStyle(.secondary)
-                .frame(minWidth: 40, alignment: .trailing)
+            AdaptiveHStack {
+                HStack(spacing: 6) {
+                    Text(slice.category.displayName)
+                    Text("\(slice.count)件")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            } trailing: {
+                HStack(spacing: 8) {
+                    Text(slice.monthlyTotal.yenText)
+                        .monospacedDigit()
+                    Text(percentText(slice.share))
+                        .font(.footnote.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                        .frame(minWidth: 40, alignment: .trailing)
+                }
+            }
         }
         .font(.subheadline)
         .accessibilityElement(children: .combine)

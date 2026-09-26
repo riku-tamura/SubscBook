@@ -7,19 +7,20 @@ struct SubscriptionRow: View {
     var body: some View {
         HStack(spacing: 12) {
             CategoryIcon(name: subscription.name, category: subscription.category)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(subscription.name)
-                    .font(.body.weight(.medium))
-                    .lineLimit(2)
-                Text(subtitle)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+            AdaptiveHStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(subscription.name)
+                        .font(.body.weight(.medium))
+                    Text(subtitle)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            } trailing: {
+                Text(subscription.priceText)
+                    .font(.callout.monospacedDigit())
+                    .foregroundStyle(subscription.isActive ? .primary : .secondary)
+                    .strikethrough(!subscription.isActive)
             }
-            Spacer(minLength: 8)
-            Text(subscription.priceText)
-                .font(.callout.monospacedDigit())
-                .foregroundStyle(subscription.isActive ? .primary : .secondary)
-                .strikethrough(!subscription.isActive)
         }
         .padding(.vertical, 2)
         .accessibilityElement(children: .ignore)

@@ -61,7 +61,7 @@ struct HomeView: View {
 
     private var emptyCard: some View {
         VStack(spacing: 16) {
-            Image(systemName: "eye.circle.fill")
+            Image(systemName: "binoculars.circle.fill")
                 .font(.system(size: 56))
                 .foregroundStyle(Color.accentColor)
                 .accessibilityHidden(true)
@@ -90,6 +90,7 @@ private struct CheckInBanner: View {
     let month: YearMonth
     let count: Int
     @Environment(AppRouter.self) private var router
+    @ScaledMetric(relativeTo: .title2) private var iconSize: CGFloat = 44
 
     var body: some View {
         Button {
@@ -99,7 +100,7 @@ private struct CheckInBanner: View {
                 Image(systemName: "checklist")
                     .font(.title2)
                     .foregroundStyle(.white)
-                    .frame(width: 44, height: 44)
+                    .frame(width: iconSize, height: iconSize)
                     .background(Color.accentColor, in: .circle)
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
@@ -191,10 +192,10 @@ struct CancelSuggestionRow: View {
         HStack(alignment: .top, spacing: 12) {
             CategoryIcon(name: suggestion.subscription.name, category: suggestion.subscription.category, size: 36)
             VStack(alignment: .leading, spacing: 4) {
-                HStack(alignment: .firstTextBaseline) {
+                AdaptiveHStack {
                     Text(suggestion.subscription.name)
                         .font(.body.weight(.medium))
-                    Spacer()
+                } trailing: {
                     Text("年間\(suggestion.annualCost.yenText)")
                         .font(.subheadline.weight(.semibold))
                         .monospacedDigit()
@@ -253,16 +254,18 @@ private struct UpcomingPaymentsCard: View {
     private func row(_ subscription: Subscription) -> some View {
         HStack(spacing: 12) {
             CategoryIcon(name: subscription.name, category: subscription.category, size: 36)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(subscription.name)
-                    .font(.body.weight(.medium))
-                Text("\(subscription.nextPaymentDate.monthDayWeekdayText)・\(subscription.nextPaymentDate.relativeDayText())")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+            AdaptiveHStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(subscription.name)
+                        .font(.body.weight(.medium))
+                    Text("\(subscription.nextPaymentDate.monthDayWeekdayText)・\(subscription.nextPaymentDate.relativeDayText())")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            } trailing: {
+                Text(subscription.price.yenText)
+                    .font(.callout.monospacedDigit())
             }
-            Spacer()
-            Text(subscription.price.yenText)
-                .font(.callout.monospacedDigit())
         }
         .contentShape(.rect)
         .accessibilityElement(children: .combine)

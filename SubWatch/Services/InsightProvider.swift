@@ -24,6 +24,11 @@ final class InsightProvider {
         self.service = service
     }
 
+    /// データの全削除時に、生成済みのコメントも消す
+    func clearCache() {
+        cache.removeAll()
+    }
+
     /// フォアグラウンド復帰時に呼ぶ。モデルの準備完了や設定変更を反映する。
     func refreshAvailability() {
         let latest = AIAvailability.current()

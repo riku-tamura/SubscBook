@@ -1,4 +1,5 @@
 import StoreKit
+import SwiftData
 import SwiftUI
 import UserNotifications
 
@@ -10,6 +11,8 @@ struct SettingsView: View {
                 PremiumSettingsSection()
                 NotificationSettingsSection()
                 AISettingsSection()
+                AboutSection()
+                DataDeletionSection()
                 #if DEBUG
                 DebugSettingsSection()
                 #endif
@@ -181,6 +184,89 @@ private struct PremiumSettingsSection: View {
                 : "この Apple ID で見張り番プラスの購入が見つかりませんでした。"
         } catch {
             restoreMessage = "復元できませんでした。時間をおいて、もう一度お試しください。"
+        }
+    }
+}
+
+/// 利用規約・プライバシーポリシー・バージョン
+private struct AboutSection: View {
+    private var version: String {
+        let info = Bundle.main.infoDictionary
+        let version = info?["CFBundleShortVersionString"] as? String ?? "-"
+        let build = info?["CFBundleVersion"] as? String ?? "-"
+        return "\(version)（\(build)）"
+    }
+
+    var body: some View {
+        Section("このアプリについて") {
+            Link(destination: AppLinks.termsOfUse) {
+                HStack {
+                    Text("利用規約")
+                    Spacer()
+                    Image(systemName: "arrow.up.right.square")
+                        .foregroundStyle(.tertiary)
+                        .accessibilityHidden(true)
+                }
+            }
+            .tint(.primary)
+            NavigationLink("プライバシーポリシー") {
+                PrivacyPolicyView()
+            }
+            LabeledContent("バージョン", value: version)
+        }
+    }
+}
+
+/// データの全削除
+private struct DataDeletionSection: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(NotificationScheduler.self) private var notifications
+    @Environment(InsightProvider.self) private var insights
+    @State private var isConfirming = false
+    @State private var resultMessage: String?
+
+    var body: some View {
+        Section {
+            Button("データの全削除", role: .destructive) {
+                isConfirming = true
+            }
+            .confirmationDialog(
+                "すべてのデータを削除しますか？",
+                isPresented: $isConfirming,
+                titleVisibility: .visible
+            ) {
+                Button("すべて削除", role: .destructive, action: deleteAll)
+            } message: {
+                Text("登録したサブスクとチェックインの記録をすべて削除します。この操作は取り消せません。")
+            }
+        } footer: {
+            Text("見張り番プラスの購読は削除されません。解約は「設定」アプリの「サブスクリプション」から行えます。")
+        }
+        .alert("データの全削除", isPresented: Binding(
+            get: { resultMessage != nil },
+            set: { if !$0 { resultMessage = nil } }
+        )) {
+            Button("OK") {}
+        } message: {
+            Text(resultMessage ?? "")
+        }
+    }
+
+    private func deleteAll() {
+        do {
+            // @Query の表示が確実に更新されるよう、1件ずつ削除する（チェックインは連鎖して消える）
+            for subscription in try modelContext.fetch(FetchDescriptor<Subscription>()) {
+                modelContext.delete(subscription)
+            }
+            for checkIn in try modelContext.fetch(FetchDescriptor<CheckIn>()) {
+                modelContext.delete(checkIn)
+            }
+            try modelContext.save()
+            insights.clearCache()
+            notifications.reschedule()
+            resultMessage = "すべてのデータを削除しました。"
+        } catch {
+            resultMessage = "削除できませんでした。もう一度お試しください。"
         }
     }
 }

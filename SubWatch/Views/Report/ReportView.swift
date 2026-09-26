@@ -34,6 +34,7 @@ struct ReportView: View {
                             CategoryBreakdownCard(slices: slices, monthlyTotal: CostCalculator.monthlyTotal(of: active))
                         }
                         InsightCard(title: "AIの月次振り返り", comment: comment)
+                        PremiumReportSections(subscriptions: subscriptions)
                     }
                 }
                 .padding()
