@@ -73,12 +73,15 @@ final class NotificationScheduler {
         await refreshAuthorizationStatus()
         guard !Task.isCancelled else { return }
         let center = UNUserNotificationCenter.current()
-        center.removeAllPendingNotificationRequests()
-        guard isAuthorized else { return }
-
-        let subscriptions = (try? modelContainer.mainContext.fetch(
+        guard isAuthorized else {
+            center.removeAllPendingNotificationRequests()
+            return
+        }
+        // 読み込みに失敗したら、登録済みの通知を消さずに残す（空の予定で上書きすると、すべての通知が消えてしまう）
+        guard let subscriptions = try? modelContainer.mainContext.fetch(
             FetchDescriptor(predicate: Subscription.activePredicate)
-        )) ?? []
+        ) else { return }
+        center.removeAllPendingNotificationRequests()
         let plan = NotificationPlanner.plan(
             subscriptions: subscriptions,
             isPremium: entitlements.isPremium,

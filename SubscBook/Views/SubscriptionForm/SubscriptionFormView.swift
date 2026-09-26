@@ -239,26 +239,41 @@ struct SubscriptionFormView: View {
     }
 
     private func cancelSubscription(_ subscription: Subscription, at date: Date) {
-        applyPendingEdits()
+        guard applyPendingEdits() else { return }
         subscription.cancel(at: date)
         persistAndFinish()
     }
 
     private func reactivate(_ subscription: Subscription) {
-        let activeCount = (try? modelContext.fetchCount(FetchDescriptor(predicate: Subscription.activePredicate))) ?? 0
+        let activeCount: Int
+        do {
+            activeCount = try modelContext.fetchCount(FetchDescriptor(predicate: Subscription.activePredicate))
+        } catch {
+            // 件数がわからないまま戻すと、無料プランの上限を超えることがある
+            errorMessage = "データを読み込めませんでした。もう一度お試しください。"
+            return
+        }
         guard FreePlan.canAddSubscription(activeCount: activeCount, isPremium: entitlements.isPremium) else {
             isPaywallPresented = true
             return
         }
-        applyPendingEdits()
+        guard applyPendingEdits() else { return }
         subscription.reactivate()
         persistAndFinish()
     }
 
-    /// 解約・再開の前に、フォームで編集中の内容（金額の修正など）を反映する
-    private func applyPendingEdits() {
-        guard viewModel.canSave else { return }
-        _ = try? viewModel.save(in: modelContext, isPremium: entitlements.isPremium)
+    /// 解約・再開の前に、フォームで編集中の内容（金額の修正など）を反映する。
+    /// 入力が不完全なら反映せずに進む。保存に失敗したら、エラーを出して解約・再開もしない。
+    /// - Returns: 続けて解約・再開してよいか
+    private func applyPendingEdits() -> Bool {
+        guard viewModel.canSave else { return true }
+        do {
+            try viewModel.save(in: modelContext, isPremium: entitlements.isPremium)
+            return true
+        } catch {
+            errorMessage = "変更を保存できませんでした。もう一度お試しください。"
+            return false
+        }
     }
 
     private func delete() {
