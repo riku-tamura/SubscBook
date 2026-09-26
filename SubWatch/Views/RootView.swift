@@ -7,6 +7,7 @@ struct RootView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(EntitlementManager.self) private var entitlements
     @Environment(NotificationScheduler.self) private var notifications
+    @Environment(InsightProvider.self) private var insights
 
     var body: some View {
         MainTabView()
@@ -15,6 +16,8 @@ struct RootView: View {
                     // 起動時・フォアグラウンド復帰時に、過ぎた支払日を次の周期へ進めて通知を登録し直す（5.2・9章）
                     _ = try? PaymentDateCalculator.refreshPaymentDates(in: modelContext)
                     notifications.reschedule()
+                    // AI モデルの準備完了や Apple Intelligence の設定変更を反映する（8.1）
+                    insights.refreshAvailability()
                 }
             }
             .onChange(of: entitlements.isPremium) {

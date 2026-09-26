@@ -6,6 +6,7 @@ struct SubWatchApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var entitlements: EntitlementManager
     @State private var notifications: NotificationScheduler
+    @State private var insights = InsightProvider()
     private let modelContainer: ModelContainer
 
     init() {
@@ -32,6 +33,7 @@ struct SubWatchApp: App {
                 .environment(appDelegate.router)
                 .environment(entitlements)
                 .environment(notifications)
+                .environment(insights)
                 .environment(\.locale, .japanese)
         }
         .modelContainer(modelContainer)

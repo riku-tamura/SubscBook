@@ -19,9 +19,9 @@ struct CategoryIcon: View {
     var body: some View {
         Text(initial)
             .font(.system(size: size * 0.45, weight: .bold, design: .rounded))
-            .foregroundStyle(.white)
+            .foregroundStyle(category.iconForeground)
             .frame(width: size, height: size)
-            .background(category.color.gradient, in: .rect(cornerRadius: size * 0.26))
+            .background(category.color, in: .rect(cornerRadius: size * 0.26))
             .accessibilityHidden(true)
     }
 }

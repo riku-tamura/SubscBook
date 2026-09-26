@@ -26,6 +26,7 @@ extension View {
             .environment(AppRouter())
             .environment(entitlements)
             .environment(NotificationScheduler(modelContainer: container, entitlements: entitlements))
+            .environment(InsightProvider(service: TemplateInsightService(), cache: InsightCache(), availability: .unavailable))
             .environment(\.locale, .japanese)
     }
 }

@@ -3,25 +3,37 @@ import SwiftUI
 
 /// ② ホーム
 struct HomeView: View {
-    @Query(filter: Subscription.activePredicate) private var activeSubscriptions: [Subscription]
+    @Query private var subscriptions: [Subscription]
     @Environment(AppRouter.self) private var router
     @Environment(EntitlementManager.self) private var entitlements
+    @Environment(InsightProvider.self) private var insights
+    @State private var comment: String?
+    @State private var cancelReasons: [UUID: String] = [:]
 
     var body: some View {
-        let summary = HomeSummary(subscriptions: activeSubscriptions)
+        let summary = HomeSummary(subscriptions: subscriptions)
+        let facts = InsightFactsBuilder.monthly(subscriptions: subscriptions, isPremium: entitlements.isPremium)
+        // 解約候補の理由は見張り番プラスのみ AI で作る（無料はぼかし表示なので作らない）
+        let reasonFacts = entitlements.isPremium
+            ? summary.cancelSuggestions.map { InsightFactsBuilder.cancelReason(for: $0, among: subscriptions) }
+            : []
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    if activeSubscriptions.isEmpty {
+                    if summary.activeCount == 0 {
                         emptyCard
                     } else {
                         if summary.needsCheckIn {
                             CheckInBanner(month: summary.checkInMonth, count: summary.pendingCheckIns.count)
                         }
-                        SummaryCard(summary: summary)
-                        InsightCard(comment: InsightTemplates.monthlyDefault)
+                        TotalsCard(
+                            monthlyTotal: summary.monthlyTotal,
+                            annualTotal: summary.annualTotal,
+                            activeCount: summary.activeCount
+                        )
+                        InsightCard(comment: comment)
                         if !summary.cancelSuggestions.isEmpty {
-                            CancelSuggestionsCard(suggestions: summary.cancelSuggestions)
+                            CancelSuggestionsCard(suggestions: summary.cancelSuggestions, reasons: cancelReasons)
                         }
                         UpcomingPaymentsCard(subscriptions: summary.upcomingPayments)
                     }
@@ -32,7 +44,16 @@ struct HomeView: View {
             .navigationTitle("ホーム")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button("追加", systemImage: "plus", action: addSubscription)
+                    Button("追加", systemImage: "plus") { addSubscription(activeCount: summary.activeCount) }
+                }
+            }
+            .task(id: facts) {
+                guard summary.activeCount > 0 else { return }
+                comment = await insights.monthlyComment(for: facts)
+            }
+            .task(id: reasonFacts) {
+                for facts in reasonFacts {
+                    cancelReasons[facts.subscriptionID] = await insights.cancelReason(for: facts)
                 }
             }
         }
@@ -51,15 +72,15 @@ struct HomeView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-            Button("サブスクを登録", action: addSubscription)
+            Button("サブスクを登録") { addSubscription(activeCount: 0) }
                 .buttonStyle(.borderedProminent)
         }
         .frame(maxWidth: .infinity)
         .card()
     }
 
-    private func addSubscription() {
-        router.requestNewSubscription(activeCount: activeSubscriptions.count, isPremium: entitlements.isPremium)
+    private func addSubscription(activeCount: Int) {
+        router.requestNewSubscription(activeCount: activeCount, isPremium: entitlements.isPremium)
     }
 }
 
@@ -104,62 +125,21 @@ private struct CheckInBanner: View {
     }
 }
 
-// MARK: - 合計
-
-private struct SummaryCard: View {
-    let summary: HomeSummary
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            CardHeader(title: "毎月の支払い（月額換算）", systemImage: "yensign.circle.fill")
-            Text(summary.monthlyTotal.yenText)
-                .font(.system(.largeTitle, design: .rounded).weight(.bold))
-                .monospacedDigit()
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
-                .accessibilityLabel("毎月の支払い、月額換算で\(summary.monthlyTotal.yenText)")
-            Divider()
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 24) { stats }
-                VStack(alignment: .leading, spacing: 8) { stats }
-            }
-        }
-        .card()
-    }
-
-    @ViewBuilder
-    private var stats: some View {
-        stat(title: "年間", value: summary.annualTotal.yenText)
-        stat(title: "契約中", value: "\(summary.activeCount)件")
-    }
-
-    private func stat(title: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Text(value)
-                .font(.title3.weight(.semibold))
-                .monospacedDigit()
-        }
-        .accessibilityElement(children: .combine)
-    }
-}
-
 // MARK: - AI のひとこと
 
 struct InsightCard: View {
+    var title = "見張り番のひとこと"
     let comment: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            CardHeader(title: "見張り番のひとこと", systemImage: "sparkles", tint: .orange)
+            CardHeader(title: title, systemImage: "sparkles", tint: .orange)
             if let comment {
                 Text(comment)
                     .font(.body)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
-                Text(InsightTemplates.monthlyDefault)
+                Text(TemplateInsightService.monthlyDefault)
                     .redacted(reason: .placeholder)
                     .accessibilityLabel("コメントを準備しています")
             }
@@ -173,6 +153,8 @@ struct InsightCard: View {
 
 private struct CancelSuggestionsCard: View {
     let suggestions: [CancelSuggestion]
+    /// AI が作った理由（見張り番プラスのみ）
+    let reasons: [UUID: String]
     @Environment(AppRouter.self) private var router
     @Environment(EntitlementManager.self) private var entitlements
 
@@ -184,7 +166,12 @@ private struct CancelSuggestionsCard: View {
                     Button {
                         router.edit(suggestion.subscription)
                     } label: {
-                        CancelSuggestionRow(suggestion: suggestion, reason: InsightTemplates.cancelReason)
+                        CancelSuggestionRow(
+                            suggestion: suggestion,
+                            reason: entitlements.isPremium
+                                ? reasons[suggestion.id]
+                                : TemplateInsightService.cancelReasonDefault
+                        )
                     }
                     .buttonStyle(.plain)
                 }
@@ -220,7 +207,7 @@ struct CancelSuggestionRow: View {
                         .font(.subheadline)
                         .fixedSize(horizontal: false, vertical: true)
                 } else {
-                    Text(InsightTemplates.cancelReason)
+                    Text(TemplateInsightService.cancelReasonDefault)
                         .font(.subheadline)
                         .redacted(reason: .placeholder)
                 }
