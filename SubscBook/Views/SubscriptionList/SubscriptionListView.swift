@@ -4,13 +4,12 @@ import SwiftUI
 /// ③ サブスク一覧
 struct SubscriptionListView: View {
     @Query private var subscriptions: [Subscription]
-    @AppStorage("list.sortOrder") private var sortOrder: SubscriptionSortOrder = .paymentDate
     @State private var viewModel = SubscriptionListViewModel()
     @Environment(AppRouter.self) private var router
     @Environment(EntitlementManager.self) private var entitlements
 
     var body: some View {
-        let sections = viewModel.sections(of: subscriptions, sortOrder: sortOrder)
+        let sections = viewModel.sections(of: subscriptions)
         NavigationStack {
             content(sections)
                 .navigationTitle("サブスク一覧")
@@ -87,14 +86,15 @@ struct SubscriptionListView: View {
     }
 
     private var sortMenu: some View {
-        Menu {
-            Picker("並び替え", selection: $sortOrder) {
+        @Bindable var viewModel = viewModel
+        return Menu {
+            Picker("並び替え", selection: $viewModel.sortOrder) {
                 ForEach(SubscriptionSortOrder.allCases) { order in
                     Text(order.title).tag(order)
                 }
             }
         } label: {
-            Label("並び替え：\(sortOrder.title)", systemImage: "arrow.up.arrow.down")
+            Label("並び替え：\(viewModel.sortOrder.title)", systemImage: "arrow.up.arrow.down")
         }
     }
 

@@ -4,10 +4,23 @@ import Observation
 /// ③ サブスク一覧の状態と操作
 @Observable
 final class SubscriptionListViewModel {
+    static let sortOrderKey = "list.sortOrder"
+
+    /// 並び順（次回の起動でも同じ順で表示する）
+    var sortOrder: SubscriptionSortOrder {
+        didSet { defaults.set(sortOrder.rawValue, forKey: Self.sortOrderKey) }
+    }
     /// 解約済みのセクションを開いているか
     var isCanceledExpanded = false
 
-    func sections(of subscriptions: [Subscription], sortOrder: SubscriptionSortOrder) -> SubscriptionListSections {
+    @ObservationIgnored private let defaults: UserDefaults
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        sortOrder = defaults.string(forKey: Self.sortOrderKey).flatMap(SubscriptionSortOrder.init(rawValue:)) ?? .paymentDate
+    }
+
+    func sections(of subscriptions: [Subscription]) -> SubscriptionListSections {
         SubscriptionListSections(subscriptions: subscriptions, sortOrder: sortOrder)
     }
 

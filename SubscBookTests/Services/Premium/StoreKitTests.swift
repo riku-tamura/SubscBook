@@ -19,9 +19,10 @@ struct StoreKitTests {
     /// リポジトリ直下の Products.storekit（テストファイルの場所から上へたどって探す）
     private static func configurationURL() throws -> URL {
         var directory = URL(filePath: #filePath).deletingLastPathComponent()
-        while directory.path() != "/" {
+        // path() は既定で % エンコードされるため、日本語や空白を含むパスでも見つかるようにデコードした形で比べる
+        while directory.path(percentEncoded: false) != "/" {
             let candidate = directory.appending(path: "Products.storekit")
-            if FileManager.default.fileExists(atPath: candidate.path()) {
+            if FileManager.default.fileExists(atPath: candidate.path(percentEncoded: false)) {
                 return candidate
             }
             directory.deleteLastPathComponent()

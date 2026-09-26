@@ -14,6 +14,16 @@ struct SubscriptionListViewModelTests {
         #expect(SubscriptionListViewModel().freePlanMessage(activeCount: activeCount).contains(expected))
     }
 
+    @Test("並び順は保存して、次に開いたときも同じ順にする")
+    func sortOrderIsSaved() throws {
+        let defaults = try #require(UserDefaults(suiteName: "SubscriptionListViewModelTests.\(UUID().uuidString)"))
+        let viewModel = SubscriptionListViewModel(defaults: defaults)
+        #expect(viewModel.sortOrder == .paymentDate)
+
+        viewModel.sortOrder = .price
+        #expect(SubscriptionListViewModel(defaults: defaults).sortOrder == .price)
+    }
+
     @Test("解約済みのセクションは閉じた状態から開閉できる")
     func toggleCanceledSection() {
         let viewModel = SubscriptionListViewModel()

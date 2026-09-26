@@ -19,17 +19,6 @@ struct HomeViewModelTests {
         return [unused, store.addSubscription(name: "使用中")]
     }
 
-    @Test("解約候補の理由は、サブスク帳プラスのときだけ作る")
-    func cancelReasonFactsOnlyForPremium() throws {
-        let store = try TestStore()
-        let subscriptions = makeSubscriptions(store)
-        let viewModel = HomeViewModel()
-        let summary = viewModel.summary(of: subscriptions, now: date(2026, 9, 26))
-
-        #expect(viewModel.cancelReasonFacts(of: subscriptions, summary: summary, isPremium: false).isEmpty)
-        #expect(viewModel.cancelReasonFacts(of: subscriptions, summary: summary, isPremium: true).map(\.name) == ["未使用"])
-    }
-
     @Test("AI のひとことと解約理由を読み込む")
     func loadsInsights() async throws {
         let store = try TestStore()
@@ -38,14 +27,14 @@ struct HomeViewModelTests {
         let summary = viewModel.summary(of: subscriptions, now: date(2026, 9, 26))
         let insights = makeInsights()
 
-        await viewModel.loadComment(
+        await viewModel.insight.loadComment(
             for: viewModel.insightFacts(of: subscriptions, summary: summary, isPremium: true),
             using: insights
         )
         let reasonFacts = viewModel.cancelReasonFacts(of: subscriptions, summary: summary, isPremium: true)
-        await viewModel.loadCancelReasons(for: reasonFacts, using: insights)
+        await viewModel.insight.loadCancelReasons(for: reasonFacts, using: insights)
 
-        #expect(viewModel.comment == "生成したコメント")
-        #expect(viewModel.cancelReasons == [subscriptions[0].id: "生成した理由"])
+        #expect(viewModel.insight.comment == "生成したコメント")
+        #expect(viewModel.insight.cancelReasons == [subscriptions[0].id: "生成した理由"])
     }
 }

@@ -6,7 +6,7 @@ import Testing
 @Suite("設定の状態")
 struct SettingsViewModelTests {
     @Test("データの全削除でサブスク・チェックイン・AI のコメントを消す")
-    func deleteAllData() async throws {
+    func deleteAllData() throws {
         let store = try TestStore()
         let subscription = store.addSubscription()
         subscription.recordCheckIn(for: YearMonth("2026-08")!, used: true)
@@ -16,11 +16,9 @@ struct SettingsViewModelTests {
         let cache = InsightCache(defaults: UserDefaults(suiteName: "SettingsViewModelTests.\(UUID().uuidString)")!)
         cache.setMonthlyComment("コメント", for: "2026-09|key", month: YearMonth("2026-09")!)
         let insights = InsightProvider(service: TemplateInsightService(), cache: cache, availability: .unavailable)
-        let entitlements = EntitlementManager(observesTransactions: false)
-        let notifications = NotificationScheduler(modelContainer: store.container, entitlements: entitlements)
 
         let viewModel = SettingsViewModel()
-        viewModel.deleteAllData(in: store.context, insights: insights, notifications: notifications)
+        viewModel.deleteAllData(in: store.context, insights: insights)
 
         #expect(try store.context.fetchCount(FetchDescriptor<Subscription>()) == 0)
         #expect(try store.context.fetchCount(FetchDescriptor<CheckIn>()) == 0)

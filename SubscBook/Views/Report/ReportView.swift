@@ -34,10 +34,10 @@ struct ReportView: View {
                         if !summary.breakdown.isEmpty {
                             ReportCategoryChartCard(breakdown: summary.breakdown)
                         }
-                        InsightCard(title: "AIの月次振り返り", comment: viewModel.comment)
+                        InsightCard(title: "AIの月次振り返り", comment: viewModel.insight.comment)
                         ReportPremiumSection(
                             summary: summary,
-                            cancelReasons: viewModel.cancelReasons,
+                            cancelReasons: viewModel.insight.cancelReasons,
                             shareImage: viewModel.shareImage
                         )
                     }
@@ -48,10 +48,10 @@ struct ReportView: View {
             .navigationTitle("レポート")
             .task(id: facts) {
                 guard !subscriptions.isEmpty else { return }
-                await viewModel.loadComment(for: facts, using: insights)
+                await viewModel.insight.loadComment(for: facts, using: insights)
             }
             .task(id: reasonFacts) {
-                await viewModel.loadCancelReasons(for: reasonFacts, using: insights)
+                await viewModel.insight.loadCancelReasons(for: reasonFacts, using: insights)
             }
             .task(id: isPremium ? summary.savings : nil) {
                 viewModel.updateShareImage(for: summary.savings, isPremium: isPremium)

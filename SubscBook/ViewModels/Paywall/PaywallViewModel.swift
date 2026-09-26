@@ -68,12 +68,12 @@ final class PaywallViewModel {
     func restore(using entitlements: EntitlementManager) async {
         isRestoring = true
         defer { isRestoring = false }
-        do {
-            try await entitlements.restore()
-            message = entitlements.isPremium
-                ? PaywallMessage(title: "購入を復元しました", body: "サブスク帳プラスが使えるようになりました。", dismissesPaywall: true)
-                : PaywallMessage(title: "復元できる購入がありません", body: "この Apple ID でサブスク帳プラスの購入が見つかりませんでした。")
-        } catch {
+        switch await entitlements.restorePurchases() {
+        case .restored:
+            message = PaywallMessage(title: "購入を復元しました", body: "サブスク帳プラスが使えるようになりました。", dismissesPaywall: true)
+        case .nothingToRestore:
+            message = PaywallMessage(title: "復元できる購入がありません", body: "この Apple ID でサブスク帳プラスの購入が見つかりませんでした。")
+        case .failed:
             message = PaywallMessage(title: "復元できませんでした", body: "時間をおいて、もう一度お試しください。")
         }
     }

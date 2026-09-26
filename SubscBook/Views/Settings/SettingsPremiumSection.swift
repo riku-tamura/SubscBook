@@ -3,7 +3,7 @@ import SwiftUI
 
 /// サブスク帳プラスの状態・管理・購入の復元
 struct SettingsPremiumSection: View {
-    @Bindable var viewModel: SettingsViewModel
+    let viewModel: SettingsViewModel
     @Environment(EntitlementManager.self) private var entitlements
     @Environment(AppRouter.self) private var router
     @State private var isManagingSubscription = false

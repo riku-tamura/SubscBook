@@ -2,9 +2,8 @@ import SwiftUI
 
 /// データの全削除
 struct SettingsDataDeletionSection: View {
-    @Bindable var viewModel: SettingsViewModel
+    let viewModel: SettingsViewModel
     @Environment(\.modelContext) private var modelContext
-    @Environment(NotificationScheduler.self) private var notifications
     @Environment(InsightProvider.self) private var insights
     @State private var isConfirming = false
 
@@ -19,7 +18,7 @@ struct SettingsDataDeletionSection: View {
                 titleVisibility: .visible
             ) {
                 Button("すべて削除", role: .destructive) {
-                    viewModel.deleteAllData(in: modelContext, insights: insights, notifications: notifications)
+                    viewModel.deleteAllData(in: modelContext, insights: insights)
                 }
             } message: {
                 Text("登録したサブスクとチェックインの記録をすべて削除します。この操作は取り消せません。")

@@ -28,18 +28,19 @@ final class SettingsViewModel {
     func restorePurchases(using entitlements: EntitlementManager) async {
         isRestoring = true
         defer { isRestoring = false }
-        do {
-            try await entitlements.restore()
-            restoreMessage = entitlements.isPremium
-                ? "サブスク帳プラスの購入を復元しました。"
-                : "この Apple ID でサブスク帳プラスの購入が見つかりませんでした。"
-        } catch {
+        switch await entitlements.restorePurchases() {
+        case .restored:
+            restoreMessage = "サブスク帳プラスの購入を復元しました。"
+        case .nothingToRestore:
+            restoreMessage = "この Apple ID でサブスク帳プラスの購入が見つかりませんでした。"
+        case .failed:
             restoreMessage = "復元できませんでした。時間をおいて、もう一度お試しください。"
         }
     }
 
-    /// 登録したサブスクとチェックインをすべて削除し、AI のコメントと通知も消す
-    func deleteAllData(in context: ModelContext, insights: InsightProvider, notifications: NotificationScheduler) {
+    /// 登録したサブスクとチェックインをすべて削除し、AI のコメントも消す。
+    /// 通知は保存時に自動で登録し直される（NotificationScheduler が ModelContext.didSave を見ている）。
+    func deleteAllData(in context: ModelContext, insights: InsightProvider) {
         do {
             // @Query の表示が確実に更新されるよう、1件ずつ削除する（チェックインは連鎖して消える）
             for subscription in try context.fetch(FetchDescriptor<Subscription>()) {
@@ -50,7 +51,6 @@ final class SettingsViewModel {
             }
             try context.save()
             insights.clearCache()
-            notifications.reschedule()
             deletionMessage = "すべてのデータを削除しました。"
         } catch {
             deletionMessage = "削除できませんでした。もう一度お試しください。"

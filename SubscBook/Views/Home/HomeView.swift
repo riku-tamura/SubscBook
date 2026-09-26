@@ -27,9 +27,9 @@ struct HomeView: View {
                             annualTotal: summary.annualTotal,
                             activeCount: summary.activeCount
                         )
-                        InsightCard(comment: viewModel.comment)
+                        InsightCard(comment: viewModel.insight.comment)
                         if !summary.cancelSuggestions.isEmpty {
-                            HomeCancelSuggestionsCard(suggestions: summary.cancelSuggestions, reasons: viewModel.cancelReasons)
+                            HomeCancelSuggestionsCard(suggestions: summary.cancelSuggestions, reasons: viewModel.insight.cancelReasons)
                         }
                         HomeUpcomingPaymentsCard(subscriptions: summary.upcomingPayments)
                     }
@@ -45,10 +45,10 @@ struct HomeView: View {
             }
             .task(id: facts) {
                 guard summary.activeCount > 0 else { return }
-                await viewModel.loadComment(for: facts, using: insights)
+                await viewModel.insight.loadComment(for: facts, using: insights)
             }
             .task(id: reasonFacts) {
-                await viewModel.loadCancelReasons(for: reasonFacts, using: insights)
+                await viewModel.insight.loadCancelReasons(for: reasonFacts, using: insights)
             }
         }
     }

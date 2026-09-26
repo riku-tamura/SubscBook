@@ -15,6 +15,15 @@ final class EntitlementManager {
         var isYearly: Bool { productID == PremiumProducts.yearly }
     }
 
+    enum RestoreOutcome: Equatable {
+        /// 購入が見つかり、プラスが使えるようになった
+        case restored
+        /// この Apple ID に購入がなかった
+        case nothingToRestore
+        /// 通信エラーなどで復元できなかった
+        case failed
+    }
+
     enum PurchaseOutcome: Equatable {
         case purchased
         /// 承認待ち（ファミリー共有の「承認と購入のリクエスト」など）
@@ -136,9 +145,15 @@ final class EntitlementManager {
     }
 
     /// 購入を復元する（`AppStore.sync()`）
-    func restore() async throws {
-        try await AppStore.sync()
+    func restorePurchases() async -> RestoreOutcome {
+        do {
+            try await AppStore.sync()
+        } catch {
+            return .failed
+        }
         await refreshEntitlements()
+        // 開発用のプラス切り替えではなく、実際の購入があるかで判断する
+        return hasActiveSubscription ? .restored : .nothingToRestore
     }
 
     private func handle(_ result: VerificationResult<Transaction>) async {
