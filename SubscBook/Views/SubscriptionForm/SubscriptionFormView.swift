@@ -250,7 +250,7 @@ struct SubscriptionFormView: View {
             activeCount = try modelContext.fetchCount(FetchDescriptor(predicate: Subscription.activePredicate))
         } catch {
             // 件数がわからないまま戻すと、無料プランの上限を超えることがある
-            errorMessage = "データを読み込めませんでした。もう一度お試しください。"
+            errorMessage = "契約中のサブスクの件数を確かめられなかったため、契約中に戻せませんでした。もう一度お試しください。"
             return
         }
         guard FreePlan.canAddSubscription(activeCount: activeCount, isPremium: entitlements.isPremium) else {
