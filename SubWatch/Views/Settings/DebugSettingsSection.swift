@@ -5,9 +5,12 @@ import UserNotifications
 /// 開発用：登録済みのローカル通知を確認する
 struct DebugSettingsSection: View {
     @State private var requests: [UNNotificationRequest] = []
+    @Environment(EntitlementManager.self) private var entitlements
 
     var body: some View {
+        @Bindable var entitlements = entitlements
         Section("デバッグ") {
+            Toggle("プラスを有効にする（購入なし）", isOn: $entitlements.debugForcePremium)
             NavigationLink("登録済みの通知（\(requests.count)件）") {
                 List(requests, id: \.identifier) { request in
                     VStack(alignment: .leading, spacing: 4) {

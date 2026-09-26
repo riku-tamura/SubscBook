@@ -9,6 +9,12 @@ enum DebugLaunchOptions {
 
     /// 既存データを消してサンプルデータを入れる
     static let seedsSampleData = arguments.contains("-seedSampleData")
+    /// 購入せずに見張り番プラスを有効にする
+    static let forcesPremium = arguments.contains("-forcePremium")
+    /// StoreKit の商品が読めない環境で、ペイウォールにサンプルのプランを表示する
+    static let usesSamplePlans = arguments.contains("-samplePlans")
+    /// オンボーディングを表示しない
+    static let skipsOnboarding = arguments.contains("-skipOnboarding")
 }
 
 extension View {
@@ -21,7 +27,7 @@ extension View {
         if seeded {
             try? SampleData.seed(into: container.mainContext)
         }
-        let entitlements = EntitlementManager()
+        let entitlements = EntitlementManager(observesTransactions: false)
         return modelContainer(container)
             .environment(AppRouter())
             .environment(entitlements)

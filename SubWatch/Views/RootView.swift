@@ -18,6 +18,8 @@ struct RootView: View {
                     notifications.reschedule()
                     // AI モデルの準備完了や Apple Intelligence の設定変更を反映する（8.1）
                     insights.refreshAvailability()
+                    // 期限切れ・返金は Transaction.updates に流れないことがあるので、復帰時にも確かめる
+                    Task { await entitlements.refreshEntitlements() }
                 }
             }
             .onChange(of: entitlements.isPremium) {

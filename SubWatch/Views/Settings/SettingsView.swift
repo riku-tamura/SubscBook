@@ -1,3 +1,4 @@
+import StoreKit
 import SwiftUI
 import UserNotifications
 
@@ -6,6 +7,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                PremiumSettingsSection()
                 NotificationSettingsSection()
                 AISettingsSection()
                 #if DEBUG
@@ -98,6 +100,87 @@ private struct AISettingsSection: View {
             Text("AI")
         } footer: {
             Text(insights.availability.message + "AIが使えない場合も、すべての機能をご利用いただけます。")
+        }
+    }
+}
+
+/// 見張り番プラスの状態・管理・購入の復元
+private struct PremiumSettingsSection: View {
+    @Environment(EntitlementManager.self) private var entitlements
+    @Environment(AppRouter.self) private var router
+    @State private var isManagingSubscription = false
+    @State private var isRestoring = false
+    @State private var restoreMessage: String?
+
+    var body: some View {
+        Section {
+            if entitlements.isPremium {
+                LabeledContent("ご利用中", value: planName)
+                if let plan = entitlements.activePlan {
+                    if plan.isInFreeTrial {
+                        LabeledContent("状態", value: "無料トライアル中")
+                    }
+                    if let expirationDate = plan.expirationDate {
+                        LabeledContent(plan.willAutoRenew ? "次回の更新日" : "有効期限", value: expirationDate.fullDateText)
+                    }
+                }
+                Button("サブスクリプションを管理") {
+                    isManagingSubscription = true
+                }
+            } else {
+                Button {
+                    router.showPaywall(.settings)
+                } label: {
+                    HStack {
+                        Label("見張り番プラスにアップグレード", systemImage: "star.fill")
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+            }
+            Button {
+                Task { await restore() }
+            } label: {
+                HStack {
+                    Text("購入を復元")
+                    if isRestoring {
+                        Spacer()
+                        ProgressView()
+                    }
+                }
+            }
+            .disabled(isRestoring)
+        } header: {
+            Text("見張り番プラス")
+        }
+        .manageSubscriptionsSheet(isPresented: $isManagingSubscription)
+        .alert("購入の復元", isPresented: Binding(
+            get: { restoreMessage != nil },
+            set: { if !$0 { restoreMessage = nil } }
+        )) {
+            Button("OK") {}
+        } message: {
+            Text(restoreMessage ?? "")
+        }
+    }
+
+    private var planName: String {
+        guard let plan = entitlements.activePlan else { return "見張り番プラス" }
+        return plan.isYearly ? "年額プラン" : "月額プラン"
+    }
+
+    private func restore() async {
+        isRestoring = true
+        defer { isRestoring = false }
+        do {
+            try await entitlements.restore()
+            restoreMessage = entitlements.isPremium
+                ? "見張り番プラスの購入を復元しました。"
+                : "この Apple ID で見張り番プラスの購入が見つかりませんでした。"
+        } catch {
+            restoreMessage = "復元できませんでした。時間をおいて、もう一度お試しください。"
         }
     }
 }
