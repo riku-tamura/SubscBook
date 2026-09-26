@@ -338,7 +338,9 @@ private struct PlanCard: View {
     }
 }
 
+#if DEBUG
 #Preview {
     PaywallView(reason: .subscriptionLimit)
         .previewEnvironment()
 }
+#endif

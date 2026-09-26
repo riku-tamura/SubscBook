@@ -209,7 +209,9 @@ private struct OnboardingPage<Content: View>: View {
     }
 }
 
+#if DEBUG
 #Preview {
     OnboardingView()
         .previewEnvironment()
 }
+#endif

@@ -273,9 +273,11 @@ struct SubscriptionFormView: View {
     }
 }
 
+#if DEBUG
 #Preview("登録") {
     NavigationStack {
         SubscriptionFormView(mode: .add)
     }
     .previewEnvironment()
 }
+#endif
