@@ -8,7 +8,12 @@ struct HomeSummary {
     /// 次の支払い予定（直近3件）
     let upcomingPayments: [Subscription]
     let cancelSuggestions: [CancelSuggestion]
-    let needsCheckIn: Bool
+    /// チェックインの対象月（前月）
+    let checkInMonth: YearMonth
+    /// 前月分のチェックインが未回答のサブスク
+    let pendingCheckIns: [Subscription]
+
+    var needsCheckIn: Bool { !pendingCheckIns.isEmpty }
 
     static let upcomingLimit = 3
 
@@ -21,6 +26,7 @@ struct HomeSummary {
             active.sorted { $0.nextPaymentDate < $1.nextPaymentDate }.prefix(Self.upcomingLimit)
         )
         cancelSuggestions = CancelSuggestionDetector.suggestions(for: active)
-        needsCheckIn = MonthlyCheckInPolicy.needsCheckIn(active, now: now, calendar: calendar)
+        checkInMonth = MonthlyCheckInPolicy.targetMonth(now: now, calendar: calendar)
+        pendingCheckIns = MonthlyCheckInPolicy.pendingSubscriptions(in: active, now: now, calendar: calendar)
     }
 }

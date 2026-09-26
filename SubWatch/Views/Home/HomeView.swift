@@ -15,6 +15,9 @@ struct HomeView: View {
                     if activeSubscriptions.isEmpty {
                         emptyCard
                     } else {
+                        if summary.needsCheckIn {
+                            CheckInBanner(month: summary.checkInMonth, count: summary.pendingCheckIns.count)
+                        }
                         SummaryCard(summary: summary)
                         InsightCard(comment: InsightTemplates.monthlyDefault)
                         if !summary.cancelSuggestions.isEmpty {
@@ -57,6 +60,47 @@ struct HomeView: View {
 
     private func addSubscription() {
         router.requestNewSubscription(activeCount: activeSubscriptions.count, isPremium: entitlements.isPremium)
+    }
+}
+
+// MARK: - チェックインのお願い
+
+private struct CheckInBanner: View {
+    let month: YearMonth
+    let count: Int
+    @Environment(AppRouter.self) private var router
+
+    var body: some View {
+        Button {
+            router.isCheckInPresented = true
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "checklist")
+                    .font(.title2)
+                    .foregroundStyle(.white)
+                    .frame(width: 44, height: 44)
+                    .background(Color.accentColor, in: .circle)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(month.monthText)のチェックイン")
+                        .font(.headline)
+                    Text("\(count)件のサブスクを使ったか教えてください")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
+            }
+            .card()
+            .overlay {
+                RoundedRectangle(cornerRadius: 16)
+                    .strokeBorder(Color.accentColor.opacity(0.4), lineWidth: 1)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint("月次チェックインを始めます")
     }
 }
 

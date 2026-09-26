@@ -32,6 +32,20 @@ final class AppRouter {
     func edit(_ subscription: Subscription) {
         subscriptionForm = .edit(subscription)
     }
+
+    /// 通知をタップして起動したときの遷移
+    func openNotification(_ kind: PlannedNotification.Kind?) {
+        guard let kind else { return }
+        subscriptionForm = nil
+        paywall = nil
+        switch kind {
+        case .checkIn:
+            selectedTab = .home
+            isCheckInPresented = true
+        case .payment, .trial:
+            selectedTab = .list
+        }
+    }
 }
 
 enum SubscriptionFormRoute: Identifiable {

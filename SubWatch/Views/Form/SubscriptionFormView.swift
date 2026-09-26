@@ -19,6 +19,7 @@ struct SubscriptionFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(EntitlementManager.self) private var entitlements
+    @Environment(NotificationScheduler.self) private var notifications
 
     private enum Field {
         case name
@@ -255,6 +256,7 @@ struct SubscriptionFormView: View {
     }
 
     private func finish() {
+        notifications.reschedule()
         onFinish?()
         if !isEmbedded {
             dismiss()

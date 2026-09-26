@@ -34,5 +34,8 @@ struct MainTabView: View {
         .sheet(item: $router.paywall) { reason in
             PaywallView(reason: reason)
         }
+        .fullScreenCover(isPresented: $router.isCheckInPresented) {
+            CheckInView()
+        }
     }
 }
