@@ -273,6 +273,9 @@ struct SubscriptionFormView: View {
             try modelContext.save()
             finish()
         } catch {
+            // 解約・再開・削除を取り消して、画面の表示と保存された内容をそろえる
+            modelContext.rollback()
+            isDeleted = false
             errorMessage = "データを保存できませんでした。"
         }
     }

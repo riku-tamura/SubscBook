@@ -162,7 +162,14 @@ final class SubscriptionFormViewModel {
             now: now,
             calendar: calendar
         )
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            // 保存できなかった追加・変更を取り消す。残すと、もう一度保存したときに二重に追加されたり、
+            // 失敗と伝えた変更が、ほかの保存のときに一緒に保存されたりする。
+            context.rollback()
+            throw error
+        }
         return subscription
     }
 
