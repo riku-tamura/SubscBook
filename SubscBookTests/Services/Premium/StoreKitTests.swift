@@ -72,6 +72,8 @@ struct StoreKitTests {
 
     @Test("購入するとプラスになり、期限が切れると無料に戻る")
     func purchaseAndExpire() async throws {
+        // テストで作った購入を、アプリの StoreKit テスト環境に残さない
+        defer { session.clearTransactions() }
         let entitlements = EntitlementManager(observesTransactions: false)
         await entitlements.loadProducts()
         await entitlements.refreshEntitlements()
@@ -98,6 +100,8 @@ struct StoreKitTests {
 
     @Test("年額の無料トライアル中は、トライアル中として扱い、以降の導入オファーは使えない")
     func yearlyTrial() async throws {
+        // テストで作った購入を、アプリの StoreKit テスト環境に残さない
+        defer { session.clearTransactions() }
         let entitlements = EntitlementManager(observesTransactions: false)
         await entitlements.loadProducts()
         let yearly = try #require(entitlements.product(for: PremiumProducts.yearly))
@@ -112,6 +116,8 @@ struct StoreKitTests {
 
     @Test("ペイウォールで購入すると完了メッセージを出し、プラスになる")
     func paywallPurchase() async throws {
+        // テストで作った購入を、アプリの StoreKit テスト環境に残さない
+        defer { session.clearTransactions() }
         let entitlements = EntitlementManager(observesTransactions: false)
         let viewModel = PaywallViewModel()
         await viewModel.loadProductsIfNeeded(using: entitlements)
