@@ -3,14 +3,16 @@ import Foundation
 /// サブスクのデータから、AI に渡す事実を組み立てる（8.2）
 enum InsightFactsBuilder {
     /// 月次振り返りの事実。無料プランでは解約候補・重複の詳細（有料機能）を伏せて件数だけ渡す。
+    /// - Parameter suggestions: 計算済みの解約候補（なければここで計算する）
     static func monthly(
         subscriptions: [Subscription],
         isPremium: Bool,
+        suggestions: [CancelSuggestion]? = nil,
         now: Date = .now,
         calendar: Calendar = .current
     ) -> MonthlyInsightFacts {
         let active = subscriptions.filter(\.isActive)
-        let suggestions = CancelSuggestionDetector.suggestions(for: active)
+        let suggestions = suggestions ?? CancelSuggestionDetector.suggestions(for: active)
         let duplicates = DuplicateDetector.duplicateGroups(in: active)
         let startOfMonth = YearMonth(date: now, calendar: calendar).startDate(calendar: calendar)
         let canceledThisMonth = subscriptions.filter {

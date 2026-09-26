@@ -19,12 +19,9 @@ struct SavingsShareCard: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            HStack(spacing: 6) {
-                Image(systemName: "binoculars.fill")
-                Text("サブスク見張り番")
-            }
-            .font(.system(size: 15, weight: .semibold))
-            .foregroundStyle(.white.opacity(0.9))
+            Text("サブスク見張り番")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.9))
 
             Spacer(minLength: 0)
 

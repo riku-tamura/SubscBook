@@ -24,7 +24,9 @@ struct PremiumReportSections: View {
         }
         .task(id: reasonFacts) {
             for facts in reasonFacts {
-                reasons[facts.subscriptionID] = await insights.cancelReason(for: facts)
+                let text = await insights.cancelReason(for: facts)
+                guard !Task.isCancelled else { return }
+                reasons[facts.subscriptionID] = text
             }
         }
     }

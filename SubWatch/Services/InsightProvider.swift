@@ -46,7 +46,7 @@ final class InsightProvider {
         return await generate(key: key) { [service, cache] in
             let result = await service.monthlyComment(for: facts)
             if result.isGenerated {
-                cache.setMonthlyComment(result.text, for: key)
+                cache.setMonthlyComment(result.text, for: key, month: month)
             }
             return result.text
         }
@@ -100,35 +100,32 @@ final class InsightCache {
         self.defaults = defaults
     }
 
-    private struct Entry: Codable {
-        let key: String
-        let text: String
-    }
-
     func monthlyComment(for key: String) -> String? {
-        guard let data = defaults.data(forKey: Self.monthlyKey),
-              let entry = try? JSONDecoder().decode(Entry.self, from: data),
-              entry.key == key
-        else { return nil }
-        return entry.text
+        entries(forKey: Self.monthlyKey)[key]
     }
 
-    /// 月次コメントは最新の1件だけを持つ
-    func setMonthlyComment(_ text: String, for key: String) {
-        guard let data = try? JSONEncoder().encode(Entry(key: key, text: text)) else { return }
-        defaults.set(data, forKey: Self.monthlyKey)
+    /// 月次コメントは今月分だけを残す（無料・プラスで事実が違っても作り直さずに済むよう、複数件を持つ）
+    func setMonthlyComment(_ text: String, for key: String, month: YearMonth) {
+        setEntry(text, for: key, month: month, forKey: Self.monthlyKey)
     }
 
     func cancelReason(for key: String) -> String? {
-        (defaults.dictionary(forKey: Self.cancelReasonsKey) as? [String: String])?[key]
+        entries(forKey: Self.cancelReasonsKey)[key]
     }
 
     /// 理由は今月分だけを残す
     func setCancelReason(_ text: String, for key: String, month: YearMonth) {
-        var reasons = (defaults.dictionary(forKey: Self.cancelReasonsKey) as? [String: String]) ?? [:]
-        reasons = reasons.filter { $0.key.hasPrefix("\(month.key)|") }
-        reasons[key] = text
-        defaults.set(reasons, forKey: Self.cancelReasonsKey)
+        setEntry(text, for: key, month: month, forKey: Self.cancelReasonsKey)
+    }
+
+    private func entries(forKey storageKey: String) -> [String: String] {
+        (defaults.dictionary(forKey: storageKey) as? [String: String]) ?? [:]
+    }
+
+    private func setEntry(_ text: String, for key: String, month: YearMonth, forKey storageKey: String) {
+        var entries = entries(forKey: storageKey).filter { $0.key.hasPrefix("\(month.key)|") }
+        entries[key] = text
+        defaults.set(entries, forKey: storageKey)
     }
 
     func removeAll() {

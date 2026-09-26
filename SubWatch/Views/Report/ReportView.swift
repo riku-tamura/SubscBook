@@ -43,7 +43,9 @@ struct ReportView: View {
             .navigationTitle("レポート")
             .task(id: facts) {
                 guard !subscriptions.isEmpty else { return }
-                comment = await insights.monthlyComment(for: facts)
+                let text = await insights.monthlyComment(for: facts)
+                guard !Task.isCancelled else { return }
+                comment = text
             }
         }
     }

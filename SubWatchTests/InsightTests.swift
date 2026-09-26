@@ -196,6 +196,22 @@ struct InsightProviderTests {
         #expect(service.calls.withLock { $0 } == 2)
     }
 
+    @Test("無料・プラスで事実が切り替わっても、今月生成したものは再利用する")
+    func keepsMultipleEntriesPerMonth() async {
+        let service = StubInsightService(isGenerated: true)
+        let provider = InsightProvider(service: service, cache: makeCache(), availability: .available)
+        let premium = MonthlyInsightFacts(
+            activeCount: 3, trend: .unchanged, cancelCandidates: [.init(name: "U-NEXT", unusedMonths: 2)],
+            hiddenCancelCandidateCount: 0, duplicateCategories: [], hiddenDuplicateCount: 0, canceledThisMonthCount: 0
+        )
+
+        for _ in 0..<2 {
+            _ = await provider.monthlyComment(for: facts, now: date(2026, 9, 1), calendar: .tokyo)
+            _ = await provider.monthlyComment(for: premium, now: date(2026, 9, 1), calendar: .tokyo)
+        }
+        #expect(service.calls.withLock { $0 } == 2)
+    }
+
     @Test("テンプレート文（生成失敗）はキャッシュしない")
     func doesNotCacheFallback() async {
         let service = StubInsightService(isGenerated: false)

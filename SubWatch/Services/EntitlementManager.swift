@@ -55,6 +55,7 @@ final class EntitlementManager {
         return hasActiveSubscription
     }
 
+    /// アプリの起動中ずっと監視する
     @ObservationIgnored private var updatesTask: Task<Void, Never>?
 
     /// - Parameter observesTransactions: 起動時から `Transaction.updates` を監視し、購読状態を読み込む
@@ -72,10 +73,6 @@ final class EntitlementManager {
         Task {
             await refreshEntitlements()
         }
-    }
-
-    isolated deinit {
-        updatesTask?.cancel()
     }
 
     func product(for id: String) -> Product? {

@@ -14,16 +14,26 @@ struct OnboardingView: View {
     }
 
     var body: some View {
-        TabView(selection: $page) {
-            ValuePage { advance(to: .notifications) }
-                .tag(Page.value)
-            NotificationPage { advance(to: .firstSubscription) }
-                .tag(Page.notifications)
-            FirstSubscriptionPage(onFinish: complete)
-                .tag(Page.firstSubscription)
+        // スワイプで通知の説明を飛ばしたり、フォームの操作でページがめくれたりしないよう、ボタンでだけ進める
+        ZStack {
+            switch page {
+            case .value:
+                ValuePage { advance(to: .notifications) }
+                    .transition(pageTransition)
+            case .notifications:
+                NotificationPage { advance(to: .firstSubscription) }
+                    .transition(pageTransition)
+            case .firstSubscription:
+                FirstSubscriptionPage(onFinish: complete)
+                    .transition(pageTransition)
+            }
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.systemGroupedBackground))
+    }
+
+    private var pageTransition: AnyTransition {
+        .asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading))
     }
 
     private func advance(to next: Page) {

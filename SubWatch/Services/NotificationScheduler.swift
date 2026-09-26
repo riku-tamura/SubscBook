@@ -14,6 +14,7 @@ final class NotificationScheduler {
     @ObservationIgnored private let modelContainer: ModelContainer
     @ObservationIgnored private let entitlements: EntitlementManager
     @ObservationIgnored private var rescheduleTask: Task<Void, Never>?
+    /// アプリの起動中ずっと使うので、解除はしない
     @ObservationIgnored private var saveObserver: (any NSObjectProtocol)?
 
     init(modelContainer: ModelContainer, entitlements: EntitlementManager) {
@@ -30,11 +31,6 @@ final class NotificationScheduler {
         }
     }
 
-    isolated deinit {
-        if let saveObserver {
-            NotificationCenter.default.removeObserver(saveObserver)
-        }
-    }
 
     var isAuthorized: Bool {
         switch authorizationStatus {

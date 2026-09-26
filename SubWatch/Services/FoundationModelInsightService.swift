@@ -89,7 +89,8 @@ nonisolated struct FoundationModelInsightService: InsightService {
         do {
             generated = try await withTimeout(Self.timeout, operation: operation)
         } catch {
-            Self.logger.notice("AI generation fell back: \(String(describing: error), privacy: .public)")
+            // エラーの説明には生成途中の文（サービス名など）が含まれることがあるので、種類だけを記録する
+            Self.logger.notice("AI generation fell back: \(String(describing: type(of: error)), privacy: .public)")
             return nil
         }
         guard let text = InsightSanitizer.sanitize(generated, maxLength: maxLength, allowedTerms: allowedTerms) else {

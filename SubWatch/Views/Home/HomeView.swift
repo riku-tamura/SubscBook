@@ -12,7 +12,11 @@ struct HomeView: View {
 
     var body: some View {
         let summary = HomeSummary(subscriptions: subscriptions)
-        let facts = InsightFactsBuilder.monthly(subscriptions: subscriptions, isPremium: entitlements.isPremium)
+        let facts = InsightFactsBuilder.monthly(
+            subscriptions: subscriptions,
+            isPremium: entitlements.isPremium,
+            suggestions: summary.cancelSuggestions
+        )
         // 解約候補の理由は見張り番プラスのみ AI で作る（無料はぼかし表示なので作らない）
         let reasonFacts = entitlements.isPremium
             ? summary.cancelSuggestions.map { InsightFactsBuilder.cancelReason(for: $0, among: subscriptions) }
@@ -49,11 +53,16 @@ struct HomeView: View {
             }
             .task(id: facts) {
                 guard summary.activeCount > 0 else { return }
-                comment = await insights.monthlyComment(for: facts)
+                let text = await insights.monthlyComment(for: facts)
+                // 生成中に事実が変わった場合は、古い結果で上書きしない
+                guard !Task.isCancelled else { return }
+                comment = text
             }
             .task(id: reasonFacts) {
                 for facts in reasonFacts {
-                    cancelReasons[facts.subscriptionID] = await insights.cancelReason(for: facts)
+                    let text = await insights.cancelReason(for: facts)
+                    guard !Task.isCancelled else { return }
+                    cancelReasons[facts.subscriptionID] = text
                 }
             }
         }
