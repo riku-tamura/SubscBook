@@ -22,9 +22,9 @@ struct StoreKitTests {
 
     @Test("月額300円・年額2,400円（1週間無料）が同じグループにある")
     func productDefinitions() async throws {
-        let products = try await Product.products(for: StoreProducts.all)
-        let monthly = try #require(products.first { $0.id == StoreProducts.monthly })
-        let yearly = try #require(products.first { $0.id == StoreProducts.yearly })
+        let products = try await Product.products(for: PremiumProducts.all)
+        let monthly = try #require(products.first { $0.id == PremiumProducts.monthly })
+        let yearly = try #require(products.first { $0.id == PremiumProducts.yearly })
 
         #expect(monthly.price == 300)
         #expect(yearly.price == 2400)
@@ -45,10 +45,10 @@ struct StoreKitTests {
         let entitlements = EntitlementManager(observesTransactions: false)
         await entitlements.loadProducts()
 
-        #expect(entitlements.products.map(\.id) == [StoreProducts.yearly, StoreProducts.monthly])
+        #expect(entitlements.products.map(\.id) == [PremiumProducts.yearly, PremiumProducts.monthly])
         #expect(entitlements.isEligibleForIntroOffer)
         let plans = entitlements.products.map {
-            PlanOption(product: $0, isEligibleForIntroOffer: entitlements.isEligibleForIntroOffer)
+            PaywallPlan(product: $0, isEligibleForIntroOffer: entitlements.isEligibleForIntroOffer)
         }
         let yearly = try #require(plans.first)
         #expect(yearly.isYearly)
@@ -69,15 +69,15 @@ struct StoreKitTests {
         #expect(!entitlements.isPremium || entitlements.debugForcePremium)
         #expect(!entitlements.hasActiveSubscription)
 
-        let monthly = try #require(entitlements.product(for: StoreProducts.monthly))
+        let monthly = try #require(entitlements.product(for: PremiumProducts.monthly))
         let outcome = try await entitlements.purchase(monthly)
 
         #expect(outcome == .purchased)
         #expect(entitlements.hasActiveSubscription)
-        #expect(entitlements.activePlan?.productID == StoreProducts.monthly)
+        #expect(entitlements.activePlan?.productID == PremiumProducts.monthly)
         #expect(entitlements.activePlan?.willAutoRenew == true)
 
-        try session.expireSubscription(productIdentifier: StoreProducts.monthly)
+        try session.expireSubscription(productIdentifier: PremiumProducts.monthly)
         // テストセッションでの期限切れは少し遅れて反映される
         for _ in 0..<30 where entitlements.hasActiveSubscription {
             try await Task.sleep(for: .milliseconds(100))
@@ -91,7 +91,7 @@ struct StoreKitTests {
     func yearlyTrial() async throws {
         let entitlements = EntitlementManager(observesTransactions: false)
         await entitlements.loadProducts()
-        let yearly = try #require(entitlements.product(for: StoreProducts.yearly))
+        let yearly = try #require(entitlements.product(for: PremiumProducts.yearly))
 
         _ = try await entitlements.purchase(yearly)
 
@@ -103,9 +103,9 @@ struct StoreKitTests {
 
     @Test("期間の表記")
     func periodText() {
-        #expect(PlanOption.periodText(value: 1, unit: .week) == "1週間")
-        #expect(PlanOption.periodText(value: 3, unit: .day) == "3日間")
-        #expect(PlanOption.periodText(value: 1, unit: .month) == "1ヶ月")
-        #expect(PlanOption.periodText(value: 1, unit: .year) == "1年")
+        #expect(PaywallPlan.periodText(value: 1, unit: .week) == "1週間")
+        #expect(PaywallPlan.periodText(value: 3, unit: .day) == "3日間")
+        #expect(PaywallPlan.periodText(value: 1, unit: .month) == "1ヶ月")
+        #expect(PaywallPlan.periodText(value: 1, unit: .year) == "1年")
     }
 }

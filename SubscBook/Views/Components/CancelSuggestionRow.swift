@@ -1,0 +1,38 @@
+import SwiftUI
+
+/// 解約候補の1件。ホームとレポートで使う。
+struct CancelSuggestionRow: View {
+    let suggestion: CancelSuggestion
+    let reason: String?
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            CategoryIcon(name: suggestion.subscription.name, category: suggestion.subscription.category, size: 36)
+            VStack(alignment: .leading, spacing: 4) {
+                AdaptiveHStack {
+                    Text(suggestion.subscription.name)
+                        .font(.body.weight(.medium))
+                } trailing: {
+                    Text("年間\(suggestion.annualCost.yenText)")
+                        .font(.subheadline.weight(.semibold))
+                        .monospacedDigit()
+                }
+                Text("\(suggestion.unusedMonths)ヶ月続けて使っていません")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                if let reason {
+                    Text(reason)
+                        .font(.subheadline)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else {
+                    Text(TemplateInsightService.cancelReasonDefault)
+                        .font(.subheadline)
+                        .redacted(reason: .placeholder)
+                }
+            }
+        }
+        .contentShape(.rect)
+        .accessibilityElement(children: .combine)
+        .accessibilityHint("編集画面を開きます")
+    }
+}

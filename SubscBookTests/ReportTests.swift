@@ -25,6 +25,6 @@ struct ReportTests {
     @Test("共有用の画像を作れる")
     func rendersShareImage() {
         let summary = SavingsSummary(annualSavings: 24_072, realizedSavings: 3_966, canceledCount: 2)
-        #expect(SavingsShareCard.render(savings: summary) != nil)
+        #expect(ReportShareImage.render(savings: summary) != nil)
     }
 }

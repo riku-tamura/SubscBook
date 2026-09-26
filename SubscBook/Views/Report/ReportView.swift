@@ -31,10 +31,10 @@ struct ReportView: View {
                         )
                         let slices = CategoryBreakdown.slices(of: active)
                         if !slices.isEmpty {
-                            CategoryBreakdownCard(slices: slices, monthlyTotal: CostCalculator.monthlyTotal(of: active))
+                            ReportCategoryChartCard(slices: slices, monthlyTotal: CostCalculator.monthlyTotal(of: active))
                         }
                         InsightCard(title: "AIの月次振り返り", comment: comment)
-                        PremiumReportSections(subscriptions: subscriptions)
+                        ReportPremiumSection(subscriptions: subscriptions)
                     }
                 }
                 .padding()

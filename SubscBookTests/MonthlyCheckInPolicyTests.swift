@@ -4,14 +4,14 @@ import Testing
 @testable import SubscBook
 
 @Suite("月次チェックイン（5.6）")
-struct MonthlyCheckInPolicyTests {
+struct CheckInPolicyTests {
     @Test("対象月は前月", arguments: [
         (date(2026, 9, 26), "2026-08"),
         (date(2026, 9, 1), "2026-08"),
         (date(2026, 1, 1), "2025-12"),
     ])
     func targetMonth(now: Date, expected: String) {
-        #expect(MonthlyCheckInPolicy.targetMonth(now: now, calendar: .tokyo).key == expected)
+        #expect(CheckInPolicy.targetMonth(now: now, calendar: .tokyo).key == expected)
     }
 
     @Test("今日時点で登録から1ヶ月以上経っていれば対象（日単位で判定）", arguments: [
@@ -24,7 +24,7 @@ struct MonthlyCheckInPolicyTests {
         let store = try TestStore()
         let subscription = store.addSubscription(createdAt: createdAt)
 
-        #expect(MonthlyCheckInPolicy.isEligible(subscription, now: date(2026, 9, 26, 0, 30), calendar: .tokyo) == expected)
+        #expect(CheckInPolicy.isEligible(subscription, now: date(2026, 9, 26, 0, 30), calendar: .tokyo) == expected)
     }
 
     @Test("解約済みは対象外")
@@ -32,7 +32,7 @@ struct MonthlyCheckInPolicyTests {
         let store = try TestStore()
         let subscription = store.addSubscription(status: .canceled, canceledAt: date(2026, 9, 1), createdAt: date(2026, 1, 1))
 
-        #expect(!MonthlyCheckInPolicy.isEligible(subscription, now: date(2026, 9, 26), calendar: .tokyo))
+        #expect(!CheckInPolicy.isEligible(subscription, now: date(2026, 9, 26), calendar: .tokyo))
     }
 
     @Test("前月分が未回答の対象サブスクを抽出する")
@@ -46,7 +46,7 @@ struct MonthlyCheckInPolicyTests {
         store.addSubscription(name: "登録したばかり", createdAt: date(2026, 9, 20))
         store.addSubscription(name: "解約済み", status: .canceled, canceledAt: date(2026, 9, 1))
 
-        let pending = MonthlyCheckInPolicy.pendingSubscriptions(
+        let pending = CheckInPolicy.pendingSubscriptions(
             in: try store.context.fetch(.init()), now: date(2026, 9, 26), calendar: .tokyo
         )
 
@@ -59,10 +59,10 @@ struct MonthlyCheckInPolicyTests {
         let subscription = store.addSubscription()
         let now = date(2026, 9, 26)
 
-        #expect(MonthlyCheckInPolicy.needsCheckIn([subscription], now: now, calendar: .tokyo))
+        #expect(CheckInPolicy.needsCheckIn([subscription], now: now, calendar: .tokyo))
 
         subscription.recordCheckIn(for: YearMonth("2026-08")!, used: false)
-        #expect(!MonthlyCheckInPolicy.needsCheckIn([subscription], now: now, calendar: .tokyo))
-        #expect(!MonthlyCheckInPolicy.needsCheckIn([], now: now, calendar: .tokyo))
+        #expect(!CheckInPolicy.needsCheckIn([subscription], now: now, calendar: .tokyo))
+        #expect(!CheckInPolicy.needsCheckIn([], now: now, calendar: .tokyo))
     }
 }

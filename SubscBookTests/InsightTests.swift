@@ -261,7 +261,7 @@ struct TimeoutTests {
     @Test("時間を超えたら待たずにエラーにする")
     func timesOut() async {
         let start = ContinuousClock.now
-        await #expect(throws: InsightTimeoutError.self) {
+        await #expect(throws: TimeoutError.self) {
             try await withTimeout(.milliseconds(100)) {
                 // キャンセルに応じない処理でも打ち切れること
                 let deadline = ContinuousClock.now + .seconds(3)
