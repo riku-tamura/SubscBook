@@ -122,7 +122,7 @@
 | `InsightFactsBuilder.swift` | `InsightFactsBuilder` | サブスクのデータから材料（事実）を組み立てる。前月比の判定 |
 | `InsightSanitizer.swift` | `InsightSanitizer` | AI の出力のチェック（長さ・目的と逆の表現・事実にない話題・数字や英字） |
 | `InsightCache.swift` | `InsightCache` | AI が作ったコメントのキャッシュ（UserDefaults、今月分だけ） |
-| `Timeout.swift` | `withTimeout`・`TimeoutError`・`ResumeGate` | 指定時間で処理を打ち切る関数 |
+| `Timeout.swift` | `withTimeout`・`TimeoutError`・`ResumeGate`・`TimerHolder` | 指定時間で処理を打ち切る関数。先に終わったら見張りのタスクも止める |
 
 ### ViewModels/
 

@@ -105,12 +105,10 @@ final class SubscriptionFormViewModel {
         isCategoryChosenByUser = true
     }
 
-    /// 候補を選ぶ。カテゴリは、ユーザーが自分で選んでいなければ候補のものにする。
+    /// 候補を選ぶ。カテゴリは名前の変更（`applyPresetCategoryIfNeeded`）で、
+    /// ユーザーが自分で選んでいなければ候補のものになる。
     func applySuggestion(_ preset: ServicePreset) {
         name = preset.name
-        if !isCategoryChosenByUser {
-            category = preset.category
-        }
     }
 
     private func applyPresetCategoryIfNeeded() {
