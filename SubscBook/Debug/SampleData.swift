@@ -26,7 +26,8 @@ enum SampleData {
         let twoMonthsAgo = lastMonth.previous
 
         func add(
-            _ names: (real: String, generic: String), _ category: SubscriptionCategory, _ price: Int, _ cycle: BillingCycle = .monthly,
+            _ names: (real: String, generic: String),
+            _ category: SubscriptionCategory, _ price: Int, _ cycle: BillingCycle = .monthly,
             next: Int, trialEnd: Int? = nil, canceledDaysAgo: Int? = nil,
             checkIns: [(YearMonth, Bool)] = []
         ) {

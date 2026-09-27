@@ -100,7 +100,11 @@ UI テストでは確かめられない、または確かめ方を変えたも�
 
 `AppStoreScreenshotUITests` が、App Store に載せる画像（6.9インチ・1320×2868）を撮ります。サービス名は、ほかの会社の商標を載せないように一般的な名前にしたサンプルデータ（起動オプション `-storeScreenshotData`）を使います。
 
-1. シミュレータ「iPhone 17 Pro Max」を起動し、ステータスバーを固定する（時刻 9:41・電池 100%）
+1. シミュレータ「iPhone 17 Pro Max」を起動し、ライトモードにして、ステータスバーを固定する（時刻 9:41・電池 100%）
+
+```bash
+xcrun simctl ui "iPhone 17 Pro Max" appearance light
+```
 
 ```bash
 xcrun simctl status_bar "iPhone 17 Pro Max" override --time 9:41 --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 --operatorName "" --batteryState charged --batteryLevel 100
