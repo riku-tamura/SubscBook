@@ -31,8 +31,9 @@ struct HomeUpcomingPaymentsCard: View {
     }
 
     private func row(_ subscription: Subscription) -> some View {
-        HStack(spacing: 12) {
+        IconLabelStack {
             CategoryIcon(name: subscription.name, category: subscription.category, size: 36)
+        } label: {
             AdaptiveHStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(subscription.name)

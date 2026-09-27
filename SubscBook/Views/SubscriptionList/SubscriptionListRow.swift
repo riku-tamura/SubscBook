@@ -5,8 +5,9 @@ struct SubscriptionListRow: View {
     let subscription: Subscription
 
     var body: some View {
-        HStack(spacing: 12) {
+        IconLabelStack {
             CategoryIcon(name: subscription.name, category: subscription.category)
+        } label: {
             AdaptiveHStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(subscription.name)

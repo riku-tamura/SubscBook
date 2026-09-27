@@ -10,35 +10,15 @@ struct CheckInQuestionView: View {
     var body: some View {
         Group {
             if let subscription = viewModel.current {
-                VStack(spacing: 24) {
-                    VStack(spacing: 8) {
-                        ProgressView(value: viewModel.progress)
-                            .accessibilityHidden(true)
-                        HStack {
-                            if viewModel.canGoBack {
-                                Button("ひとつ戻る", systemImage: "chevron.backward") {
-                                    withAnimation { viewModel.goBack() }
-                                }
-                                .font(.subheadline)
-                            }
-                            Spacer()
-                            Text(viewModel.progressText)
-                                .font(.subheadline.monospacedDigit())
-                                .foregroundStyle(.secondary)
-                                .accessibilityLabel("\(viewModel.queue.count)件中\(min(viewModel.index + 1, viewModel.queue.count))件目")
-                        }
+                // 大きな文字では画面に収まらないので、スクロールできるようにする（普段はスクロールしない）
+                GeometryReader { proxy in
+                    ScrollView {
+                        question(subscription)
+                            .padding()
+                            .frame(minHeight: proxy.size.height)
                     }
-                    Spacer(minLength: 0)
-                    CheckInCard(subscription: subscription, month: viewModel.month) { used in
-                        withAnimation(.snappy) {
-                            viewModel.answer(used: used, for: subscription, in: modelContext)
-                        }
-                    }
-                    .id(subscription.id)
-                    .transition(.asymmetric(insertion: .scale(scale: 0.9).combined(with: .opacity), removal: .opacity))
-                    Spacer(minLength: 0)
+                    .scrollBounceBehavior(.basedOnSize)
                 }
-                .padding()
                 .navigationTitle("\(viewModel.month.monthText)のチェックイン")
             } else {
                 CheckInCompletionView(
@@ -56,6 +36,38 @@ struct CheckInQuestionView: View {
             Button("OK") {}
         } message: {
             Text(viewModel.saveErrorMessage ?? "")
+        }
+    }
+
+    /// 進み具合と、回答中のカード
+    private func question(_ subscription: Subscription) -> some View {
+        VStack(spacing: 24) {
+            VStack(spacing: 8) {
+                ProgressView(value: viewModel.progress)
+                    .accessibilityHidden(true)
+                HStack {
+                    if viewModel.canGoBack {
+                        Button("ひとつ戻る", systemImage: "chevron.backward") {
+                            withAnimation { viewModel.goBack() }
+                        }
+                        .font(.subheadline)
+                    }
+                    Spacer()
+                    Text(viewModel.progressText)
+                        .font(.subheadline.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("\(viewModel.queue.count)件中\(min(viewModel.index + 1, viewModel.queue.count))件目")
+                }
+            }
+            Spacer(minLength: 0)
+            CheckInCard(subscription: subscription, month: viewModel.month) { used in
+                withAnimation(.snappy) {
+                    viewModel.answer(used: used, for: subscription, in: modelContext)
+                }
+            }
+            .id(subscription.id)
+            .transition(.asymmetric(insertion: .scale(scale: 0.9).combined(with: .opacity), removal: .opacity))
+            Spacer(minLength: 0)
         }
     }
 }

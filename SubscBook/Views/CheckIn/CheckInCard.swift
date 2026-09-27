@@ -52,6 +52,7 @@ struct CheckInCard: View {
             Text("先月（\(month.monthText)）、\(subscription.name)を使いましたか？")
                 .font(.headline)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 8)
         }
         .padding(28)
