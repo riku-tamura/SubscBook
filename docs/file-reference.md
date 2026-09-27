@@ -331,7 +331,7 @@
 | ファイル | 主な型 | 内容 |
 |---|---|---|
 | `DebugLaunchOptions.swift` | `DebugLaunchOptions` | 起動オプション（`-seedSampleData`・`-emptyData`・`-resetOnboarding`・`-forcePremium`・`-samplePlans`・`-skipOnboarding`・`-ignoreAdLimits`・`-scheduleTestNotification`）と、テストの実行中か |
-| `DebugTestNotification.swift` | `DebugTestNotification` | UI テスト用：数秒後に届くチェックインの通知を登録する |
+| `DebugTestNotification.swift` | `DebugTestNotification` | UI テスト用：アプリが作るチェックイン・支払日の前日の通知を、時刻だけ1〜2分後にずらして登録する |
 | `SampleData.swift` | `SampleData` | 画面確認用のサンプルデータ（8件）と、データを空にする処理 |
 | `View+PreviewEnvironment.swift` | `View.previewEnvironment(seeded:)` | プレビュー用に、インメモリのデータと共有オブジェクトを用意する |
 
@@ -377,6 +377,7 @@
 | `Subscription/DuplicateDetectorTests.swift` | `DuplicateDetector` |
 | `Subscription/SavingsCalculatorTests.swift` | `SavingsCalculator` |
 | `Notification/NotificationPlannerTests.swift` | `NotificationPlanner` |
+| `Notification/NotificationSchedulerTests.swift` | `NotificationScheduler.request(for:)`（登録する通知の時刻の設定） |
 | `Premium/StoreKitTests.swift` | `EntitlementManager`・`PaywallPlan`・`PaywallViewModel`（StoreKitTest） |
 | `Insight/InsightFactsBuilderTests.swift` | `InsightFactsBuilder`・`MonthlyInsightFacts`・`CancelReasonFacts` |
 | `Insight/InsightProviderTests.swift` | `InsightProvider`・`InsightCache` |

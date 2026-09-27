@@ -14,7 +14,7 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform=iOS Simulator,name=iPhone 17' test -only-testing:SubscBookTests/NotificationPlannerTests
 ```
 
-今は 147件（33スイート）で、数秒で終わります。
+今は 149件（34スイート）で、数秒で終わります。
 
 ## 方針
 
@@ -64,11 +64,13 @@ xcrun xcresulttool export attachments --path build/DeviceCheck.xcresult --output
 | `test08_SaveShareImage` | 節約レポートの画像を写真に保存 |
 | `test09_AccessibilityAudit` | Apple のアクセシビリティ監査（結果を記録。失敗にはしない） |
 | `test10_DeleteAllData` | データの全削除 |
+| `test11_ScheduledNotificationTimes` | 実機に登録された通知の時刻（支払日の前日・トライアル終了は 9:00、チェックインは毎月1日 20:00） |
+| `test12_PaymentNotificationOpensList` | 支払日の前日の通知が実際に届き、タップすると一覧が開く |
 
 - 実行中は iPhone の画面を点けたままにします（自動ロックで画面が消えると「Timed out while enabling automation mode」で始まらない）
 - AssistiveTouch の丸が画面右上のボタンに重なっていると、タップが届きません
 - 許可のダイアログは一度答えると出ないので、最初から確かめるときはアプリを削除してから動かします
-- 起動オプション `-emptyData`（データを空にする）、`-resetOnboarding`（オンボーディングを最初から）、`-scheduleTestNotification`（数秒後に届くチェックインの通知を登録する）を使います
+- 起動オプション `-emptyData`（データを空にする）、`-resetOnboarding`（オンボーディングを最初から）、`-scheduleTestNotification`（アプリが実際に作るチェックイン・支払日の前日の通知を、時刻だけ1〜2分後のちょうどの分にずらして登録する）を使います。決まった時刻（9:00・毎月1日 20:00）まで待たずに、本番と同じ内容・同じ登録方法（`UNCalendarNotificationTrigger`）の通知が届くことを確かめるためです。本番の時刻そのものは `test11` で、登録された内容から確かめます
 - AssistiveTouch の丸が右上にあるときは、登録のテストの最初に左端の中ほどへドラッグして動かします
 - 端末の「Appからのトラッキング要求を許可」がオフだと、トラッキングの許可のダイアログは出ません（iOS が自動で「許可しない」にする）。テストは失敗にせず記録だけします
 - アクセシビリティ監査の「コントラスト」の指摘は、画面下のタブバーに重なっている部分（半透明の上）で出ることがあります。画面に見えている部分は、スクリーンショットで確かめます
@@ -104,6 +106,7 @@ xcrun xcresulttool export attachments --path build/DeviceCheck.xcresult --output
 | 解約候補の判定（`CancelSuggestionDetectorTests`） | 最新の回答月と前月が「使っていない」、連続月数、候補にならない場合、同じ月は最後の回答、解約済みは除く、並び順 |
 | 重複の検出（`DuplicateDetectorTests`） | 同じカテゴリ2件以上、「その他」は除く、解約済みは数えない、並び順 |
 | 節約額（`SavingsCalculatorTests`） | 1年あたりの合計、満了月数 × 月額換算、複数件の合計、満了月数の数え方 |
+| 通知の登録内容（`NotificationSchedulerTests`） | 1回の通知は年月日と時刻（分まで）、月次チェックインは毎月1日 20:00 の繰り返し、種類とサブスクIDを通知に入れる |
 | 通知の予定（`NotificationPlannerTests`） | 前日 9:00・月額は3回先まで、月末払い、年額は1回、過ぎた時刻は登録しない、古い支払日から計算、解約済みは除く、トライアルはプラスのみ、チェックインの繰り返しと初回の1回、設定のオフ、上限64件、識別子の重複なし |
 | AI に渡す事実（`InsightFactsBuilderTests`） | プラスは名前、無料は件数だけ、理由の事実に数字・かぎ括弧を入れない、事実にない話題の語、前月比 |
 | AI コメントのキャッシュ（`InsightProviderTests`） | 同じ月・同じ内容では生成しない、内容が変わったら作り直す、無料・プラスの両方を残す、定型文はキャッシュしない、同時の要求は1回の生成、理由のキャッシュ |

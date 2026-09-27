@@ -12,7 +12,7 @@ enum DebugLaunchOptions {
     static let resetsOnboarding = arguments.contains("-resetOnboarding")
     /// 既存データを消して空にする（UI テストでオンボーディングから確かめるため）
     static let clearsData = arguments.contains("-emptyData")
-    /// 起動の数秒後に届くチェックインの通知を登録する（UI テストで、終了した状態から通知で開くことを確かめるため）
+    /// アプリが実際に作るチェックイン・支払日の前日の通知を、1〜2分後に届くようにずらして登録する（UI テストで、実機で届くこと・通知から開くことを確かめるため）
     static let schedulesTestNotification = arguments.contains("-scheduleTestNotification")
     /// 購入せずにサブスク帳プラスを有効にする
     static let forcesPremium = arguments.contains("-forcePremium")
