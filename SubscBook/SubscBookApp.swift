@@ -24,6 +24,9 @@ struct SubscBookApp: App {
         } else if DebugLaunchOptions.clearsData {
             try? SampleData.clear(modelContainer.mainContext)
         }
+        if DebugLaunchOptions.resetsOnboarding {
+            UserDefaults.standard.removeObject(forKey: OnboardingViewModel.completedKey)
+        }
         if DebugLaunchOptions.schedulesTestNotification {
             DebugTestNotification.schedule()
         }

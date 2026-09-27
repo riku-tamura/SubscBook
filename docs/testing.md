@@ -68,7 +68,10 @@ xcrun xcresulttool export attachments --path build/DeviceCheck.xcresult --output
 - 実行中は iPhone の画面を点けたままにします（自動ロックで画面が消えると「Timed out while enabling automation mode」で始まらない）
 - AssistiveTouch の丸が画面右上のボタンに重なっていると、タップが届きません
 - 許可のダイアログは一度答えると出ないので、最初から確かめるときはアプリを削除してから動かします
-- 起動オプション `-emptyData`（データを空にする）と `-scheduleTestNotification`（数秒後に届くチェックインの通知を登録する）を使います
+- 起動オプション `-emptyData`（データを空にする）、`-resetOnboarding`（オンボーディングを最初から）、`-scheduleTestNotification`（数秒後に届くチェックインの通知を登録する）を使います
+- AssistiveTouch の丸が右上にあるときは、登録のテストの最初に左端の中ほどへドラッグして動かします
+- 端末の「Appからのトラッキング要求を許可」がオフだと、トラッキングの許可のダイアログは出ません（iOS が自動で「許可しない」にする）。テストは失敗にせず記録だけします
+- アクセシビリティ監査の「コントラスト」の指摘は、画面下のタブバーに重なっている部分（半透明の上）で出ることがあります。画面に見えている部分は、スクリーンショットで確かめます
 
 ## StoreKit のテスト
 

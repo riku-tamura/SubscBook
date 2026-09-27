@@ -14,7 +14,7 @@ final class DeviceCheckUITests: XCTestCase {
 
     /// オンボーディング → 通知の許可 → スキップ → トラッキングの許可
     func test01_Onboarding() {
-        let app = launch(["-emptyData", "-onboarding.completed", "NO"])
+        let app = launch(["-emptyData", "-resetOnboarding"])
         XCTAssertTrue(app.buttons["はじめる"].waitForExistence(timeout: 10))
         snap("01-1 オンボーディング1")
         app.buttons["はじめる"].tap()
@@ -28,10 +28,14 @@ final class DeviceCheckUITests: XCTestCase {
         XCTAssertTrue(skip.waitForExistence(timeout: 10))
         sleep(1)
         snap("01-4 オンボーディング3")
+        record(app.debugDescription, name: "01-4 画面の構造（スキップの前）")
         // ページの切り替えの途中だと押せないことがあるので、画面が変わるまで押し直す
         for _ in 0..<3 where skip.exists {
             skip.tap()
             sleep(2)
+        }
+        if skip.exists {
+            record(app.debugDescription, name: "01-4 画面の構造（スキップの後）")
         }
         XCTAssertFalse(skip.exists, "スキップしても画面が変わらない")
 
@@ -130,6 +134,7 @@ final class DeviceCheckUITests: XCTestCase {
     func test05_AddAndCancel() {
         let app = launch(["-seedSampleData", "-skipOnboarding", "-forcePremium"])
         sleep(3)
+        moveAssistiveTouchAwayFromTopRight()
         tab(app, "一覧")
         app.navigationBars.buttons["追加"].firstMatch.tap()
 
@@ -281,6 +286,24 @@ final class DeviceCheckUITests: XCTestCase {
             app.buttons[name].firstMatch.tap()
         }
         sleep(1)
+    }
+
+    /// 画面右上に AssistiveTouch の丸があると、右上のボタン（＋・保存）へのタップが丸に取られるので、左端の中ほどへ動かす。
+    /// 丸がない端末では、ナビゲーションバーの右上を少しドラッグするだけ（ボタンは押されない）。
+    private func moveAssistiveTouchAwayFromTopRight() {
+        let origin = springboard.coordinate(withNormalizedOffset: .zero)
+        let frame = springboard.frame
+        let from = origin.withOffset(CGVector(dx: frame.width - 40, dy: 86))
+        let to = origin.withOffset(CGVector(dx: 30, dy: frame.height / 2))
+        from.press(forDuration: 0.6, thenDragTo: to)
+        sleep(1)
+    }
+
+    private func record(_ text: String, name: String) {
+        let attachment = XCTAttachment(string: text)
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 
     /// 画面全体（システムのダイアログを含む）のスクリーンショットを残す
