@@ -6,7 +6,9 @@ enum DebugLaunchOptions {
     private static let arguments = ProcessInfo.processInfo.arguments
 
     /// 既存データを消してサンプルデータを入れる
-    static let seedsSampleData = arguments.contains("-seedSampleData")
+    static let seedsSampleData = arguments.contains("-seedSampleData") || seedsStoreScreenshotData
+    /// サンプルデータを、実在のサービス名の代わりに一般的な名前で入れる（App Store のスクリーンショット用）
+    static let seedsStoreScreenshotData = arguments.contains("-storeScreenshotData")
     /// オンボーディングを最初から表示する（UI テスト用）。
     /// `-onboarding.completed NO` のように引数で値を渡すと、アプリが「終えた」と保存しても引数の値が優先されて終われないため、起動時に消す。
     static let resetsOnboarding = arguments.contains("-resetOnboarding")

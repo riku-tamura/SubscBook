@@ -24,12 +24,16 @@ struct SettingsDebugSection: View {
                     }
                 }
                 .navigationTitle("登録済みの通知")
+                // 通知の設定を変えた後に開いても、今の状態を表示する
+                .task { await loadRequests() }
             }
         }
-        .task {
-            requests = await UNUserNotificationCenter.current().pendingNotificationRequests()
-                .sorted { nextDate($0) < nextDate($1) }
-        }
+        .task { await loadRequests() }
+    }
+
+    private func loadRequests() async {
+        requests = await UNUserNotificationCenter.current().pendingNotificationRequests()
+            .sorted { nextDate($0) < nextDate($1) }
     }
 
     private func nextDate(_ request: UNNotificationRequest) -> Date {

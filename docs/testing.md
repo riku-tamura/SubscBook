@@ -53,6 +53,7 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBookDeviceCheck -destinatio
 | `PurchaseUITests.test01_YearlyTrialPurchaseAndExpire` | ペイウォールの価格、年額（1週間無料）の購入、設定の表示（無料トライアル中・無料期間の終了日）、プラスの機能が開き広告の案内が消える、期限切れで無料に戻る |
 | `PurchaseUITests.test02_MonthlyPurchaseAndRestore` | 月額の購入、設定の表示（次回の更新日）、購入の復元 |
 | `PurchaseUITests.test03_RestoreWithoutPurchase` | 購入がないときの復元（見つからないと伝える） |
+| `PurchaseUITests.test04_ManageSubscription` | 購入後、設定の「サブスク帳プラスの契約を管理」から、契約の管理（解約）の画面が開く |
 
 本物の App Store（Sandbox）との接続は、App Store Connect に商品を作り、Sandbox のアカウントでサインインしてから確かめます（[premium.md](premium.md)）。
 
@@ -76,6 +77,7 @@ xcrun xcresulttool export attachments --path build/DeviceCheck.xcresult --output
 | `test10_DeleteAllData` | データの全削除 |
 | `test11_ScheduledNotificationTimes` | 実機に登録された通知の時刻（支払日の前日・トライアル終了は 9:00、チェックインは毎月1日 20:00） |
 | `test12_PaymentNotificationOpensList` | 支払日の前日の通知が実際に届き、タップすると一覧が開く |
+| `test13_NotificationTogglesOff` | 設定で通知を3つともオフにすると登録済みの通知が0件になり、オンに戻すと登録し直す（最後はオンに戻す）。通知が許可されている端末で動かす |
 
 - 実行中は iPhone の画面を点けたままにします（自動ロックで画面が消えると「Timed out while enabling automation mode」で始まらない）
 - AssistiveTouch の丸が画面右上のボタンに重なっていると、タップが届きません
@@ -84,6 +86,49 @@ xcrun xcresulttool export attachments --path build/DeviceCheck.xcresult --output
 - AssistiveTouch の丸が右上にあるときは、登録のテストの最初に左端の中ほどへドラッグして動かします
 - 端末の「Appからのトラッキング要求を許可」がオフだと、トラッキングの許可のダイアログは出ません（iOS が自動で「許可しない」にする）。テストは失敗にせず記録だけします
 - アクセシビリティ監査の「コントラスト」の指摘は、画面下のタブバーに重なっている部分（半透明の上）で出ることがあります。画面に見えている部分は、スクリーンショットで確かめます
+
+### 手で確かめる項目
+
+UI テストでは確かめられない、または確かめ方を変えたもの（2026年9月27日時点）。
+
+| 項目 | 確かめ方・結果 |
+|---|---|
+| 通信がないときのバナーの場所 | 広告が届かないときは `AdBanner` が高さ0のままになる。存在しない広告ユニット ID でビルドして（`ADMOB_BANNER_UNIT_ID=ca-app-pub-3940256099942544/1111111111` をビルドの設定として渡す）読み込みを失敗させ、タブバーの上に空きができないことを確認済み。通信がないときも同じ失敗の処理（`bannerView(_:didFailToReceiveAdWithError:)`）を通る |
+| VoiceOver でチェックインに答える | カードに「使った」「使っていない」の操作（`accessibilityAction`）があり、同じ名前のボタンも画面にある（`test04` がボタンで答える）。実際の読み上げは、VoiceOver をオンにして手で確かめる |
+
+## App Store のスクリーンショット
+
+`AppStoreScreenshotUITests` が、App Store に載せる画像（6.9インチ・1320×2868）を撮ります。サービス名は、ほかの会社の商標を載せないように一般的な名前にしたサンプルデータ（起動オプション `-storeScreenshotData`）を使います。
+
+1. シミュレータ「iPhone 17 Pro Max」を起動し、ライトモードにして、ステータスバーを固定する（時刻 9:41・電池 100%）
+
+```bash
+xcrun simctl ui "iPhone 17 Pro Max" appearance light
+```
+
+```bash
+xcrun simctl status_bar "iPhone 17 Pro Max" override --time 9:41 --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 --operatorName "" --batteryState charged --batteryLevel 100
+```
+
+2. テストを動かして、画像を取り出す
+
+```bash
+xcodebuild -project SubscBook.xcodeproj -scheme SubscBookDeviceCheck -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' -resultBundlePath build/Screenshots.xcresult -only-testing:SubscBookUITests/AppStoreScreenshotUITests test
+```
+
+```bash
+xcrun xcresulttool export attachments --path build/Screenshots.xcresult --output-path build/Screenshots
+```
+
+| 画像 | 内容 |
+|---|---|
+| 1 ホーム | 毎月の支払い・今月のひとこと・解約候補・次の支払い（プラス） |
+| 2 一覧 | 契約中のサブスク |
+| 3 チェックイン | 「先月使いましたか？」のカード |
+| 4 レポート | 毎月の支払いとカテゴリ別の円グラフ |
+| 5 レポート（解約候補） | 解約候補・重複しているサブスク・年間節約レポート |
+| 6 ペイウォール | サブスク帳プラスの機能と価格 |
+| 7 ペイウォール（下） | 購入のボタンと注意書き（サブスクリプションの審査用のスクリーンショットにも使う） |
 
 ## StoreKit のテスト
 

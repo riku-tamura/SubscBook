@@ -333,7 +333,7 @@
 |---|---|---|
 | `DebugLaunchOptions.swift` | `DebugLaunchOptions` | 起動オプション（`-seedSampleData`・`-emptyData`・`-resetOnboarding`・`-forcePremium`・`-samplePlans`・`-skipOnboarding`・`-ignoreAdLimits`・`-scheduleTestNotification`）と、テストの実行中か |
 | `DebugTestNotification.swift` | `DebugTestNotification` | UI テスト用：アプリが作るチェックイン・支払日の前日の通知を、時刻だけ1〜2分後にずらして登録する |
-| `SampleData.swift` | `SampleData` | 画面確認用のサンプルデータ（8件）と、データを空にする処理 |
+| `SampleData.swift` | `SampleData` | 画面確認用のサンプルデータ（8件。スクリーンショット用に一般的な名前にもできる）と、データを空にする処理 |
 | `View+PreviewEnvironment.swift` | `View.previewEnvironment(seeded:)` | プレビュー用に、インメモリのデータと共有オブジェクトを用意する |
 
 ### Resources/
@@ -411,4 +411,5 @@
 | ファイル | 内容 |
 |---|---|
 | `DeviceCheckUITests.swift` | 画面を自動で操作し、スクリーンショットを残す（[testing.md](testing.md) の「実機での確認」） |
-| `PurchaseUITests.swift` | StoreKit Testing で、サブスク帳プラスの購入・期限切れ・復元を画面の操作で確かめる |
+| `PurchaseUITests.swift` | StoreKit Testing で、サブスク帳プラスの購入・期限切れ・復元・契約の管理を画面の操作で確かめる |
+| `AppStoreScreenshotUITests.swift` | App Store に載せるスクリーンショットを撮る（[testing.md](testing.md) の「App Store のスクリーンショット」） |

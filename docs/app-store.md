@@ -68,6 +68,7 @@ iPhone のアプリの利用状況は読み取りません。毎月のチェッ�
   - 申告の前に、Google の最新のガイダンスで項目を確かめる
 - **配信地域**：日本のみ（ヨーロッパなどで必要な同意確認の画面を実装していないため。docs/ads.md）
 - **年齢制限指定**：広告を表示するため、広告の内容に合わせて見直す（AdMob の広告の配信カテゴリも設定する）
+- **スクリーンショット**：6.9インチ（1320×2868）の7枚を `AppStoreScreenshotUITests` で撮る（撮り方は [testing.md](testing.md#app-store-のスクリーンショット)）。「7 ペイウォール（下）」は、サブスクリプションの審査用のスクリーンショットにも使う
 - **URL**（ウェブサイトは GitHub の Organization `hachimaki-app` のリポジトリ [hachimaki-app.github.io](https://github.com/hachimaki-app/hachimaki-app.github.io) で公開）
   - マーケティング URL：`https://hachimaki-app.github.io/`（`app-ads.txt` を置いているドメイン。AdMob はこのドメインの `app-ads.txt` を確かめる）
   - プライバシーポリシー URL：`https://hachimaki-app.github.io/subscbook/privacy.html`（アプリ内の文面と同じ。アプリの文面を変えたら、サイトも合わせて更新する）

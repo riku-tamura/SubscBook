@@ -110,6 +110,31 @@ final class PurchaseUITests: XCTestCase {
         alert.buttons["OK"].tap()
     }
 
+    /// 購入後、設定の「サブスク帳プラスの契約を管理」から、契約の管理（解約）の画面が開く
+    func test04_ManageSubscription() {
+        let app = launch()
+        openPaywallFromSettings(app)
+        let trialButton = app.buttons["1週間無料で試す"]
+        XCTAssertTrue(trialButton.waitForExistence(timeout: 10), "無料体験のボタンがない")
+        trialButton.tap()
+        XCTAssertTrue(app.alerts["ありがとうございます"].waitForExistence(timeout: 15), "購入が完了しない")
+        app.alerts.buttons["OK"].tap()
+        sleep(2)
+
+        tab(app, "設定")
+        let manage = app.buttons["サブスク帳プラスの契約を管理"]
+        XCTAssertTrue(manage.waitForExistence(timeout: 5), "契約を管理のボタンがない")
+        manage.tap()
+        sleep(4)
+        snap("P04-1 契約の管理")
+        let attachment = XCTAttachment(string: app.debugDescription)
+        attachment.name = "P04-1 画面の構造"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        // 契約の管理の画面が前に出て、設定のボタンが押せなくなる
+        XCTAssertFalse(manage.isHittable, "契約の管理の画面が開かない")
+    }
+
     // MARK: - 補助
 
     private func launch() -> XCUIApplication {
