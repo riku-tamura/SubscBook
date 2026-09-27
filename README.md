@@ -12,7 +12,7 @@
 | アプリ名 | サブスク帳（有料プラン：サブスク帳プラス） |
 | コード名 | `SubscBook` |
 | Bundle ID | `com.hachimaki.SubscBook` |
-| 対応 OS | iOS 18.0 以降（AIコメントは iOS 26 以降の Apple Intelligence 対応端末） |
+| 対応 OS | iOS 18.0 以降（AIコメントは、Apple Intelligence に対応した iPhone（15 Pro 以降）で iOS 26 以降のとき） |
 | 対応端末 | iPhone のみ・縦向きのみ |
 | 言語 | Swift 6 / SwiftUI |
 
@@ -26,6 +26,7 @@
 - [フォルダ構成](#フォルダ構成)
 - [設計の原則](#設計の原則)
 - [ドキュメント一覧](#ドキュメント一覧)
+- [確認の状況](#確認の状況)
 - [リリース前にやること](#リリース前にやること)
 
 ## 主な機能
@@ -64,7 +65,7 @@
 | AI | FoundationModels（iOS 26+。`@Generable` で出力形式を決め、失敗時は定型文） |
 | 広告 | Google Mobile Ads SDK（AdMob。バナーと全画面広告）、AppTrackingTransparency |
 | 設計 | MVVM（View は表示、ViewModel は状態と操作、計算は Services の純粋な関数） |
-| テスト | Swift Testing、StoreKitTest（`SKTestSession`） |
+| テスト | Swift Testing（単体テスト）、XCUITest（実機の確認用の UI テスト）、StoreKitTest（`SKTestSession`） |
 | 外部ライブラリ | Google Mobile Ads SDK（Swift Package。依存として Google User Messaging Platform も入る）だけ |
 
 Xcode プロジェクトの主な設定：
@@ -73,7 +74,7 @@ Xcode プロジェクトの主な設定：
 - 既定のアクター分離は MainActor（`SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`）。バックグラウンドで使う型には `nonisolated` を付けます
 - `SWIFT_APPROACHABLE_CONCURRENCY = YES`
 - `SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES`：使うモジュールはファイルごとに `import` が必要です
-- フォルダ同期（`PBXFileSystemSynchronizedRootGroup`）：`SubscBook/` と `SubscBookTests/` にファイルを置くだけでビルド対象になります。pbxproj の編集は不要です
+- フォルダ同期（`PBXFileSystemSynchronizedRootGroup`）：`SubscBook/`・`SubscBookTests/`・`SubscBookUITests/` にファイルを置くだけでビルド対象になります。pbxproj の編集は不要です
 - Info.plist は自動生成（`GENERATE_INFOPLIST_FILE`）。表示名・カテゴリ（ファイナンス）・暗号化の申告などは Build Settings の `INFOPLIST_KEY_*` で設定しています
 
 ## はじめかた
@@ -99,9 +100,19 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 
 - 149件（34スイート）。計算・判定のロジックと ViewModel を中心に確かめます
 - 日付はすべて東京時間に固定して確かめます（`Calendar.tokyo` と `date(2026, 9, 26)`）
-- StoreKit のテストは `Products.storekit` を読み、テスト後に購入履歴を消します
+- StoreKit のテストは、テストに入れた `Products.storekit` を読み、テスト後に購入履歴を消します（シミュレータでも実機でも動きます）
 
-実機（iPhone）での確認は、画面を自動で操作する UI テスト（スキーム `SubscBookDeviceCheck`）で行います。詳しくは [docs/testing.md](docs/testing.md) を見てください。
+### 実機（iPhone）での確認
+
+画面を自動で操作する UI テストを、確認用のスキーム `SubscBookDeviceCheck` で動かします（通常のスキームには含めていないので、⌘U では動きません）。スクリーンショットは結果（xcresult）から取り出して見ます。
+
+```bash
+xcodebuild -project SubscBook.xcodeproj -scheme SubscBookDeviceCheck -destination 'platform=iOS,id=<iPhone の UDID>' -allowProvisioningUpdates -resultBundlePath build/DeviceCheck.xcresult test
+```
+
+- `DeviceCheckUITests`（12件）：オンボーディング・各画面・チェックイン・全画面広告・登録と解約・ダークモードと大きな文字・通知（登録された時刻、1〜2分後に実際に届く、通知から開く）・画像の保存・アクセシビリティ監査・全削除
+- `PurchaseUITests`（3件）：StoreKit Testing で、年額（1週間無料）・月額の購入、期限切れ、購入の復元（本物のお金はかからない）
+- 実行中は iPhone の画面を点けたままにします。詳しくは [docs/testing.md](docs/testing.md) を見てください
 
 ## 開発用の起動オプション
 
@@ -114,6 +125,9 @@ Debug ビルドでのみ有効です。Xcode ではスキームの「Run → Arg
 | `-samplePlans` | StoreKit の商品が読めないときも、ペイウォールにサンプルのプランを表示する |
 | `-skipOnboarding` | オンボーディングを表示しない |
 | `-ignoreAdLimits` | 全画面広告の回数のルールを無視して、区切りのたびに出す |
+| `-emptyData` | 既存のデータを消して空にする（UI テスト用） |
+| `-resetOnboarding` | オンボーディングを最初から表示する（UI テスト用） |
+| `-scheduleTestNotification` | アプリが作るチェックイン・支払日の前日の通知を、時刻だけ1〜2分後にずらして登録する（UI テスト用） |
 
 設定画面の最下部（Debug ビルドのみ）に「デバッグ」の項目があり、プラスの切り替えと、登録済みの通知の一覧を確認できます。
 
@@ -124,22 +138,23 @@ subsWatch/
 ├── README.md                  このファイル
 ├── Products.storekit          StoreKit の商品定義（ローカルでの購入テスト用）
 ├── Config/                    自動生成の Info.plist に足す項目（AdMob の ID など）
-├── SubscBook.xcodeproj        Xcode プロジェクト（共有スキーム SubscBook を含む）
+├── SubscBook.xcodeproj        Xcode プロジェクト（共有スキーム SubscBook・SubscBookDeviceCheck）
 ├── docs/                      設計書・資料
 ├── SubscBook/                 アプリ本体
 │   ├── SubscBookApp.swift     アプリの入口（データベース・共有オブジェクトの作成）
 │   ├── AppDelegate.swift      通知をタップしたときの画面遷移
 │   ├── Models/                データの型（SwiftData のモデル、値型、定数）
-│   ├── Services/              計算・判定・外部 API（通知・課金・AI）
+│   ├── Services/              計算・判定・外部 API（通知・課金・AI・広告）
 │   ├── ViewModels/            画面ごとの状態と操作、画面に出す集計値
 │   ├── Views/                 SwiftUI の画面と部品
 │   ├── Formatting/            表示用の文字列への変換（"1,490円" など）
 │   ├── Debug/                 Debug ビルドだけで使うコード
-│   └── Resources/             アプリアイコン・アクセントカラー
-└── SubscBookTests/            単体テスト（アプリ本体と同じフォルダ構成）
+│   └── Resources/             アプリアイコン・アクセントカラー・プライバシーマニフェスト
+├── SubscBookTests/            単体テスト（アプリ本体と同じフォルダ構成）
+└── SubscBookUITests/          実機の確認用の UI テスト
 ```
 
-`Models` / `Services` / `ViewModels` / `Views` の中は、機能ごとのフォルダ（`Subscription` / `Insight` / `Notification` / `Premium`）と、画面ごとのフォルダ（`Home` / `CheckIn` など）に分けています。すべてのファイルの説明は [docs/file-reference.md](docs/file-reference.md) にあります。
+`Models` / `Services` / `ViewModels` / `Views` の中は、機能ごとのフォルダ（`Subscription` / `Insight` / `Notification` / `Premium` / `Ads`）と、画面ごとのフォルダ（`Home` / `CheckIn` など）に分けています。すべてのファイルの説明は [docs/file-reference.md](docs/file-reference.md) にあります。
 
 ## 設計の原則
 
@@ -169,8 +184,21 @@ subsWatch/
 
 コードのコメントにある「5.3」「8章」「⑥」などは、元の仕様書の章番号と画面番号です。対応表は [docs/business-rules.md](docs/business-rules.md#仕様書の章番号との対応) にあります。
 
+## 確認の状況
+
+2026年9月27日時点。単体テスト 149件と Release ビルドが通ります。
+
+| 確認 | 状況 |
+|---|---|
+| シミュレータ（iPhone 17・iPhone SE、iOS 26） | 全画面・ダークモード・いちばん大きな文字・小さい画面・通知・共有・全削除を確認済み |
+| 実機（iPhone 15・iOS 18.7.8） | UI テスト 15件がすべて通る。最低対応の iOS 18 で動くこと、通知が決まった時刻どおりに登録され、実際に届いて正しい画面が開くこと、トラッキングの許可、購入の流れ（StoreKit Testing）を確認済み |
+| AIコメント | Mac の端末内モデルでプロンプトを検証済み（[docs/ai-insights.md](docs/ai-insights.md)）。Apple Intelligence 対応の iPhone（15 Pro 以降・iOS 26 以降）での表示は未確認 |
+| 本物の App Store（Sandbox）での購入 | 未確認（App Store Connect に商品を作った後に確認する） |
+| TestFlight | 未確認 |
+
 ## リリース前にやること
 
+- [ ] Apple Developer Program（有料）に登録し、App Store Connect で有料App契約（税務情報・銀行口座）を結ぶ
 - [ ] Xcode の Signing で開発チーム（Team）を設定する
 - [ ] App Store Connect でアプリを作り、サブスクリプショングループ「サブスク帳プラス」に2商品を作る（ID と価格は `Products.storekit` と同じ。手順は [docs/app-store.md](docs/app-store.md)）
 - [ ] サポート URL とプライバシーポリシーの URL を用意する（ポリシーはアプリ内の文面をそのまま公開できます）
@@ -181,4 +209,5 @@ subsWatch/
 - [ ] App のプライバシーを、広告で収集されるデータに合わせて登録する（[docs/app-store.md](docs/app-store.md)）
 - [ ] 配信地域を日本のみにする（同意確認の画面を実装していないため）
 - [ ] Apple Intelligence 対応の実機で AIコメントの表示を確かめる
-- [ ] Sandbox アカウントで購入・復元・期限切れを確かめる
+- [ ] Sandbox アカウントで購入・復元・期限切れを確かめる（`PurchaseUITests` と同じ流れ）
+- [ ] TestFlight で Release ビルドを確かめる
