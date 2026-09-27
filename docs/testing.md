@@ -46,6 +46,16 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 xcodebuild -project SubscBook.xcodeproj -scheme SubscBookDeviceCheck -destination 'platform=iOS,id=<iPhone の UDID>' -allowProvisioningUpdates -resultBundlePath build/DeviceCheck.xcresult test
 ```
 
+購入の流れ（`PurchaseUITests`）は、StoreKit Testing（`Products.storekit` を UI テストのバンドルに入れて `SKTestSession` で読む）で動かすので、本物のお金はかからず、App Store Connect の商品も使いません。購入の確認画面は出さない設定にして、購入・期限切れ・復元をテストから操作します。
+
+| テスト | 確かめること |
+|---|---|
+| `PurchaseUITests.test01_YearlyTrialPurchaseAndExpire` | ペイウォールの価格、年額（1週間無料）の購入、設定の表示（無料トライアル中・無料期間の終了日）、プラスの機能が開き広告の案内が消える、期限切れで無料に戻る |
+| `PurchaseUITests.test02_MonthlyPurchaseAndRestore` | 月額の購入、設定の表示（次回の更新日）、購入の復元 |
+| `PurchaseUITests.test03_RestoreWithoutPurchase` | 購入がないときの復元（見つからないと伝える） |
+
+本物の App Store（Sandbox）との接続は、App Store Connect に商品を作り、Sandbox のアカウントでサインインしてから確かめます（[premium.md](premium.md)）。
+
 スクリーンショットは結果から取り出して見ます。
 
 ```bash

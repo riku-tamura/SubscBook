@@ -410,3 +410,4 @@
 | ファイル | 内容 |
 |---|---|
 | `DeviceCheckUITests.swift` | 画面を自動で操作し、スクリーンショットを残す（[testing.md](testing.md) の「実機での確認」） |
+| `PurchaseUITests.swift` | StoreKit Testing で、サブスク帳プラスの購入・期限切れ・復元を画面の操作で確かめる |

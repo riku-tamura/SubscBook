@@ -107,6 +107,7 @@ AI の月次のひとことは、無料プランでは解約候補・重複の�
 
 ## テストと確認
 
+- 実機の UI テスト（`PurchaseUITests`）：StoreKit Testing で、ペイウォールからの購入・期限切れ・復元を画面の操作で確かめます（[testing.md](testing.md)）
 - 単体テスト（`StoreKitTests`）：`Products.storekit` を読み込んだ `SKTestSession` で、商品定義、購入でプラスになること、期限切れで無料に戻ること、トライアル中の扱い、ペイウォールの購入の流れを確かめます。テスト後に購入履歴を消します（消さないと、シミュレータでアプリがプラスのまま起動するため）
 - シミュレータ：スキームの StoreKit 設定で購入できます。Xcode の「Debug → StoreKit → Manage Transactions」で購入を消したり、期限切れにしたりできます
 - 開発用の切り替え：起動オプション `-forcePremium`、または設定画面の「デバッグ → プラスを有効にする（購入なし）」
