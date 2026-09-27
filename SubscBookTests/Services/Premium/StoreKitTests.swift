@@ -16,18 +16,13 @@ struct StoreKitTests {
         session.clearTransactions()
     }
 
-    /// リポジトリ直下の Products.storekit（テストファイルの場所から上へたどって探す）
+    /// テストのバンドルに入れた Products.storekit（リポジトリ直下のファイルを、テストのリソースとしてコピーしている）。
+    /// Mac 上のパスをたどる方法だと、実機ではファイルが見つからないため。
     private static func configurationURL() throws -> URL {
-        var directory = URL(filePath: #filePath).deletingLastPathComponent()
-        // path() は既定で % エンコードされるため、日本語や空白を含むパスでも見つかるようにデコードした形で比べる
-        while directory.path(percentEncoded: false) != "/" {
-            let candidate = directory.appending(path: "Products.storekit")
-            if FileManager.default.fileExists(atPath: candidate.path(percentEncoded: false)) {
-                return candidate
-            }
-            directory.deleteLastPathComponent()
+        guard let url = Bundle(for: BundleToken.self).url(forResource: "Products", withExtension: "storekit") else {
+            throw CocoaError(.fileNoSuchFile)
         }
-        throw CocoaError(.fileNoSuchFile)
+        return url
     }
 
     @Test("月額300円・年額2,400円（1週間無料）が同じグループにある")
@@ -136,3 +131,6 @@ struct StoreKitTests {
         #expect(!viewModel.isBusy)
     }
 }
+
+/// テストのバンドルを探すための目印
+private final class BundleToken {}

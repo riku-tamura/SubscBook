@@ -7,6 +7,13 @@ enum DebugLaunchOptions {
 
     /// 既存データを消してサンプルデータを入れる
     static let seedsSampleData = arguments.contains("-seedSampleData")
+    /// オンボーディングを最初から表示する（UI テスト用）。
+    /// `-onboarding.completed NO` のように引数で値を渡すと、アプリが「終えた」と保存しても引数の値が優先されて終われないため、起動時に消す。
+    static let resetsOnboarding = arguments.contains("-resetOnboarding")
+    /// 既存データを消して空にする（UI テストでオンボーディングから確かめるため）
+    static let clearsData = arguments.contains("-emptyData")
+    /// 起動の数秒後に届くチェックインの通知を登録する（UI テストで、終了した状態から通知で開くことを確かめるため）
+    static let schedulesTestNotification = arguments.contains("-scheduleTestNotification")
     /// 購入せずにサブスク帳プラスを有効にする
     static let forcesPremium = arguments.contains("-forcePremium")
     /// StoreKit の商品が読めない環境で、ペイウォールにサンプルのプランを表示する

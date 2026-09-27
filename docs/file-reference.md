@@ -13,6 +13,7 @@
 | `SubscBook.xcodeproj/project.pbxproj` | Xcode プロジェクト。アプリ（`SubscBook`）とテスト（`SubscBookTests`）の2ターゲット、フォルダ同期、ビルド設定 |
 | `SubscBook.xcodeproj/project.xcworkspace/contents.xcworkspacedata` | プロジェクト内のワークスペースの定義（Swift Package の固定のために必要） |
 | `SubscBook.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` | Swift Package の版の固定（Google Mobile Ads SDK・UMP） |
+| `SubscBook.xcodeproj/xcshareddata/xcschemes/SubscBookDeviceCheck.xcscheme` | 実機の確認用スキーム。テストは UI テスト（`SubscBookUITests`）だけ |
 | `SubscBook.xcodeproj/xcshareddata/xcschemes/SubscBook.xcscheme` | 共有スキーム。Run に StoreKit 設定（`Products.storekit`）、Test にテストターゲット |
 
 ## docs/
@@ -329,8 +330,9 @@
 
 | ファイル | 主な型 | 内容 |
 |---|---|---|
-| `DebugLaunchOptions.swift` | `DebugLaunchOptions` | 起動オプション（`-seedSampleData`・`-forcePremium`・`-samplePlans`・`-skipOnboarding`・`-ignoreAdLimits`）と、テストの実行中か |
-| `SampleData.swift` | `SampleData` | 画面確認用のサンプルデータ（8件） |
+| `DebugLaunchOptions.swift` | `DebugLaunchOptions` | 起動オプション（`-seedSampleData`・`-emptyData`・`-resetOnboarding`・`-forcePremium`・`-samplePlans`・`-skipOnboarding`・`-ignoreAdLimits`・`-scheduleTestNotification`）と、テストの実行中か |
+| `DebugTestNotification.swift` | `DebugTestNotification` | UI テスト用：数秒後に届くチェックインの通知を登録する |
+| `SampleData.swift` | `SampleData` | 画面確認用のサンプルデータ（8件）と、データを空にする処理 |
 | `View+PreviewEnvironment.swift` | `View.previewEnvironment(seeded:)` | プレビュー用に、インメモリのデータと共有オブジェクトを用意する |
 
 ### Resources/
@@ -401,3 +403,9 @@
 | `SubscriptionForm/SubscriptionFormViewModelTests.swift` | `SubscriptionFormViewModel` |
 | `SubscriptionList/SubscriptionListSectionsTests.swift` | `SubscriptionListSections` |
 | `SubscriptionList/SubscriptionListViewModelTests.swift` | `SubscriptionListViewModel` |
+
+## SubscBookUITests/（実機の確認用の UI テスト）
+
+| ファイル | 内容 |
+|---|---|
+| `DeviceCheckUITests.swift` | 画面を自動で操作し、スクリーンショットを残す（[testing.md](testing.md) の「実機での確認」） |
