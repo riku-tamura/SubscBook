@@ -202,10 +202,11 @@ subsWatch/
 - [ ] Apple Developer Program（有料）に登録し、App Store Connect で有料App契約（税務情報・銀行口座）を結ぶ
 - [ ] Xcode の Signing で開発チーム（Team）を設定する
 - [ ] App Store Connect でアプリを作り、サブスクリプショングループ「サブスク帳プラス」に2商品を作る（ID と価格は `Products.storekit` と同じ。手順は [docs/app-store.md](docs/app-store.md)）
-- [ ] サポート URL とプライバシーポリシーの URL を用意する（ポリシーはアプリ内の文面をそのまま公開できます）
+- [x] ウェブサイトを用意する（`https://hachimaki-app.github.io/`、GitHub の Organization `hachimaki-app` で公開）とプライバシーポリシーを公開する（URL は [docs/app-store.md](docs/app-store.md)）
+- [ ] 問い合わせ用のメールアドレスを用意して、サポートページを公開する
 - [ ] 名前「サブスク帳」が App Store Connect で使えるか、商標（J-PlatPat）とあわせて確認する
 - [x] AdMob でアプリと広告ユニット（バナー・全画面）を作り、Release の `ADMOB_*` を本番の ID に差し替える（[docs/ads.md](docs/ads.md)）
-- [ ] 開発者のウェブサイトの直下に `app-ads.txt` を置く（中身は [docs/app-ads.txt](docs/app-ads.txt)）
+- [x] 開発者のウェブサイトの直下に `app-ads.txt` を置く（`https://hachimaki-app.github.io/app-ads.txt`）
 - [x] `Config/SubscBook-Info.plist` の SKAdNetwork の一覧を、AdMob のドキュメントの最新のもの（50件）にする
 - [ ] App Store で公開した後、AdMob でアプリを App Store と関連付ける（AdMob の審査が始まる）
 - [ ] App のプライバシーを、広告で収集されるデータに合わせて登録する（[docs/app-store.md](docs/app-store.md)）

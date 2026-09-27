@@ -63,7 +63,7 @@
 ## 公開前に必要なこと
 
 1. ~~AdMob でアプリ（iOS）と広告ユニット（バナー・全画面）を作り、Release の `ADMOB_*` を差し替える~~（済み・2026年9月27日。下の「広告ユニット ID」）
-2. App Store に載せる開発者のウェブサイト（マーケティング URL またはサポート URL のドメイン）の直下に `app-ads.txt` を置く。中身は [app-ads.txt](app-ads.txt) の1行をそのまま使う。置かないと広告の配信が制限される
+2. ~~App Store に載せる開発者のウェブサイトの直下に `app-ads.txt` を置く~~（済み・2026年9月27日。`https://hachimaki-app.github.io/app-ads.txt`。中身は [app-ads.txt](app-ads.txt) と同じ）。App Store Connect のマーケティング URL に `https://hachimaki-app.github.io/` を登録する
 3. ~~`SKAdNetworkItems` を最新の一覧にする~~（済み。Google の一覧が更新されたら差し替える。下の「広告の効果測定」）
 4. App Store で公開した後、AdMob の「アプリ」で「ストアを追加」を押し、App Store のアプリと関連付ける。AdMob の審査（通常は数日）が終わるまで、広告の配信は制限される
 5. App Store Connect：App のプライバシーの申告と、配信地域を日本のみにする（[app-store.md](app-store.md)）
