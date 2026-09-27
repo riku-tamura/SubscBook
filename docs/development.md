@@ -121,6 +121,8 @@ xcrun simctl launch --terminate-running-process booted com.hachimaki.SubscBook -
 | 「型が見つからない」エラー | `MEMBER_IMPORT_VISIBILITY` のため、そのファイルに `import` がありません |
 | シミュレータでトラッキングの許可のダイアログが出ない | 一度答えると出ません。アプリを削除して入れ直します。オンボーディング中とプラスの人には出しません |
 | 全画面広告が出ない | 使い始めの3日間などの回数のルールがあります。起動オプション `-ignoreAdLimits` で確かめます |
+| アプリが終了している状態で、通知から開くと落ちる | 通知の delegate を async 版で書くと、完了の知らせがメインスレッド以外から呼ばれて落ちます。completionHandler 版で、メインスレッドで呼びます（`AppDelegate`）。シミュレータでは `xcrun simctl push` で通知を送って確かめられます |
+| 共有で「画像を保存」が出ない | Info.plist に写真への追加の説明（`NSPhotoLibraryAddUsageDescription`）がないと出ません |
 | アップロードで ITMS-91053 になる | 理由の申告が必要な API を使ったのに、`PrivacyInfo.xcprivacy` に書いていません（[ads.md](ads.md)） |
 | 通知が古いまま | 保存・起動・復帰で自動で登録し直します。保存（`context.save()`）を忘れていないか確かめます。設定画面の「デバッグ → 登録済みの通知」で確認できます |
 

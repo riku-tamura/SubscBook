@@ -347,6 +347,7 @@
 				INFOPLIST_FILE = "Config/SubscBook-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "サブスク帳";
 				INFOPLIST_KEY_NSUserTrackingUsageDescription = "あなたの興味に合った広告を表示するために使います。登録したサブスクの情報は広告に使いません。";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "節約レポートの画像を写真に保存するために使います。";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -385,6 +386,7 @@
 				INFOPLIST_FILE = "Config/SubscBook-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "サブスク帳";
 				INFOPLIST_KEY_NSUserTrackingUsageDescription = "あなたの興味に合った広告を表示するために使います。登録したサブスクの情報は広告に使いません。";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "節約レポートの画像を写真に保存するために使います。";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

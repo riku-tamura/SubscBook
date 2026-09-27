@@ -233,6 +233,7 @@
 | `CategoryIcon.swift` | `CategoryIcon` | 頭文字とカテゴリの色のアイコン |
 | `PremiumBadge.swift` | `PremiumBadge` | 「プラス」のバッジ |
 | `AdaptiveHStack.swift` | `AdaptiveHStack` | 大きな文字では縦に積む横並び |
+| `IconLabelStack.swift` | `IconLabelStack` | アイコンと文字の組。大きな文字ではアイコンを上に置いて縦に積む |
 | `View+Card.swift` | `View.card()` | カードの見た目 |
 | `AdBanner.swift` | `AdBanner` | 画面の下のバナー広告（無料プランのみ。広告が届くまで場所を取らない） |
 | `View+PremiumLock.swift` | `View.premiumLocked(_:feature:)` | 無料ユーザーへのぼかしと鍵、タップでペイウォール |

@@ -4,12 +4,19 @@ import SwiftUI
 struct CategoryIcon: View {
     let name: String
     let category: SubscriptionCategory
-    @ScaledMetric private var size: CGFloat
+    @ScaledMetric private var scaledSize: CGFloat
+    private let baseSize: CGFloat
 
     init(name: String, category: SubscriptionCategory, size: CGFloat = 40) {
         self.name = name
         self.category = category
-        _size = ScaledMetric(wrappedValue: size, relativeTo: .body)
+        baseSize = size
+        _scaledSize = ScaledMetric(wrappedValue: size, relativeTo: .body)
+    }
+
+    /// 文字の大きさに合わせて大きくするが、1.5倍まで（大きな文字で、文字の場所がなくならないように）
+    private var size: CGFloat {
+        min(scaledSize, baseSize * 1.5)
     }
 
     private var initial: String {

@@ -6,8 +6,9 @@ struct CancelSuggestionRow: View {
     let reason: String?
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
+        IconLabelStack(alignment: .top) {
             CategoryIcon(name: suggestion.subscription.name, category: suggestion.subscription.category, size: 36)
+        } label: {
             VStack(alignment: .leading, spacing: 4) {
                 AdaptiveHStack {
                     Text(suggestion.subscription.name)
