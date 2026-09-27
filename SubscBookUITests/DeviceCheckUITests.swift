@@ -197,7 +197,8 @@ final class DeviceCheckUITests: XCTestCase {
 
         let notification = springboard.descendants(matching: .any)
             .matching(NSPredicate(format: "label CONTAINS %@", "月次チェックインの時間です")).firstMatch
-        XCTAssertTrue(notification.waitForExistence(timeout: 20), "通知が届かない")
+        // 1〜2分後の、ちょうどの分に届く
+        XCTAssertTrue(notification.waitForExistence(timeout: 100), "通知が届かない")
         snap("07-1 届いた通知")
         notification.tap()
 
@@ -205,6 +206,66 @@ final class DeviceCheckUITests: XCTestCase {
         let question = app.buttons["使っていない"]
         XCTAssertTrue(question.waitForExistence(timeout: 10), "チェックインが開かない")
         snap("07-2 通知から開いた画面")
+    }
+
+    /// 登録された通知の時刻を確かめる：支払日の前日・トライアル終了は 9:00、月次チェックインは毎月1日 20:00
+    func test11_ScheduledNotificationTimes() {
+        let app = launch(["-seedSampleData", "-skipOnboarding", "-forcePremium"])
+        sleep(4)
+        tab(app, "設定")
+        app.swipeUp()
+        app.swipeUp()
+        let link = app.buttons.containing(NSPredicate(format: "label BEGINSWITH %@", "登録済みの通知")).firstMatch
+        XCTAssertTrue(link.waitForExistence(timeout: 5))
+        record(link.label, name: "11 登録済みの通知の件数")
+        link.tap()
+        sleep(2)
+        snap("11-1 登録済みの通知")
+
+        // 各行は「タイトル・本文・次に届く日時」の3つの文字
+        var rows: Set<String> = []
+        for _ in 0..<6 {
+            for cell in app.cells.allElementsBoundByIndex where cell.exists {
+                let texts = cell.staticTexts.allElementsBoundByIndex.map(\.label)
+                if texts.count >= 3 { rows.insert(texts[0] + " → " + texts[2]) }
+            }
+            app.swipeUp()
+        }
+        record(rows.sorted().joined(separator: "\n"), name: "11 通知と次に届く日時")
+
+        XCTAssertFalse(rows.isEmpty, "登録された通知が読めない")
+        // 日付の書き方は端末の設定で変わる（「10/1」「10月1日」）ので、時刻と日にちで確かめる
+        for row in rows {
+            if row.contains("支払日です") || row.contains("無料トライアル") {
+                XCTAssertTrue(row.hasSuffix(" 9:00"), "9:00 ではない：\(row)")
+            } else if row.contains("月次チェックイン") {
+                let isFirstDay = row.contains("月1日 20:00") || row.contains("/1 20:00")
+                XCTAssertTrue(row.contains("→ 毎月") && isFirstDay, "毎月1日 20:00 ではない：\(row)")
+            }
+        }
+        XCTAssertTrue(rows.contains { $0.contains("月次チェックイン") }, "チェックインの通知がない")
+        XCTAssertTrue(rows.contains { $0.contains("支払日です") }, "支払日の通知がない")
+        XCTAssertTrue(rows.contains { $0.contains("無料トライアル") }, "トライアル終了の通知がない（プラス）")
+    }
+
+    /// 支払日の前日の通知（アプリが作る内容のまま、時刻だけ2分後）が届き、タップすると一覧が開く
+    func test12_PaymentNotificationOpensList() {
+        let app = launch(["-seedSampleData", "-skipOnboarding", "-scheduleTestNotification"])
+        sleep(4)
+        XCUIDevice.shared.press(.home)
+
+        let notification = springboard.descendants(matching: .any)
+            .matching(NSPredicate(format: "label CONTAINS %@", "の支払日です")).firstMatch
+        XCTAssertTrue(notification.waitForExistence(timeout: 160), "支払いの通知が届かない")
+        snap("12-1 届いた支払いの通知")
+        notification.tap()
+
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15), "通知からアプリが開かない")
+        let listTab = app.tabBars.buttons["一覧"]
+        XCTAssertTrue(listTab.waitForExistence(timeout: 5))
+        sleep(1)
+        XCTAssertTrue(listTab.isSelected, "一覧が開かない")
+        snap("12-2 通知から開いた画面")
     }
 
     /// 節約レポートの画像を写真に保存する

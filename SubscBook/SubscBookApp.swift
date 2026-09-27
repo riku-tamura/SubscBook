@@ -28,7 +28,7 @@ struct SubscBookApp: App {
             UserDefaults.standard.removeObject(forKey: OnboardingViewModel.completedKey)
         }
         if DebugLaunchOptions.schedulesTestNotification {
-            DebugTestNotification.schedule()
+            DebugTestNotification.schedule(from: modelContainer)
         }
         #endif
         let entitlements = EntitlementManager()

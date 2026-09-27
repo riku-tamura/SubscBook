@@ -90,11 +90,12 @@ final class NotificationScheduler {
         for notification in plan {
             // 新しい予定で登録し直すため中断する
             guard !Task.isCancelled else { return }
-            try? await center.add(request(for: notification))
+            try? await center.add(Self.request(for: notification))
         }
     }
 
-    private func request(for notification: PlannedNotification) -> UNNotificationRequest {
+    /// 通知の予定から、UNUserNotificationCenter に登録するリクエストを作る
+    nonisolated static func request(for notification: PlannedNotification, calendar: Calendar = .current) -> UNNotificationRequest {
         let content = UNMutableNotificationContent()
         content.title = notification.title
         content.body = notification.body
@@ -109,7 +110,7 @@ final class NotificationScheduler {
         let trigger: UNCalendarNotificationTrigger
         switch notification.trigger {
         case .once(let date):
-            let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: date)
+            let components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
             trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
         case .monthly(let day, let hour):
             trigger = UNCalendarNotificationTrigger(
