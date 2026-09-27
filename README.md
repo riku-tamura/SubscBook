@@ -237,7 +237,7 @@ GitHub の Organization `hachimaki-app` のリポジトリ [hachimaki-app.github
 
 - [x] AdMob でアプリと広告ユニット（バナー・全画面）を作り、Release の `ADMOB_*` を本番の ID に差し替える（[docs/ads.md](docs/ads.md)）
 - [x] `Config/SubscBook-Info.plist` の SKAdNetwork の一覧を、AdMob のドキュメントの最新のもの（50件）にする
-- [ ] 自分の iPhone を AdMob の「テストデバイス」に登録する（TestFlight の前に。本番の広告は自分でタップしない）。広告 ID は Debug ビルドの「設定 → デバッグ → 広告 ID（IDFA）」に出る（トラッキングの許可が必要）
+- [x] 自分の iPhone を AdMob の「テストデバイス」に登録する（TestFlight の前に。本番の広告は自分でタップしない）。広告 ID は Debug ビルドの「設定 → デバッグ → 広告 ID（IDFA）」に出る（トラッキングの許可が必要）
 - [ ] 任意：「ブロックのコントロール」で、アプリに合わない広告のカテゴリを止める
 
 ### Xcode と App Store Connect
