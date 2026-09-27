@@ -76,8 +76,11 @@ struct StoreKitTests {
         // テストで作った購入を、アプリの StoreKit テスト環境に残さない
         defer { session.clearTransactions() }
         let entitlements = EntitlementManager(observesTransactions: false)
+        // 読み終えるまでは、プラスかどうかわからない（広告の準備をしない）
+        #expect(!entitlements.hasLoadedEntitlements)
         await entitlements.loadProducts()
         await entitlements.refreshEntitlements()
+        #expect(entitlements.hasLoadedEntitlements)
         #expect(!entitlements.isPremium || entitlements.debugForcePremium)
         #expect(!entitlements.hasActiveSubscription)
 

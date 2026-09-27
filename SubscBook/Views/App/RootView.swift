@@ -41,15 +41,20 @@ struct RootView: View {
             // プラスの期限が切れたら広告を出せるようにする
             Task { await prepareAdsIfNeeded() }
         }
+        .onChange(of: entitlements.hasLoadedEntitlements) {
+            // 起動直後に読み込みが重なって後回しになった場合も、読み終えたら準備する
+            Task { await prepareAdsIfNeeded() }
+        }
         .onChange(of: hasCompletedOnboarding) {
             // オンボーディングを終えた直後（通知の許可のダイアログと重ならないよう、終わってから）
             Task { await prepareAdsIfNeeded() }
         }
     }
 
-    /// オンボーディングを終えていて、アプリが前面にあるときだけ広告を準備する（トラッキングの許可を求めるため）
+    /// オンボーディングを終えていて、アプリが前面にあり、購読状態を読み終えているときだけ広告を準備する。
+    /// （トラッキングの許可を求めるため。プラスかどうかわからないうちに、プラスの人に許可を求めないため）
     private func prepareAdsIfNeeded() async {
-        guard hasCompletedOnboarding, scenePhase == .active else { return }
+        guard hasCompletedOnboarding, scenePhase == .active, entitlements.hasLoadedEntitlements else { return }
         #if DEBUG
         if DebugLaunchOptions.isRunningTests { return }
         #endif
