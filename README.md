@@ -111,7 +111,7 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 xcodebuild -project SubscBook.xcodeproj -scheme SubscBookDeviceCheck -destination 'platform=iOS,id=<iPhone の UDID>' -allowProvisioningUpdates -resultBundlePath build/DeviceCheck.xcresult test
 ```
 
-- `DeviceCheckUITests`（13件）：オンボーディング・各画面・チェックイン・全画面広告・登録と解約・ダークモードと大きな文字・通知（登録された時刻、1〜2分後に実際に届く、通知から開く、設定でオフにすると消える）・画像の保存・アクセシビリティ監査・全削除
+- `DeviceCheckUITests`（14件）：オンボーディング・各画面・チェックイン・全画面広告・登録と解約・ダークモードと大きな文字・通知（登録された時刻、1〜2分後に実際に届く、通知から開く、設定でオフにすると消える）・画像の保存・アクセシビリティ監査・全削除・広告 ID の読み取り
 - `PurchaseUITests`（4件）：StoreKit Testing で、年額（1週間無料）・月額の購入、期限切れ、購入の復元、契約の管理の画面（本物のお金はかからない）
 - `AppStoreScreenshotUITests`（2件）：App Store に載せるスクリーンショット（6.9インチのシミュレータで撮る。[docs/testing.md](docs/testing.md#app-store-のスクリーンショット)）
 - 実行中は iPhone の画面を点けたままにします。詳しくは [docs/testing.md](docs/testing.md) を見てください
@@ -132,7 +132,7 @@ Debug ビルドでのみ有効です。Xcode ではスキームの「Run → Arg
 | `-resetOnboarding` | オンボーディングを最初から表示する（UI テスト用） |
 | `-scheduleTestNotification` | アプリが作るチェックイン・支払日の前日の通知を、時刻だけ1〜2分後にずらして登録する（UI テスト用） |
 
-設定画面の最下部（Debug ビルドのみ）に「デバッグ」の項目があり、プラスの切り替えと、登録済みの通知の一覧を確認できます。
+設定画面の最下部（Debug ビルドのみ）に「デバッグ」の項目があり、プラスの切り替え、登録済みの通知の一覧、広告 ID（AdMob のテストデバイスの登録用）を確認できます。
 
 ## フォルダ構成
 
@@ -195,7 +195,7 @@ subsWatch/
 | 確認 | 状況 |
 |---|---|
 | シミュレータ（iPhone 17・iPhone SE、iOS 26） | 全画面・ダークモード・いちばん大きな文字・小さい画面・通知・共有・全削除を確認済み |
-| 実機（iPhone 15・iOS 18.7.8） | UI テスト 17件がすべて通る。最低対応の iOS 18 で動くこと、通知が決まった時刻どおりに登録され、実際に届いて正しい画面が開くこと、設定でオフにすると消えること、トラッキングの許可、購入の流れと契約の管理の画面（StoreKit Testing）を確認済み |
+| 実機（iPhone 15・iOS 18.7.8） | UI テスト 18件がすべて通る。最低対応の iOS 18 で動くこと、通知が決まった時刻どおりに登録され、実際に届いて正しい画面が開くこと、設定でオフにすると消えること、トラッキングの許可、購入の流れと契約の管理の画面（StoreKit Testing）を確認済み |
 | 広告が届かないとき | 読み込みに失敗させたビルドで、バナーの場所が空かないことを確認済み（[docs/testing.md](docs/testing.md#手で確かめる項目)） |
 | AIコメント | Mac の端末内モデルでプロンプトを検証済み（[docs/ai-insights.md](docs/ai-insights.md)）。Apple Intelligence 対応の iPhone（15 Pro 以降・iOS 26 以降）での表示は未確認 |
 | 本物の App Store（Sandbox）での購入 | 未確認（App Store Connect に商品を作った後に確認する） |
@@ -224,7 +224,7 @@ GitHub の Organization `hachimaki-app` のリポジトリ [hachimaki-app.github
 - [ ] App Store Connect で有料App契約（税務情報・銀行口座）を結ぶ。これが有効になるまで、購入も Sandbox での購入テストもできない
 - [ ] App Store Small Business Program に申し込む（Apple の手数料が 30% → 15%）
 - [x] Google AdMob のアカウントを作る
-- [ ] AdMob の「お支払い」で、名前・住所・銀行口座・税務情報を登録する
+- [x] AdMob の「お支払い」で、名前・住所・銀行口座・税務情報を登録する
 
 ### ウェブサイト
 
@@ -237,7 +237,7 @@ GitHub の Organization `hachimaki-app` のリポジトリ [hachimaki-app.github
 
 - [x] AdMob でアプリと広告ユニット（バナー・全画面）を作り、Release の `ADMOB_*` を本番の ID に差し替える（[docs/ads.md](docs/ads.md)）
 - [x] `Config/SubscBook-Info.plist` の SKAdNetwork の一覧を、AdMob のドキュメントの最新のもの（50件）にする
-- [ ] 自分の iPhone を AdMob の「テストデバイス」に登録する（TestFlight の前に。本番の広告は自分でタップしない）
+- [ ] 自分の iPhone を AdMob の「テストデバイス」に登録する（TestFlight の前に。本番の広告は自分でタップしない）。広告 ID は Debug ビルドの「設定 → デバッグ → 広告 ID（IDFA）」に出る（トラッキングの許可が必要）
 - [ ] 任意：「ブロックのコントロール」で、アプリに合わない広告のカテゴリを止める
 
 ### Xcode と App Store Connect
@@ -255,7 +255,7 @@ GitHub の Organization `hachimaki-app` のリポジトリ [hachimaki-app.github
 
 ### 実機での確認
 
-- [x] UI テスト（`SubscBookDeviceCheck` スキーム）17件を実機で実行する（上の「確認の状況」）
+- [x] UI テスト（`SubscBookDeviceCheck` スキーム）18件を実機で実行する（上の「確認の状況」）
 - [ ] Sandbox アカウントで購入・復元・期限切れを確かめる（`PurchaseUITests` と同じ流れ。Claude）
 - [x] 設定で通知をオフにすると届かない、「契約を管理」から解約の画面が開く、広告が届かないときにバナーの場所が空かない
 - [ ] VoiceOver をオンにして、チェックインに答えられることを手で確かめる（操作とボタンはあることを確認済み）

@@ -78,6 +78,7 @@ xcrun xcresulttool export attachments --path build/DeviceCheck.xcresult --output
 | `test11_ScheduledNotificationTimes` | 実機に登録された通知の時刻（支払日の前日・トライアル終了は 9:00、チェックインは毎月1日 20:00） |
 | `test12_PaymentNotificationOpensList` | 支払日の前日の通知が実際に届き、タップすると一覧が開く |
 | `test13_NotificationTogglesOff` | 設定で通知を3つともオフにすると登録済みの通知が0件になり、オンに戻すと登録し直す（最後はオンに戻す）。通知が許可されている端末で動かす |
+| `test14_AdvertisingIdentifier` | 設定のデバッグにある広告 ID（IDFA）を読んで記録する（AdMob のテストデバイスの登録用。トラッキングを許可していないと読めない。失敗にはしない） |
 
 - 実行中は iPhone の画面を点けたままにします（自動ロックで画面が消えると「Timed out while enabling automation mode」で始まらない）
 - AssistiveTouch の丸が画面右上のボタンに重なっていると、タップが届きません
