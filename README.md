@@ -101,7 +101,7 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 - 日付はすべて東京時間に固定して確かめます（`Calendar.tokyo` と `date(2026, 9, 26)`）
 - StoreKit のテストは `Products.storekit` を読み、テスト後に購入履歴を消します
 
-詳しくは [docs/testing.md](docs/testing.md) を見てください。
+実機（iPhone）での確認は、画面を自動で操作する UI テスト（スキーム `SubscBookDeviceCheck`）で行います。詳しくは [docs/testing.md](docs/testing.md) を見てください。
 
 ## 開発用の起動オプション
 

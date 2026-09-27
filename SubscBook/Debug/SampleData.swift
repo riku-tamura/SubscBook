@@ -4,10 +4,16 @@ import SwiftData
 
 /// 画面確認用のサンプルデータ
 enum SampleData {
-    static func seed(into context: ModelContext, now: Date = .now, calendar: Calendar = .current) throws {
+    /// 登録したサブスク（とチェックイン）をすべて消す
+    static func clear(_ context: ModelContext) throws {
         for subscription in try context.fetch(FetchDescriptor<Subscription>()) {
             context.delete(subscription)
         }
+        try context.save()
+    }
+
+    static func seed(into context: ModelContext, now: Date = .now, calendar: Calendar = .current) throws {
+        try clear(context)
 
         func day(_ offset: Int) -> Date {
             calendar.date(byAdding: .day, value: offset, to: calendar.startOfDay(for: now))!

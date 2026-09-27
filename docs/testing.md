@@ -38,11 +38,43 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 
 `Calendar.tokyo` と `date(...)` は `nonisolated` です。パラメータ付きテストの引数（MainActor の外で評価される）でも使えるようにするためです。
 
+## 実機での確認（UI テスト）
+
+`SubscBookUITests/DeviceCheckUITests.swift` は、画面を自動で操作しながらスクリーンショットを残すテストです。iPhone をつないで、確認用のスキーム `SubscBookDeviceCheck` で動かします（通常のスキーム `SubscBook` には含めていないので、⌘U では動きません）。
+
+```bash
+xcodebuild -project SubscBook.xcodeproj -scheme SubscBookDeviceCheck -destination 'platform=iOS,id=<iPhone の UDID>' -allowProvisioningUpdates -resultBundlePath build/DeviceCheck.xcresult test
+```
+
+スクリーンショットは結果から取り出して見ます。
+
+```bash
+xcrun xcresulttool export attachments --path build/DeviceCheck.xcresult --output-path build/DeviceCheckShots
+```
+
+| テスト | 確かめること |
+|---|---|
+| `test01_Onboarding` | オンボーディング、通知の許可、スキップ、トラッキングの許可 |
+| `test02_FreeScreens` | 無料プランの各画面、ペイウォール、AIコメントの説明 |
+| `test03_PremiumScreens` | プラスの各画面（ぼかしと広告がない） |
+| `test04_CheckInAndInterstitial` | チェックイン（ボタンとスワイプ）、閉じた後の全画面広告 |
+| `test05_AddAndCancel` | 登録と解約日の記録 |
+| `test06_DarkModeAndLargestText` | ダークモードといちばん大きな文字 |
+| `test07_OpenFromNotificationWhenTerminated` | アプリを終了した状態で、通知から開く |
+| `test08_SaveShareImage` | 節約レポートの画像を写真に保存 |
+| `test09_AccessibilityAudit` | Apple のアクセシビリティ監査（結果を記録。失敗にはしない） |
+| `test10_DeleteAllData` | データの全削除 |
+
+- 実行中は iPhone の画面を点けたままにします（自動ロックで画面が消えると「Timed out while enabling automation mode」で始まらない）
+- AssistiveTouch の丸が画面右上のボタンに重なっていると、タップが届きません
+- 許可のダイアログは一度答えると出ないので、最初から確かめるときはアプリを削除してから動かします
+- 起動オプション `-emptyData`（データを空にする）と `-scheduleTestNotification`（数秒後に届くチェックインの通知を登録する）を使います
+
 ## StoreKit のテスト
 
 `StoreKitTests` はリポジトリ直下の `Products.storekit` を `SKTestSession` で読みます。
 
-- ファイルは、テストのソースの場所から上のフォルダへたどって探します（フォルダの移動に強くするため。日本語や空白を含むパスでも見つかるよう、デコードしたパスで比べます）
+- ファイルは、テストのバンドルにリソースとしてコピーしたものを読みます（Mac のパスをたどる方法だと、実機でファイルが見つからないため）。実機でも同じテストが通ります
 - スイートは `.serialized` で、1件ずつ順に動かします（購入の状態を共有するため）
 - 各テストの始めと終わりに購入履歴を消します。消さないと、シミュレータの StoreKit の環境に購入が残り、アプリを起動したときにプラスになってしまいます
 - 期限切れのテストは、StoreKit の時間の進み方の都合で反映が遅れることがあるので、状態が変わるまで少し待ちながら確かめます

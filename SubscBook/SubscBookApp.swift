@@ -21,6 +21,11 @@ struct SubscBookApp: App {
         #if DEBUG
         if DebugLaunchOptions.seedsSampleData {
             try? SampleData.seed(into: modelContainer.mainContext)
+        } else if DebugLaunchOptions.clearsData {
+            try? SampleData.clear(modelContainer.mainContext)
+        }
+        if DebugLaunchOptions.schedulesTestNotification {
+            DebugTestNotification.schedule()
         }
         #endif
         let entitlements = EntitlementManager()
