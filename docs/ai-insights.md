@@ -42,7 +42,7 @@ InsightService
 | 状態 | 設定画面の説明 |
 |---|---|
 | `available`（日本語に対応） | Apple Intelligence を使って、端末の中だけでコメントを作成しています |
-| `unsupportedOS` | AIコメントは iOS 26 以降で利用できます |
+| `unsupportedOS` | AIコメントは、Apple Intelligence に対応した iPhone（iPhone 15 Pro 以降）で iOS 26 以降のときに利用できます（iOS だけ上げても、非対応の機種では使えないことが伝わるように） |
 | `deviceNotEligible` | この端末は Apple Intelligence に対応していません |
 | `appleIntelligenceNotEnabled` | Apple Intelligence がオフです（設定アプリでオンにする方法を案内） |
 | `modelNotReady` | AIモデルを準備中です |

@@ -26,7 +26,7 @@ nonisolated enum InsightAvailability: Equatable, Sendable {
         case .available:
             "Apple Intelligence を使って、端末の中だけでコメントを作成しています。"
         case .unsupportedOS:
-            "AIコメントは iOS 26 以降で利用できます。現在は定型のコメントを表示しています。"
+            "AIコメントは、Apple Intelligence に対応した iPhone（iPhone 15 Pro 以降）で iOS 26 以降のときに利用できます。現在は定型のコメントを表示しています。"
         case .deviceNotEligible:
             "この端末は Apple Intelligence に対応していないため、定型のコメントを表示しています。"
         case .appleIntelligenceNotEnabled:
