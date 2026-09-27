@@ -10,6 +10,7 @@ struct SettingsView: View {
                 SettingsPremiumSection(viewModel: viewModel)
                 SettingsNotificationSection()
                 SettingsInsightSection()
+                SettingsAdSection()
                 SettingsAboutSection(appVersion: viewModel.appVersion)
                 SettingsDataDeletionSection(viewModel: viewModel)
                 #if DEBUG

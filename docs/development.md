@@ -17,6 +17,7 @@
 | AIコメント | `Insight` |
 | チェックイン | `CheckIn` |
 | 通知 | `Notification` |
+| 広告 | `Ad`（フォルダは `Ads`） |
 | 登録・編集画面 | `SubscriptionForm` |
 | 一覧 | `SubscriptionList` |
 | ペイウォール | `Paywall` |
@@ -26,13 +27,14 @@
 
 | フォルダ | 置くもの | 中の分け方 |
 |---|---|---|
-| `Models/` | SwiftData のモデル、値型、列挙型、定数 | 機能ごと：`Subscription` / `Insight` / `Notification` / `Premium`（どれにも当てはまらないものは直下。例：`AppLinks`） |
+| `Models/` | SwiftData のモデル、値型、列挙型、定数 | 機能ごと：`Subscription` / `Insight` / `Notification` / `Premium` / `Ads`（どれにも当てはまらないものは直下。例：`AppLinks`） |
 | `Services/` | 計算・判定、外部 API を扱うクラス | 機能ごと（Models と同じ） |
 | `ViewModels/` | 画面の状態と操作、画面に出す集計値 | 画面ごと：`App` / `Home` / `SubscriptionList` / `SubscriptionForm` / `CheckIn` / `Report` / `Paywall` / `Settings` / `Onboarding`、共通は `Components` |
 | `Views/` | SwiftUI の画面と部品 | 画面ごと（ViewModels と同じ）、共通は `Components` |
 | `Formatting/` | 表示用の文字列への変換 | — |
 | `Debug/` | Debug ビルドだけで使うもの（全体を `#if DEBUG` で囲む） | — |
 | `Resources/` | アセット | — |
+| `Config/`（リポジトリ直下） | 自動生成の Info.plist に足す項目 | `SubscBook/` の中に置くとリソースとしてコピーされてしまうため、外に置く |
 
 ### 画面
 
@@ -74,6 +76,7 @@
 | `-forcePremium` | 購入せずにサブスク帳プラスを有効にする |
 | `-samplePlans` | StoreKit の商品が読めないときも、ペイウォールにサンプルのプランを出す |
 | `-skipOnboarding` | オンボーディングを表示しない |
+| `-ignoreAdLimits` | 全画面広告の回数のルールを無視して、区切りのたびに出す |
 
 シミュレータへのインストールと起動をコマンドで行う例：
 
@@ -116,6 +119,9 @@ xcrun simctl launch --terminate-running-process booted com.hachimaki.SubscBook -
 | 閉じた直後にペイウォールが出ない | シートや全画面表示を閉じるアニメーション中は、新しいシートを出せません。`AppRouter.showPaywallAfterDismissal` を使い、閉じ終わったとき（`onDismiss` → `didDismissPresentation`）に出します。時間を決めて待つ方法は使いません |
 | Release ビルドだけ失敗する | `#Preview` で Debug 専用のコードを使っています。`#if DEBUG` で囲みます |
 | 「型が見つからない」エラー | `MEMBER_IMPORT_VISIBILITY` のため、そのファイルに `import` がありません |
+| シミュレータでトラッキングの許可のダイアログが出ない | 一度答えると出ません。アプリを削除して入れ直します。オンボーディング中とプラスの人には出しません |
+| 全画面広告が出ない | 使い始めの3日間などの回数のルールがあります。起動オプション `-ignoreAdLimits` で確かめます |
+| アップロードで ITMS-91053 になる | 理由の申告が必要な API を使ったのに、`PrivacyInfo.xcprivacy` に書いていません（[ads.md](ads.md)） |
 | 通知が古いまま | 保存・起動・復帰で自動で登録し直します。保存（`context.save()`）を忘れていないか確かめます。設定画面の「デバッグ → 登録済みの通知」で確認できます |
 
 ## コミット

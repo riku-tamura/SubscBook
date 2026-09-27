@@ -30,7 +30,13 @@ struct CheckInCompletionView: View {
                     suggestionCard
                 }
 
-                Button("閉じる") { dismiss() }
+                Button("閉じる") {
+                    // 今回答えて終えたときだけ、閉じた後に全画面広告を出す
+                    if answeredCount > 0 {
+                        router.requestInterstitialAfterDismissal()
+                    }
+                    dismiss()
+                }
                     .buttonStyle(.bordered)
                     .controlSize(.large)
             }

@@ -12,6 +12,7 @@ struct SubscriptionListView: View {
         let sections = viewModel.sections(of: subscriptions)
         NavigationStack {
             content(sections)
+                .safeAreaInset(edge: .bottom, spacing: 0) { AdBanner() }
                 .navigationTitle("サブスク一覧")
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {

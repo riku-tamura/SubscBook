@@ -23,6 +23,7 @@ struct SubscriptionFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(EntitlementManager.self) private var entitlements
+    @Environment(AppRouter.self) private var router
 
     private enum Field {
         case name
@@ -229,6 +230,10 @@ struct SubscriptionFormView: View {
     private func save() {
         do {
             try viewModel.save(in: modelContext, isPremium: entitlements.isPremium)
+            // 新しく登録して閉じたときは、閉じた後に全画面広告を出す（オンボーディング中は出さない）
+            if !viewModel.isEditing && !isEmbedded {
+                router.requestInterstitialAfterDismissal()
+            }
             finish()
         } catch SubscriptionFormViewModel.FormError.subscriptionLimitReached {
             // フォームを開いた後にプラスの期限が切れた場合など

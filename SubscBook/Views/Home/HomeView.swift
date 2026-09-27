@@ -37,6 +37,7 @@ struct HomeView: View {
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
+            .safeAreaInset(edge: .bottom, spacing: 0) { AdBanner() }
             .navigationTitle("ホーム")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
@@ -62,7 +63,7 @@ struct HomeView: View {
             Text("サブスクを登録して、1冊にまとめましょう")
                 .font(.headline)
                 .multilineTextAlignment(.center)
-            Text("支払日の前日にお知らせし、毎月の合計を見える化します。データは端末の外に出ません。")
+            Text("支払日の前日にお知らせし、毎月の合計を見える化します。登録したデータは端末の外に出ません。")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

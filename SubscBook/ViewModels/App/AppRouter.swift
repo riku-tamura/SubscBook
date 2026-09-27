@@ -21,6 +21,8 @@ final class AppRouter {
     enum PendingPresentation: Equatable {
         case paywall(PaywallReason)
         case checkIn
+        /// 全画面広告（出すかどうかは AdManager が回数のルールで決める）
+        case interstitialAd
     }
 
     private(set) var pendingPresentation: PendingPresentation?
@@ -34,16 +36,28 @@ final class AppRouter {
         pendingPresentation = .paywall(reason)
     }
 
+    /// いま閉じている全画面表示・シートが閉じ終わってから、全画面広告を出す（区切りのよいところで出すため）。
+    /// ほかに待っている画面（ペイウォールなど）があれば、そちらを優先する。
+    func requestInterstitialAfterDismissal() {
+        guard pendingPresentation == nil else { return }
+        pendingPresentation = .interstitialAd
+    }
+
     /// シート・全画面表示が閉じ終わったときに呼ぶ。待っている画面があれば出す。
-    func didDismissPresentation() {
-        guard let pending = pendingPresentation else { return }
+    /// - Returns: 全画面広告を出すところなら `.interstitialAd`（広告の表示は呼び出し側で行う）
+    @discardableResult
+    func didDismissPresentation() -> PendingPresentation? {
+        guard let pending = pendingPresentation else { return nil }
         pendingPresentation = nil
         switch pending {
         case .paywall(let reason):
             paywall = reason
         case .checkIn:
             isCheckInPresented = true
+        case .interstitialAd:
+            break
         }
+        return pending
     }
 
     /// サブスクの追加。無料プランの上限に達していればペイウォールを出す。

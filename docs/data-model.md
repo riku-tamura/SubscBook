@@ -76,7 +76,7 @@ Subscription 1 ──── * CheckIn
 | `MonthlyInsightFacts` | 契約件数・増減・解約候補・重複・今月の解約件数 | 月次のひとことを決める材料 |
 | `CancelReasonFacts` | サービス名・カテゴリ・未使用月数・周期・同じカテゴリの別契約の有無 | 解約候補の理由の材料 |
 | `InsightResult` | text・isGenerated | AIコメントの結果（AI で作れたか付き） |
-| `PremiumFeature` | 5機能 | サブスク帳プラスの機能の名前・説明・アイコン |
+| `PremiumFeature` | 6機能 | サブスク帳プラスの機能の名前・説明・アイコン |
 
 ## UserDefaults のキー
 
@@ -89,6 +89,8 @@ Subscription 1 ──── * CheckIn
 | `notifications.checkInReminder` | Bool | 月次チェックインの通知（既定 ON） | `NotificationPreferences` |
 | `insight.monthlyComment` | [String: String] | AI が作った今月のひとこと（キー：`年月|元の文`） | `InsightCache` |
 | `insight.cancelReasons` | [String: String] | AI が作った解約候補の理由（キー：`年月|サブスクID|月数|事実`） | `InsightCache` |
+| `ads.firstLaunchDate` | Date | 初めて起動した日時（全画面広告を出さない最初の3日間の判定） | `AdManager.firstLaunchDateKey` |
+| `ads.interstitialShownDates` | [Date] | 直近30日に全画面広告を出した日時 | `AdManager.interstitialDatesKey` |
 | `debug.forcePremium` | Bool | 開発用：購入せずにプラスを有効にする（Debug のみ） | `EntitlementManager.debugForcePremiumKey` |
 
 AI のキャッシュは、保存するときに今月以外のものを消すので、今月分だけが残ります。
