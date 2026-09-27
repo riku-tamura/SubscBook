@@ -144,4 +144,5 @@ xcrun simctl launch --terminate-running-process booted com.hachimaki.SubscBook -
 - 画面の文言・構成 → [screens.md](screens.md)
 - 料金・機能・説明文 → [app-store.md](app-store.md) と、ペイウォール・プライバシーポリシーの文面
 - プライバシーポリシーの文面（`PrivacyPolicyView`）→ ウェブサイトのリポジトリ [hachimaki-app/hachimaki-app.github.io](https://github.com/hachimaki-app/hachimaki-app.github.io) の `subscbook/privacy.html` も同じ内容に更新する（App Store に登録する URL なので、アプリとサイトで食い違わないように）
+- 機能・ボタン名・通知の時刻 → 同じリポジトリの `subscbook/index.html`（サポートページのよくある質問）
 - AI のプロンプト・チェック → [ai-insights.md](ai-insights.md)（検証の結果も更新）

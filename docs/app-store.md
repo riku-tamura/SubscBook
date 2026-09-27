@@ -71,7 +71,7 @@ iPhone のアプリの利用状況は読み取りません。毎月のチェッ�
 - **URL**（ウェブサイトは GitHub の Organization `hachimaki-app` のリポジトリ [hachimaki-app.github.io](https://github.com/hachimaki-app/hachimaki-app.github.io) で公開）
   - マーケティング URL：`https://hachimaki-app.github.io/`（`app-ads.txt` を置いているドメイン。AdMob はこのドメインの `app-ads.txt` を確かめる）
   - プライバシーポリシー URL：`https://hachimaki-app.github.io/subscbook/privacy.html`（アプリ内の文面と同じ。アプリの文面を変えたら、サイトも合わせて更新する）
-  - サポート URL：`https://hachimaki-app.github.io/subscbook/`（問い合わせ用のメールアドレスが決まったら公開する。それまでは未公開。アプリ内のプライバシーポリシーは、お問い合わせを「App サポート」＝このサポート URL へ案内しているので、審査の前に必ず公開する）
+  - サポート URL：`https://hachimaki-app.github.io/subscbook/`（公開済み。問い合わせ先のメールアドレスと、よくある質問を載せている。アプリ内のプライバシーポリシーは、お問い合わせを「App サポート」＝このサポート URL へ案内しているので、公開をやめない。アプリの機能・ボタン名を変えたら、よくある質問も合わせて更新する）
 - **サブスクリプション**：グループ「サブスク帳プラス」に次の2つを作成する
   - `com.hachimaki.SubscBook.premium.monthly`（1ヶ月・300円）
   - `com.hachimaki.SubscBook.premium.yearly`（1年・2,400円、導入オファー：1週間無料）

@@ -203,7 +203,7 @@ subsWatch/
 - [ ] Xcode の Signing で開発チーム（Team）を設定する
 - [ ] App Store Connect でアプリを作り、サブスクリプショングループ「サブスク帳プラス」に2商品を作る（ID と価格は `Products.storekit` と同じ。手順は [docs/app-store.md](docs/app-store.md)）
 - [x] ウェブサイトを用意する（`https://hachimaki-app.github.io/`、GitHub の Organization `hachimaki-app` で公開）とプライバシーポリシーを公開する（URL は [docs/app-store.md](docs/app-store.md)）
-- [ ] 問い合わせ用のメールアドレスを用意して、サポートページを公開する
+- [x] 問い合わせ用のメールアドレスを用意して、サポートページを公開する（`https://hachimaki-app.github.io/subscbook/`）
 - [ ] 名前「サブスク帳」が App Store Connect で使えるか、商標（J-PlatPat）とあわせて確認する
 - [x] AdMob でアプリと広告ユニット（バナー・全画面）を作り、Release の `ADMOB_*` を本番の ID に差し替える（[docs/ads.md](docs/ads.md)）
 - [x] 開発者のウェブサイトの直下に `app-ads.txt` を置く（`https://hachimaki-app.github.io/app-ads.txt`）
