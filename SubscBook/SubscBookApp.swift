@@ -20,7 +20,9 @@ struct SubscBookApp: App {
         }
         #if DEBUG
         if DebugLaunchOptions.seedsSampleData {
-            try? SampleData.seed(into: modelContainer.mainContext)
+            try? SampleData.seed(
+                into: modelContainer.mainContext, usesGenericNames: DebugLaunchOptions.seedsStoreScreenshotData
+            )
         } else if DebugLaunchOptions.clearsData {
             try? SampleData.clear(modelContainer.mainContext)
         }

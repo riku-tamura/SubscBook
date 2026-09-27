@@ -268,6 +268,24 @@ final class DeviceCheckUITests: XCTestCase {
         snap("12-2 通知から開いた画面")
     }
 
+    /// 設定で通知をオフにすると、登録済みの通知が消える。オンに戻すと登録し直す（最後に元のオンに戻す）
+    func test13_NotificationTogglesOff() {
+        let app = launch(["-seedSampleData", "-skipOnboarding", "-forcePremium"])
+        sleep(4)
+        tab(app, "設定")
+        let toggles = ["支払日の前日（9:00）", "無料トライアル終了（3日前・前日）", "月次チェックイン（毎月1日 20:00）"]
+        XCTAssertGreaterThan(pendingNotificationCount(app), 0, "オフにする前に通知が登録されていない")
+
+        setToggles(app, toggles, on: false)
+        snap("13-1 通知をすべてオフ")
+        XCTAssertEqual(pendingNotificationCount(app), 0, "オフにしても通知が残っている")
+        snap("13-2 登録済みの通知（オフの後）")
+
+        setToggles(app, toggles, on: true)
+        XCTAssertGreaterThan(pendingNotificationCount(app), 0, "オンに戻しても通知が登録されない")
+        snap("13-3 登録済みの通知（オンに戻した後）")
+    }
+
     /// 節約レポートの画像を写真に保存する
     func test08_SaveShareImage() {
         let app = launch(["-seedSampleData", "-skipOnboarding", "-forcePremium"])
@@ -331,6 +349,45 @@ final class DeviceCheckUITests: XCTestCase {
     }
 
     // MARK: - 補助
+
+    /// 設定の通知のスイッチを、指定した状態にする（設定のタブを開いた状態で呼ぶ）
+    private func setToggles(_ app: XCUIApplication, _ labels: [String], on: Bool) {
+        for label in labels {
+            let toggle = app.switches[label]
+            // 登録済みの通知を見た後は画面の下にいるので、上へ戻してから探す
+            for _ in 0..<4 where !toggle.isHittable {
+                app.swipeDown()
+            }
+            for _ in 0..<4 where !toggle.isHittable {
+                app.swipeUp()
+            }
+            XCTAssertTrue(toggle.waitForExistence(timeout: 5), "スイッチがない：\(label)")
+            if (toggle.value as? String == "1") != on {
+                // 行の文字ではなく、右端のスイッチを押す
+                toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: 0.5)).tap()
+            }
+            XCTAssertEqual(toggle.value as? String, on ? "1" : "0", "スイッチが切り替わらない：\(label)")
+        }
+        // 登録し直すのを待つ（NotificationScheduler.reschedule は少し待ってから登録する）
+        sleep(2)
+    }
+
+    /// デバッグの「登録済みの通知」を開いて、行の数を数える（設定のタブを開いた状態で呼び、設定に戻る）
+    private func pendingNotificationCount(_ app: XCUIApplication) -> Int {
+        let link = app.buttons.containing(NSPredicate(format: "label BEGINSWITH %@", "登録済みの通知")).firstMatch
+        for _ in 0..<6 where !link.isHittable {
+            app.swipeUp()
+        }
+        XCTAssertTrue(link.waitForExistence(timeout: 5))
+        link.tap()
+        XCTAssertTrue(app.navigationBars["登録済みの通知"].waitForExistence(timeout: 5))
+        sleep(2)
+        let count = app.cells.count
+        record("\(count)件", name: "登録済みの通知の件数")
+        app.navigationBars.buttons.firstMatch.tap()
+        sleep(1)
+        return count
+    }
 
     private func launch(_ arguments: [String]) -> XCUIApplication {
         let app = XCUIApplication()
