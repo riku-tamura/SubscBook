@@ -62,23 +62,26 @@
 
 ## 公開前に必要なこと
 
-1. AdMob でアプリ（iOS）と広告ユニット（アンカー型アダプティブバナー・全画面）を作り、Release の `ADMOB_*` を差し替える（下の「広告ユニット ID」）
-2. App Store に載せる開発者のウェブサイト（マーケティング URL またはサポート URL のドメイン）の直下に `app-ads.txt` を置く。中身は AdMob の「アプリ → app-ads.txt」に表示される1行（`google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0`）。置かないと広告の配信が制限される
-3. `SKAdNetworkItems` を最新の一覧にする（下の「広告の効果測定」）
-4. App Store Connect：App のプライバシーの申告と、配信地域を日本のみにする（[app-store.md](app-store.md)）
-5. AdMob の「ブロックのコントロール」で、アプリに合わない広告のカテゴリ（ギャンブル・出会いなど）を必要に応じて止める
+1. ~~AdMob でアプリ（iOS）と広告ユニット（バナー・全画面）を作り、Release の `ADMOB_*` を差し替える~~（済み・2026年9月27日。下の「広告ユニット ID」）
+2. App Store に載せる開発者のウェブサイト（マーケティング URL またはサポート URL のドメイン）の直下に `app-ads.txt` を置く。中身は [app-ads.txt](app-ads.txt) の1行をそのまま使う。置かないと広告の配信が制限される
+3. ~~`SKAdNetworkItems` を最新の一覧にする~~（済み。Google の一覧が更新されたら差し替える。下の「広告の効果測定」）
+4. App Store で公開した後、AdMob の「アプリ」で「ストアを追加」を押し、App Store のアプリと関連付ける。AdMob の審査（通常は数日）が終わるまで、広告の配信は制限される
+5. App Store Connect：App のプライバシーの申告と、配信地域を日本のみにする（[app-store.md](app-store.md)）
+6. AdMob の「ブロックのコントロール」で、アプリに合わない広告のカテゴリ（ギャンブル・出会いなど）を必要に応じて止める
 
 ## 広告ユニット ID
 
 ID は Build Settings で設定し、`Config/SubscBook-Info.plist` から読みます（`AdUnitIDs`）。
 
-| Build Setting | Info.plist のキー | 今の値（Google のテスト用） |
-|---|---|---|
-| `ADMOB_APP_ID` | `GADApplicationIdentifier` | `ca-app-pub-3940256099942544~1458002511` |
-| `ADMOB_BANNER_UNIT_ID` | `SubscBookAdMobBannerUnitID` | `ca-app-pub-3940256099942544/2435281174` |
-| `ADMOB_INTERSTITIAL_UNIT_ID` | `SubscBookAdMobInterstitialUnitID` | `ca-app-pub-3940256099942544/4411468910` |
+| Build Setting | Info.plist のキー | Release（本番・AdMob で作成） | Debug（Google のテスト用） |
+|---|---|---|---|
+| `ADMOB_APP_ID` | `GADApplicationIdentifier` | `ca-app-pub-8826250114965581~4343691768` | `ca-app-pub-3940256099942544~1458002511` |
+| `ADMOB_BANNER_UNIT_ID` | `SubscBookAdMobBannerUnitID` | `ca-app-pub-8826250114965581/1834087655`（サブスク帳 バナー） | `ca-app-pub-3940256099942544/2435281174` |
+| `ADMOB_INTERSTITIAL_UNIT_ID` | `SubscBookAdMobInterstitialUnitID` | `ca-app-pub-8826250114965581/1669512685`（サブスク帳 全画面） | `ca-app-pub-3940256099942544/4411468910` |
 
-**公開前に、AdMob で作ったアプリ ID と広告ユニット ID に差し替えてください**（Target → Build Settings の Release の値）。Debug はテスト用のままにします（自分で自分の広告をタップすると、AdMob のアカウントが停止されることがあるため）。Release でテスト用の ID のままのときは、起動時にログにエラーを出します。
+Debug はテスト用の ID のままにします（自分で自分の本番の広告をタップすると、AdMob のアカウントが停止されることがあるため）。Release でテスト用の ID のままのときは、起動時にログにエラーを出します。本番の ID は秘密の情報ではありません（アプリの中に入り、誰でも見られる）。
+
+TestFlight や App Store 版（Release）を自分で確かめるときは、AdMob の「設定 → テストデバイス」に自分の iPhone を登録して、本番の ID でもテスト広告が出るようにします。
 
 `Config/SubscBook-Info.plist` は、自動生成の Info.plist に足す項目だけを書いたファイルです。`SubscBook/` の外に置いているのは、フォルダ同期でリソースとしてコピーされないようにするためです。
 
@@ -90,7 +93,7 @@ ID は Build Settings で設定し、`Config/SubscBook-Info.plist` から読み�
 
 ## 広告の効果測定（SKAdNetwork）
 
-`Config/SubscBook-Info.plist` の `SKAdNetworkItems` に Google の ID（`cstr6suwn9.skadnetwork`）を入れています。**公開前に、AdMob のドキュメントにある最新の一覧（他社の広告ネットワークの ID を含む）に更新してください。**
+`Config/SubscBook-Info.plist` の `SKAdNetworkItems` に、Google と、Google が選んだ他社の広告購入者の ID（50件）を入れています。出典は [Google のドキュメント](https://developers.google.com/admob/ios/3p-skadnetworks)（2026-02-10 更新版）です。ページが更新されたら差し替えてください。
 
 ## プライバシーマニフェスト
 
