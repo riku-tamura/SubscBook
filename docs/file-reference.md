@@ -339,6 +339,7 @@
 | `Assets.xcassets/Contents.json` | アセットカタログ |
 | `Assets.xcassets/AppIcon.appiconset/AppIcon.png`・`Contents.json` | アプリアイコン（1枚の画像から全サイズ） |
 | `Assets.xcassets/AccentColor.colorset/Contents.json` | アクセントカラー（ボタン・強調の色） |
+| `PrivacyInfo.xcprivacy` | プライバシーマニフェスト（トラッキングしない・集めるデータなし・UserDefaults の利用理由） |
 
 ## SubscBookTests/（単体テスト）
 

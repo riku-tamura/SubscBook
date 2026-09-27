@@ -39,7 +39,12 @@ final class AdManager: NSObject {
     /// 広告の準備をする。オンボーディングの後、アプリが前面にあるときに呼ぶ（トラッキングの許可のダイアログを出すため）。
     /// サブスク帳プラスの人には何もしない。
     func prepareIfNeeded(isPremium: Bool) async {
-        guard !isPremium, !isReady, !isStarting else { return }
+        guard !isPremium, !isStarting else { return }
+        guard !isReady else {
+            // 準備済みなら、前に読み込めなかった全画面広告を読み込み直す（起動時に圏外だった場合など）
+            await loadInterstitialIfNeeded()
+            return
+        }
         isStarting = true
         defer { isStarting = false }
 
@@ -61,18 +66,39 @@ final class AdManager: NSObject {
     /// 全画面広告を出す。ルール（`InterstitialAdPolicy`）で出せないとき、読み込めていないときは何もしない。
     /// 画面を閉じ終わってから呼ぶ（`AppRouter.requestInterstitialAfterDismissal`）。
     func showInterstitialIfAllowed(isPremium: Bool, now: Date = .now) {
-        guard !isPremium, isReady, let interstitial else { return }
+        guard !isPremium, isReady else { return }
+        guard let interstitial else {
+            // 読み込めていなければ、次の機会のために読み込み直す
+            Task { await loadInterstitialIfNeeded() }
+            return
+        }
         let firstLaunch = defaults.object(forKey: Self.firstLaunchDateKey) as? Date ?? now
-        let shown = defaults.array(forKey: Self.interstitialDatesKey) as? [Date] ?? []
-        var canShow = InterstitialAdPolicy.canShow(now: now, firstLaunchDate: firstLaunch, shownDates: shown)
+        var canShow = InterstitialAdPolicy.canShow(now: now, firstLaunchDate: firstLaunch, shownDates: shownDates)
         #if DEBUG
         canShow = canShow || DebugLaunchOptions.ignoresAdLimits
         #endif
         guard canShow else { return }
 
+        // 読み込んでから時間がたって表示できない広告は捨てて、読み込み直す
+        do {
+            try interstitial.canPresent(from: nil)
+        } catch {
+            self.interstitial = nil
+            Task { await loadInterstitialIfNeeded() }
+            return
+        }
+        // 出した日時は、実際に表示されたとき（adWillPresentFullScreenContent）に記録する
         interstitial.present(from: nil)
         self.interstitial = nil
-        defaults.set(InterstitialAdPolicy.datesToKeep(shown + [now], now: now), forKey: Self.interstitialDatesKey)
+    }
+
+    private var shownDates: [Date] {
+        defaults.array(forKey: Self.interstitialDatesKey) as? [Date] ?? []
+    }
+
+    /// 全画面広告を出した日時を記録する（回数のルールに使う）
+    private func recordInterstitialShown(at date: Date = .now) {
+        defaults.set(InterstitialAdPolicy.datesToKeep(shownDates + [date], now: date), forKey: Self.interstitialDatesKey)
     }
 
     private func loadInterstitialIfNeeded() async {
@@ -84,13 +110,18 @@ final class AdManager: NSObject {
             ad.fullScreenContentDelegate = self
             interstitial = ad
         } catch {
-            // 読み込めなくても、次に閉じたときに読み込み直す
+            // 読み込めなくても、次に出すきっかけや前面に戻ったときに読み込み直す
             Self.logger.notice("Interstitial load failed: \(String(describing: type(of: error)), privacy: .public)")
         }
     }
 }
 
 extension AdManager: FullScreenContentDelegate {
+    /// 実際に表示されたときだけ、出した日時を記録する（表示に失敗したら回数に数えない）
+    func adWillPresentFullScreenContent(_ ad: any FullScreenPresentingAd) {
+        recordInterstitialShown()
+    }
+
     /// 閉じたら次の全画面広告を読み込んでおく
     func adDidDismissFullScreenContent(_ ad: any FullScreenPresentingAd) {
         Task { await loadInterstitialIfNeeded() }

@@ -121,6 +121,7 @@ xcrun simctl launch --terminate-running-process booted com.hachimaki.SubscBook -
 | 「型が見つからない」エラー | `MEMBER_IMPORT_VISIBILITY` のため、そのファイルに `import` がありません |
 | シミュレータでトラッキングの許可のダイアログが出ない | 一度答えると出ません。アプリを削除して入れ直します。オンボーディング中とプラスの人には出しません |
 | 全画面広告が出ない | 使い始めの3日間などの回数のルールがあります。起動オプション `-ignoreAdLimits` で確かめます |
+| アップロードで ITMS-91053 になる | 理由の申告が必要な API を使ったのに、`PrivacyInfo.xcprivacy` に書いていません（[ads.md](ads.md)） |
 | 通知が古いまま | 保存・起動・復帰で自動で登録し直します。保存（`context.save()`）を忘れていないか確かめます。設定画面の「デバッグ → 登録済みの通知」で確認できます |
 
 ## コミット
