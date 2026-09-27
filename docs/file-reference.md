@@ -7,7 +7,7 @@
 | ファイル | 内容 |
 |---|---|
 | `README.md` | アプリの概要、はじめかた、ドキュメントの案内 |
-| `Config/SubscBook-Info.plist` | 自動生成の Info.plist に足す項目（AdMob のアプリ ID・広告ユニット ID、SKAdNetwork）。ID は Build Settings の `ADMOB_*` で設定する |
+| `Config/SubscBook-Info.plist` | 自動生成の Info.plist に足す項目（AdMob のアプリ ID・広告ユニット ID、SKAdNetwork 50件）。ID は Build Settings の `ADMOB_*` で設定する（Release は本番、Debug はテスト用） |
 | `Products.storekit` | StoreKit の商品定義（グループ「サブスク帳プラス」、年額2,400円・1週間無料、月額300円）。スキームの Run とテストで使う |
 | `.gitignore` | `build/`・`DerivedData/`・`xcuserdata/`・`.DS_Store` などを除外 |
 | `SubscBook.xcodeproj/project.pbxproj` | Xcode プロジェクト。アプリ（`SubscBook`）とテスト（`SubscBookTests`）の2ターゲット、フォルダ同期、ビルド設定 |
@@ -32,6 +32,7 @@
 | `development.md` | 開発の決まり |
 | `file-reference.md` | このファイル |
 | `app-store.md` | App Store の掲載情報の下書き |
+| `app-ads.txt` | 開発者のウェブサイトの直下に置く `app-ads.txt` の中身（AdMob の運営者 ID） |
 
 ## SubscBook/（アプリ本体）
 
