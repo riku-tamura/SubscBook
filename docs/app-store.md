@@ -55,7 +55,7 @@ iPhone のアプリの利用状況は読み取りません。毎月のチェッ�
 ・サブスクリプションは、現在の期間が終了する24時間前までに解約しない限り、自動的に更新されます。
 ・解約は「設定」アプリ →（自分の名前）→「サブスクリプション」から行えます。
 ・利用規約：https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
-・プライバシーポリシー：（公開した URL を記載）
+・プライバシーポリシー：https://hachimaki-app.github.io/subscbook/privacy.html
 
 ※ このアプリは記録と通知を行うもので、各サービスの解約手続きは代行しません。
 
@@ -68,7 +68,10 @@ iPhone のアプリの利用状況は読み取りません。毎月のチェッ�
   - 申告の前に、Google の最新のガイダンスで項目を確かめる
 - **配信地域**：日本のみ（ヨーロッパなどで必要な同意確認の画面を実装していないため。docs/ads.md）
 - **年齢制限指定**：広告を表示するため、広告の内容に合わせて見直す（AdMob の広告の配信カテゴリも設定する）
-- **サポート URL・プライバシーポリシー URL**：用意して設定する（プライバシーポリシーはアプリ内の文面をそのまま公開できます。アプリ内のポリシーは、お問い合わせを「App サポート」へ案内しています）
+- **URL**（ウェブサイトは GitHub の Organization `hachimaki-app` のリポジトリ [hachimaki-app.github.io](https://github.com/hachimaki-app/hachimaki-app.github.io) で公開）
+  - マーケティング URL：`https://hachimaki-app.github.io/`（`app-ads.txt` を置いているドメイン。AdMob はこのドメインの `app-ads.txt` を確かめる）
+  - プライバシーポリシー URL：`https://hachimaki-app.github.io/subscbook/privacy.html`（アプリ内の文面と同じ。アプリの文面を変えたら、サイトも合わせて更新する）
+  - サポート URL：`https://hachimaki-app.github.io/subscbook/`（問い合わせ用のメールアドレスが決まったら公開する。それまでは未公開。アプリ内のプライバシーポリシーは、お問い合わせを「App サポート」＝このサポート URL へ案内しているので、審査の前に必ず公開する）
 - **サブスクリプション**：グループ「サブスク帳プラス」に次の2つを作成する
   - `com.hachimaki.SubscBook.premium.monthly`（1ヶ月・300円）
   - `com.hachimaki.SubscBook.premium.yearly`（1年・2,400円、導入オファー：1週間無料）
