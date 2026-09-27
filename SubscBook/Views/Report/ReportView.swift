@@ -49,6 +49,7 @@ struct ReportView: View {
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
+            .safeAreaInset(edge: .bottom, spacing: 0) { AdBanner() }
             .navigationTitle("レポート")
             .task(id: facts) {
                 guard !subscriptions.isEmpty else { return }

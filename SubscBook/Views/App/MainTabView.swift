@@ -3,6 +3,8 @@ import SwiftUI
 /// タブ構成（ホーム / 一覧 / レポート / 設定）と、アプリ全体で使うシート
 struct MainTabView: View {
     @Environment(AppRouter.self) private var router
+    @Environment(AdManager.self) private var ads
+    @Environment(EntitlementManager.self) private var entitlements
 
     var body: some View {
         @Bindable var router = router
@@ -20,7 +22,7 @@ struct MainTabView: View {
                 SettingsView()
             }
         }
-        .sheet(item: $router.subscriptionForm, onDismiss: router.didDismissPresentation) { route in
+        .sheet(item: $router.subscriptionForm, onDismiss: handleDismissal) { route in
             NavigationStack {
                 switch route {
                 case .add:
@@ -30,11 +32,18 @@ struct MainTabView: View {
                 }
             }
         }
-        .sheet(item: $router.paywall, onDismiss: router.didDismissPresentation) { reason in
+        .sheet(item: $router.paywall, onDismiss: handleDismissal) { reason in
             PaywallView(reason: reason)
         }
-        .fullScreenCover(isPresented: $router.isCheckInPresented, onDismiss: router.didDismissPresentation) {
+        .fullScreenCover(isPresented: $router.isCheckInPresented, onDismiss: handleDismissal) {
             CheckInView()
+        }
+    }
+
+    /// シート・全画面表示が閉じ終わったら、待っている画面か全画面広告を出す
+    private func handleDismissal() {
+        if router.didDismissPresentation() == .interstitialAd {
+            ads.showInterstitialIfAllowed(isPremium: entitlements.isPremium)
         }
     }
 }

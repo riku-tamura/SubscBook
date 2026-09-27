@@ -14,7 +14,7 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform=iOS Simulator,name=iPhone 17' test -only-testing:SubscBookTests/NotificationPlannerTests
 ```
 
-今は 142件（32スイート）で、数秒で終わります。
+今は 147件（33スイート）で、数秒で終わります。
 
 ## 方針
 
@@ -53,6 +53,7 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 
 | スイート | 確かめること |
 |---|---|
+| 全画面広告を出すルール（`InterstitialAdPolicyTests`） | 使い始めの3日間、前回から2日、30日で4回まで、古い記録を捨てる |
 | 無料プランの制限（`FreePlanTests`） | 無料は有効なサブスク5件まで、プラスは無制限 |
 | サービス名の候補（`ServicePresetCatalogTests`） | 大文字小文字・全角半角・ひらがなカタカナの違いを吸収、濁点は区別、前方一致を先に、件数の上限、空文字・完全一致では出さない、名前の重複がない |
 | Subscription / CheckIn モデル（`SubscriptionTests`） | 列挙型の変換、解約・契約中に戻す、`activePredicate`、同じ月のチェックインの上書き、削除でチェックインも消える |
@@ -80,7 +81,7 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 
 | スイート | 確かめること |
 |---|---|
-| 画面遷移（`AppRouterTests`） | 上限でペイウォール、通知のタップでの遷移（チェックイン中の支払い通知で閉じる）、閉じ終わってからペイウォールを出す |
+| 画面遷移（`AppRouterTests`） | 上限でペイウォール、通知のタップでの遷移（チェックイン中の支払い通知で閉じる）、閉じ終わってからペイウォール・全画面広告を出す（待っている画面を優先） |
 | 月次チェックインの進行（`CheckInViewModelTests`） | 名前順、回答して進む、戻って上書き、表示中でないサブスクへの回答は無視、聞くものがない理由 |
 | AI コメントの読み込み（`InsightViewModelTests`） | 理由の読み込みと、候補から外れたものの削除、理由はプラスのみ |
 | ホームの集計（`HomeSummaryTests`） | 合計・件数・直近3件・解約候補・チェックインの要否 |

@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A1000000000000000000001C /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = A1000000000000000000001D /* GoogleMobileAds */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		A10000000000000000000010 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -20,6 +24,7 @@
 		A10000000000000000000006 /* SubscBook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SubscBook.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000007 /* SubscBookTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SubscBookTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000000000000000000001B /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Products.storekit; sourceTree = "<group>"; };
+		A1000000000000000000001F /* SubscBook-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "SubscBook-Info.plist"; path = "Config/SubscBook-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -40,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1000000000000000000001C /* GoogleMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,6 +65,7 @@
 				A10000000000000000000004 /* SubscBook */,
 				A10000000000000000000005 /* SubscBookTests */,
 				A1000000000000000000001B /* Products.storekit */,
+				A1000000000000000000001F /* SubscBook-Info.plist */,
 				A10000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -92,6 +99,7 @@
 			);
 			name = SubscBook;
 			packageProductDependencies = (
+				A1000000000000000000001D /* GoogleMobileAds */,
 			);
 			productName = SubscBook;
 			productReference = A10000000000000000000006 /* SubscBook.app */;
@@ -148,6 +156,9 @@
 			);
 			mainGroup = A10000000000000000000002;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A1000000000000000000001E /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A10000000000000000000003 /* Products */;
 			projectDirPath = "";
@@ -329,8 +340,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
+				ADMOB_APP_ID = "ca-app-pub-3940256099942544~1458002511";
+				ADMOB_BANNER_UNIT_ID = "ca-app-pub-3940256099942544/2435281174";
+				ADMOB_INTERSTITIAL_UNIT_ID = "ca-app-pub-3940256099942544/4411468910";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/SubscBook-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "サブスク帳";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "あなたの興味に合った広告を表示するために使います。登録したサブスクの情報は広告に使いません。";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -362,8 +378,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
+				ADMOB_APP_ID = "ca-app-pub-3940256099942544~1458002511";
+				ADMOB_BANNER_UNIT_ID = "ca-app-pub-3940256099942544/2435281174";
+				ADMOB_INTERSTITIAL_UNIT_ID = "ca-app-pub-3940256099942544/4411468910";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/SubscBook-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "サブスク帳";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "あなたの興味に合った広告を表示するために使います。登録したサブスクの情報は広告に使いません。";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -460,6 +481,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A1000000000000000000001E /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 13.10.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A1000000000000000000001D /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1000000000000000000001E /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A10000000000000000000001 /* Project object */;
 }

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- 自動生成の Info.plist に足す項目。AdMob の ID は Build Settings（ADMOB_*）で設定する。 -->
+	<key>GADApplicationIdentifier</key>
+	<string>$(ADMOB_APP_ID)</string>
+	<key>SubscBookAdMobBannerUnitID</key>
+	<string>$(ADMOB_BANNER_UNIT_ID)</string>
+	<key>SubscBookAdMobInterstitialUnitID</key>
+	<string>$(ADMOB_INTERSTITIAL_UNIT_ID)</string>
+	<!-- 広告の効果測定（SKAdNetwork）。Google の ID。公開前に AdMob のドキュメントの一覧で最新にする。 -->
+	<key>SKAdNetworkItems</key>
+	<array>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>cstr6suwn9.skadnetwork</string>
+		</dict>
+	</array>
+</dict>
+</plist>

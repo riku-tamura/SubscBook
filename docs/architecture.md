@@ -51,6 +51,7 @@ Models
    - 通知を登録し直す（`NotificationScheduler.reschedule`）
    - AI が使えるかを判定し直す（`InsightProvider.refreshAvailability`）
    - 購読状態を読み直す（期限切れ・返金は `Transaction.updates` に流れないことがあるため）
+   - 購読状態がわかってから、広告を準備する（オンボーディングを終えていて、プラスでないときだけ。初回はトラッキングの許可を求める）
 5. サブスク帳プラスの状態が変わったら、通知を登録し直す（トライアル終了の通知はプラスのみのため）
 
 ## 共有オブジェクト
@@ -63,6 +64,7 @@ Models
 | `EntitlementManager` | 課金の商品、購読状態、購入・復元 | `SubscBookApp` |
 | `NotificationScheduler` | 通知の許可と登録 | `SubscBookApp` |
 | `InsightProvider` | AI の可用性、コメントの生成とキャッシュ | `SubscBookApp` |
+| `AdManager` | トラッキングの許可、広告 SDK の開始、全画面広告（プラスの人には何もしない） | `SubscBookApp` |
 | `ModelContainer` | SwiftData のデータベース | `SubscBookApp`（`.modelContainer`） |
 
 加えて、`\.locale` を日本語（`Locale.japanese`）に固定しています。
@@ -85,7 +87,8 @@ Models
 - `requestNewSubscription(activeCount:isPremium:)`：無料プランの上限に達していればペイウォール、そうでなければ登録画面
 - `openNotification(_:)`：通知をタップしたとき。チェックインの通知はホームに切り替えてチェックインを開き（シートを開いていた場合は閉じ終わってから）、支払い・トライアルの通知は開いている画面をすべて閉じて一覧を開く
 - `showPaywallAfterDismissal(_:)`：いま閉じている全画面表示やシートが閉じ終わってから、ペイウォールを開く
-- `didDismissPresentation()`：シート・全画面表示の `onDismiss` から呼ぶ。待っている画面（`pendingPresentation`）があれば出す。閉じるアニメーション中は新しいシートを表示できないため、時間を決めて待たずに、閉じ終わったことを受けて出す
+- `requestInterstitialAfterDismissal()`：閉じ終わってから全画面広告を出す（ほかに待っている画面があればそちらを優先）
+- `didDismissPresentation()`：シート・全画面表示の `onDismiss` から呼ぶ。待っている画面（`pendingPresentation`）があれば出し、全画面広告なら `MainTabView` が `AdManager` に表示を頼む。閉じるアニメーション中は新しいシートを表示できないため、時間を決めて待たずに、閉じ終わったことを受けて出す
 
 ## 並行処理
 
@@ -104,6 +107,7 @@ Models
 | オンボーディングを終えたか | UserDefaults `onboarding.completed` | アプリの削除 |
 | 一覧の並び順 | UserDefaults `list.sortOrder` | アプリの削除 |
 | 通知ごとの ON/OFF | UserDefaults `notifications.*` | アプリの削除 |
+| 初めて起動した日時・全画面広告を出した日時 | UserDefaults `ads.firstLaunchDate`・`ads.interstitialShownDates` | アプリの削除 |
 | AI が作ったコメント（今月分） | UserDefaults `insight.monthlyComment`・`insight.cancelReasons` | 翌月の保存時、「データの全削除」 |
 | 購読状態 | StoreKit（アプリには保存しない） | — |
 | 開発用のプラス切り替え | UserDefaults `debug.forcePremium`（Debug のみ） | — |
@@ -114,7 +118,8 @@ Models
 
 - App Store（StoreKit）：商品情報の取得・購入・復元・購読状態の確認
 - 利用規約のリンク（Apple 標準の使用許諾契約）を Safari で開く
-- それ以外の通信はありません。通知はローカル通知、AI は端末内モデル、解析・広告の SDK はありません
+- 広告（無料プランのみ）：Google AdMob の SDK が広告の取得・表示・効果測定のために通信します。広告のリクエストにアプリのデータ（サブスク・チェックイン・AIコメント）は入れません（[ads.md](ads.md)）
+- それ以外の通信はありません。通知はローカル通知、AI は端末内モデル、解析ツールはありません
 
 ## エラー処理の方針
 

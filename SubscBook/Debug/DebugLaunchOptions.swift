@@ -13,5 +13,9 @@ enum DebugLaunchOptions {
     static let usesSamplePlans = arguments.contains("-samplePlans")
     /// オンボーディングを表示しない
     static let skipsOnboarding = arguments.contains("-skipOnboarding")
+    /// 全画面広告の回数のルール（使い始めの3日間など）を無視して、毎回出す
+    static let ignoresAdLimits = arguments.contains("-ignoreAdLimits")
+    /// 単体テストのホストとして起動している（トラッキングの許可のダイアログや広告を出さない）
+    static let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
 }
 #endif

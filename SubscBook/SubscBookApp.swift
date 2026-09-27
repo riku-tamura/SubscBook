@@ -8,6 +8,7 @@ struct SubscBookApp: App {
     @State private var entitlements: EntitlementManager
     @State private var notifications: NotificationScheduler
     @State private var insights = InsightProvider()
+    @State private var ads = AdManager()
     private let modelContainer: ModelContainer
 
     init() {
@@ -35,6 +36,7 @@ struct SubscBookApp: App {
                 .environment(entitlements)
                 .environment(notifications)
                 .environment(insights)
+                .environment(ads)
                 .environment(\.locale, .japanese)
         }
         .modelContainer(modelContainer)

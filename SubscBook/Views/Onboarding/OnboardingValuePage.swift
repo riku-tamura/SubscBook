@@ -26,9 +26,9 @@ struct OnboardingValuePage: View {
                     .foregroundStyle(Color.accentColor)
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("データは端末の外に出ません")
+                    Text("登録したデータは端末の外に出ません")
                         .font(.headline)
-                    Text("登録したサブスクもAIの分析も、すべてこの端末の中だけで完結します。外部のサーバーには送信しません。")
+                    Text("登録したサブスクもAIの分析も、すべてこの端末の中だけで完結します。外部のサーバーには送信せず、広告にも使いません。")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }

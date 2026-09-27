@@ -2,7 +2,8 @@
 
 契約中のサブスクを1冊にまとめて管理する iPhone アプリです。毎月・毎年の支払いがひと目でわかり、支払日の前日にお知らせします。毎月のチェックインで「使っていない」サブスクを振り返り、見直しを後押しします。
 
-- データはすべて端末の中だけに保存し、外部のサーバーには送りません（広告・解析ツールもなし）
+- 登録したデータは端末の中だけに保存し、外部のサーバーには送りません（解析ツールもなし）
+- 無料プランでは Google AdMob の広告を表示します（サブスク帳プラスは広告なし）
 - AIコメントは Apple Intelligence の端末内モデル（FoundationModels）で作り、使えない端末では定型のコメントを表示します
 - 表示は日本語のみ、金額は日本円（整数）のみです
 
@@ -44,6 +45,7 @@
 | 機能 | 内容 |
 |---|---|
 | 無制限の登録 | 契約中のサブスクを5件を超えて登録できる |
+| 広告なし | バナーと全画面の広告を表示しない |
 | 無料トライアル終了の通知 | 終了の3日前と前日の 9:00 に通知 |
 | 解約候補の提案 | チェックインで2ヶ月続けて「使っていない」と答えたサブスクを、AI の理由付きで表示 |
 | 重複サブスクの検出 | 同じカテゴリ（「その他」を除く）で2件以上契約しているものを表示 |
@@ -60,9 +62,10 @@
 | 課金 | StoreKit 2（`Product` / `Transaction.currentEntitlements` / `Transaction.updates`） |
 | 通知 | UserNotifications のローカル通知のみ（サーバーからのプッシュなし） |
 | AI | FoundationModels（iOS 26+。`@Generable` で出力形式を決め、失敗時は定型文） |
+| 広告 | Google Mobile Ads SDK（AdMob。バナーと全画面広告）、AppTrackingTransparency |
 | 設計 | MVVM（View は表示、ViewModel は状態と操作、計算は Services の純粋な関数） |
 | テスト | Swift Testing、StoreKitTest（`SKTestSession`） |
-| 外部ライブラリ | なし |
+| 外部ライブラリ | Google Mobile Ads SDK（Swift Package。依存として Google User Messaging Platform も入る）だけ |
 
 Xcode プロジェクトの主な設定：
 
@@ -94,7 +97,7 @@ Xcode で ⌘U、またはコマンドラインで：
 xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform=iOS Simulator,name=iPhone 17' test
 ```
 
-- 142件（32スイート）。計算・判定のロジックと ViewModel を中心に確かめます
+- 147件（33スイート）。計算・判定のロジックと ViewModel を中心に確かめます
 - 日付はすべて東京時間に固定して確かめます（`Calendar.tokyo` と `date(2026, 9, 26)`）
 - StoreKit のテストは `Products.storekit` を読み、テスト後に購入履歴を消します
 
@@ -110,6 +113,7 @@ Debug ビルドでのみ有効です。Xcode ではスキームの「Run → Arg
 | `-forcePremium` | 購入せずにサブスク帳プラスを有効にする |
 | `-samplePlans` | StoreKit の商品が読めないときも、ペイウォールにサンプルのプランを表示する |
 | `-skipOnboarding` | オンボーディングを表示しない |
+| `-ignoreAdLimits` | 全画面広告の回数のルールを無視して、区切りのたびに出す |
 
 設定画面の最下部（Debug ビルドのみ）に「デバッグ」の項目があり、プラスの切り替えと、登録済みの通知の一覧を確認できます。
 
@@ -119,6 +123,7 @@ Debug ビルドでのみ有効です。Xcode ではスキームの「Run → Arg
 subsWatch/
 ├── README.md                  このファイル
 ├── Products.storekit          StoreKit の商品定義（ローカルでの購入テスト用）
+├── Config/                    自動生成の Info.plist に足す項目（AdMob の ID など）
 ├── SubscBook.xcodeproj        Xcode プロジェクト（共有スキーム SubscBook を含む）
 ├── docs/                      設計書・資料
 ├── SubscBook/                 アプリ本体
@@ -139,7 +144,7 @@ subsWatch/
 ## 設計の原則
 
 1. **数値はすべてロジックで計算する。** AI には数値を渡さず、書かせもしません。AI の出力に数字・円・%・英単語が入っていたら使いません
-2. **お金のデータを端末の外に出さない。** ネットワークを使うのは App Store（課金）だけです
+2. **登録したお金のデータを端末の外に出さない。** ネットワークを使うのは App Store（課金）と、無料プランの広告（Google AdMob）だけです。広告のリクエストにアプリのデータは入れません
 3. **何を伝えるかはアプリが決める。** AI は、アプリが決めた定型の文の言い換えと、解約候補の理由の文章化だけを受け持ちます
 4. **「使っていない」はチェックインの回答だけで判定する。** iPhone のアプリの利用状況（スクリーンタイムなど）は読みません
 5. **計算・判定は純粋な関数にする。** `now` と `calendar` を引数で受け取り、テストで日付を固定できるようにしています
@@ -155,6 +160,7 @@ subsWatch/
 | [docs/data-model.md](docs/data-model.md) | データの設計：SwiftData のモデル、列挙型、UserDefaults のキー |
 | [docs/notifications.md](docs/notifications.md) | 通知の設計：種類、タイミング、上限64件の扱い、登録し直すタイミング |
 | [docs/premium.md](docs/premium.md) | 課金の設計：商品、購読状態の判定、ペイウォール、購入・復元 |
+| [docs/ads.md](docs/ads.md) | 広告の設計：出す場所と回数、広告ユニット ID、トラッキングの許可、プライバシーの表示 |
 | [docs/ai-insights.md](docs/ai-insights.md) | AIコメントの設計：可用性、プロンプト、出力のチェック、キャッシュ、検証の結果 |
 | [docs/testing.md](docs/testing.md) | テストの構成、ヘルパー、スイートの一覧、書き方の決まり |
 | [docs/development.md](docs/development.md) | 開発の決まり：命名とファイルの置き方、よくある落とし穴、画面の確認方法 |
@@ -169,6 +175,9 @@ subsWatch/
 - [ ] App Store Connect でアプリを作り、サブスクリプショングループ「サブスク帳プラス」に2商品を作る（ID と価格は `Products.storekit` と同じ。手順は [docs/app-store.md](docs/app-store.md)）
 - [ ] サポート URL とプライバシーポリシーの URL を用意する（ポリシーはアプリ内の文面をそのまま公開できます）
 - [ ] 名前「サブスク帳」が App Store Connect で使えるか、商標（J-PlatPat）とあわせて確認する
-- [ ] App のプライバシーを「データを収集しない」で登録する
+- [ ] AdMob でアプリと広告ユニット（バナー・全画面）を作り、Release の `ADMOB_*` を本番の ID に差し替える（[docs/ads.md](docs/ads.md)）
+- [ ] `Config/SubscBook-Info.plist` の SKAdNetwork の一覧を、AdMob のドキュメントの最新のものにする
+- [ ] App のプライバシーを、広告で収集されるデータに合わせて登録する（[docs/app-store.md](docs/app-store.md)）
+- [ ] 配信地域を日本のみにする（同意確認の画面を実装していないため）
 - [ ] Apple Intelligence 対応の実機で AIコメントの表示を確かめる
 - [ ] Sandbox アカウントで購入・復元・期限切れを確かめる

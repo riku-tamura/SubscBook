@@ -64,4 +64,18 @@ struct AppRouterTests {
         router.didDismissPresentation()
         #expect(router.paywall == nil)
     }
+
+    @Test("全画面広告は閉じ終わってから。ほかに待っている画面があればそちらを優先する")
+    func interstitialAfterDismissal() {
+        let router = AppRouter()
+        router.requestInterstitialAfterDismissal()
+        #expect(router.didDismissPresentation() == .interstitialAd)
+        #expect(router.pendingPresentation == nil)
+
+        // ペイウォールを待っているときは、広告の依頼で上書きしない
+        router.showPaywallAfterDismissal(.lockedFeature(.cancelSuggestions))
+        router.requestInterstitialAfterDismissal()
+        #expect(router.didDismissPresentation() == .paywall(.lockedFeature(.cancelSuggestions)))
+        #expect(router.paywall == .lockedFeature(.cancelSuggestions))
+    }
 }

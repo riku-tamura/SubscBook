@@ -8,6 +8,7 @@ struct RootView: View {
     @Environment(EntitlementManager.self) private var entitlements
     @Environment(NotificationScheduler.self) private var notifications
     @Environment(InsightProvider.self) private var insights
+    @Environment(AdManager.self) private var ads
     @AppStorage(OnboardingViewModel.completedKey) private var hasCompletedOnboarding = false
 
     var body: some View {
@@ -26,14 +27,33 @@ struct RootView: View {
                 notifications.reschedule()
                 // AI モデルの準備完了や Apple Intelligence の設定変更を反映する（8.1）
                 insights.refreshAvailability()
-                // 期限切れ・返金は Transaction.updates に流れないことがあるので、復帰時にも確かめる
-                Task { await entitlements.refreshEntitlements() }
+                // 期限切れ・返金は Transaction.updates に流れないことがあるので、復帰時にも確かめる。
+                // 広告は購読状態がわかってから準備する（プラスの人にトラッキングの許可を求めないため）
+                Task {
+                    await entitlements.refreshEntitlements()
+                    await prepareAdsIfNeeded()
+                }
             }
         }
         .onChange(of: entitlements.isPremium) {
             // トライアル終了の通知はプラスのみ
             notifications.reschedule()
+            // プラスの期限が切れたら広告を出せるようにする
+            Task { await prepareAdsIfNeeded() }
         }
+        .onChange(of: hasCompletedOnboarding) {
+            // オンボーディングを終えた直後（通知の許可のダイアログと重ならないよう、終わってから）
+            Task { await prepareAdsIfNeeded() }
+        }
+    }
+
+    /// オンボーディングを終えていて、アプリが前面にあるときだけ広告を準備する（トラッキングの許可を求めるため）
+    private func prepareAdsIfNeeded() async {
+        guard hasCompletedOnboarding, scenePhase == .active else { return }
+        #if DEBUG
+        if DebugLaunchOptions.isRunningTests { return }
+        #endif
+        await ads.prepareIfNeeded(isPremium: entitlements.isPremium)
     }
 
     /// すでにデータがある場合（開発時のサンプルデータなど）はオンボーディングを出さない

@@ -7,9 +7,12 @@
 | ファイル | 内容 |
 |---|---|
 | `README.md` | アプリの概要、はじめかた、ドキュメントの案内 |
+| `Config/SubscBook-Info.plist` | 自動生成の Info.plist に足す項目（AdMob のアプリ ID・広告ユニット ID、SKAdNetwork）。ID は Build Settings の `ADMOB_*` で設定する |
 | `Products.storekit` | StoreKit の商品定義（グループ「サブスク帳プラス」、年額2,400円・1週間無料、月額300円）。スキームの Run とテストで使う |
 | `.gitignore` | `build/`・`DerivedData/`・`xcuserdata/`・`.DS_Store` などを除外 |
 | `SubscBook.xcodeproj/project.pbxproj` | Xcode プロジェクト。アプリ（`SubscBook`）とテスト（`SubscBookTests`）の2ターゲット、フォルダ同期、ビルド設定 |
+| `SubscBook.xcodeproj/project.xcworkspace/contents.xcworkspacedata` | プロジェクト内のワークスペースの定義（Swift Package の固定のために必要） |
+| `SubscBook.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` | Swift Package の版の固定（Google Mobile Ads SDK・UMP） |
 | `SubscBook.xcodeproj/xcshareddata/xcschemes/SubscBook.xcscheme` | 共有スキーム。Run に StoreKit 設定（`Products.storekit`）、Test にテストターゲット |
 
 ## docs/
@@ -22,6 +25,7 @@
 | `data-model.md` | データの設計 |
 | `notifications.md` | 通知の設計 |
 | `premium.md` | 課金の設計 |
+| `ads.md` | 広告の設計 |
 | `ai-insights.md` | AIコメントの設計と検証の結果 |
 | `testing.md` | テスト |
 | `development.md` | 開発の決まり |
@@ -69,6 +73,13 @@
 | `InsightResult.swift` | `InsightResult` | コメントの結果（文と、AI で作れたか） |
 | `SpendingTrend.swift` | `SpendingTrend` | 前月と比べた支払いの増減 |
 
+#### Models/Ads/
+
+| ファイル | 主な型 | 内容 |
+|---|---|---|
+| `AdUnitIDs.swift` | `AdUnitIDs` | AdMob のアプリ ID・広告ユニット ID を Info.plist から読む。テスト用の ID のままかの判定 |
+| `InterstitialAdPolicy.swift` | `InterstitialAdPolicy` | 全画面広告を出してよいかのルール（使い始めの3日間・前回から2日・30日で4回まで） |
+
 #### Models/Notification/
 
 | ファイル | 主な型 | 内容 |
@@ -81,7 +92,7 @@
 | ファイル | 主な型 | 内容 |
 |---|---|---|
 | `PremiumProducts.swift` | `PremiumProducts` | 商品 ID（年額・月額）と表示順 |
-| `PremiumFeature.swift` | `PremiumFeature` | サブスク帳プラスの5機能の名前・説明・アイコン |
+| `PremiumFeature.swift` | `PremiumFeature` | サブスク帳プラスの6機能の名前・説明・アイコン |
 | `FreePlan.swift` | `FreePlan` | 無料プランの上限（契約中5件）と、追加できるかの判定 |
 
 ### Services/
@@ -103,6 +114,12 @@
 |---|---|---|
 | `NotificationPlanner.swift` | `NotificationPlanner` | 通知の予定を組み立てる純粋な関数（支払日の前日・トライアル終了・月次チェックイン、上限64件） |
 | `NotificationScheduler.swift` | `NotificationScheduler` | 通知の許可と登録。データの保存を監視して登録し直す |
+
+#### Services/Ads/
+
+| ファイル | 主な型 | 内容 |
+|---|---|---|
+| `AdManager.swift` | `AdManager` | トラッキングの許可、広告 SDK の開始、全画面広告の読み込みと表示。プラスの人には何もしない |
 
 #### Services/Premium/
 
@@ -217,6 +234,7 @@
 | `PremiumBadge.swift` | `PremiumBadge` | 「プラス」のバッジ |
 | `AdaptiveHStack.swift` | `AdaptiveHStack` | 大きな文字では縦に積む横並び |
 | `View+Card.swift` | `View.card()` | カードの見た目 |
+| `AdBanner.swift` | `AdBanner` | 画面の下のバナー広告（無料プランのみ。広告が届くまで場所を取らない） |
 | `View+PremiumLock.swift` | `View.premiumLocked(_:feature:)` | 無料ユーザーへのぼかしと鍵、タップでペイウォール |
 | `SubscriptionCategory+Style.swift` | `SubscriptionCategory` の拡張 | カテゴリの色（ライト・ダーク）・文字色・アイコン |
 
@@ -290,10 +308,11 @@
 | `SettingsPremiumSection.swift` | `SettingsPremiumSection` | サブスク帳プラスの状態・契約の管理・復元 |
 | `SettingsNotificationSection.swift` | `SettingsNotificationSection` | 通知の許可と ON/OFF |
 | `SettingsInsightSection.swift` | `SettingsInsightSection` | AIコメントが使えるかと理由 |
+| `SettingsAdSection.swift` | `SettingsAdSection` | 無料プランのみ：広告を非表示にする（ペイウォール）、トラッキングの許可を変更 |
 | `SettingsAboutSection.swift` | `SettingsAboutSection` | 利用規約・プライバシーポリシー・バージョン |
 | `SettingsDataDeletionSection.swift` | `SettingsDataDeletionSection` | データの全削除 |
 | `SettingsDebugSection.swift` | `SettingsDebugSection` | Debug のみ：プラスの切り替え、登録済みの通知 |
-| `PrivacyPolicyView.swift` | `PrivacyPolicyView` | プライバシーポリシーの本文（収集する情報・AI・通知・支払い・広告・削除・改定・お問い合わせ） |
+| `PrivacyPolicyView.swift` | `PrivacyPolicyView` | プライバシーポリシーの本文（収集する情報・AI・通知・支払い・広告・解析ツール・削除・改定・お問い合わせ） |
 
 ### Formatting/
 
@@ -309,7 +328,7 @@
 
 | ファイル | 主な型 | 内容 |
 |---|---|---|
-| `DebugLaunchOptions.swift` | `DebugLaunchOptions` | 起動オプション（`-seedSampleData`・`-forcePremium`・`-samplePlans`・`-skipOnboarding`） |
+| `DebugLaunchOptions.swift` | `DebugLaunchOptions` | 起動オプション（`-seedSampleData`・`-forcePremium`・`-samplePlans`・`-skipOnboarding`・`-ignoreAdLimits`）と、テストの実行中か |
 | `SampleData.swift` | `SampleData` | 画面確認用のサンプルデータ（8件） |
 | `View+PreviewEnvironment.swift` | `View.previewEnvironment(seeded:)` | プレビュー用に、インメモリのデータと共有オブジェクトを用意する |
 
@@ -337,6 +356,7 @@
 
 | ファイル | 対象 |
 |---|---|
+| `Ads/InterstitialAdPolicyTests.swift` | `InterstitialAdPolicy` |
 | `Premium/FreePlanTests.swift` | `FreePlan` |
 | `Subscription/ServicePresetCatalogTests.swift` | `ServicePresetCatalog` |
 | `Subscription/SubscriptionTests.swift` | `Subscription`・`CheckIn` |
