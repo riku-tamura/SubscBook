@@ -3,7 +3,7 @@ import XCTest
 
 /// App Store に載せるスクリーンショットを撮る UI テスト。6.9インチのシミュレータ（iPhone 17 Pro Max）で動かし、結果（xcresult）から画像を取り出す。
 /// ほかの会社の商標を載せないように、サービス名を一般的な名前にしたサンプルデータ（`-storeScreenshotData`）を使う。
-/// 撮り方は docs/app-store.md の「スクリーンショット」。
+/// 撮り方は docs/testing.md の「App Store のスクリーンショット」。
 final class AppStoreScreenshotUITests: XCTestCase {
     override func setUp() {
         continueAfterFailure = true
