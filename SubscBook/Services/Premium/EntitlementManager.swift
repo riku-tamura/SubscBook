@@ -32,6 +32,8 @@ final class EntitlementManager {
     }
 
     private(set) var hasActiveSubscription = false
+    /// 購読状態を一度でも読み終えたか。読み終えるまではプラスかどうかわからないので、広告の準備をしない。
+    private(set) var hasLoadedEntitlements = false
     private(set) var activePlan: ActivePlan?
     /// 年額・月額の順
     private(set) var products: [Product] = []
@@ -118,6 +120,7 @@ final class EntitlementManager {
         guard let latest else {
             hasActiveSubscription = false
             activePlan = nil
+            hasLoadedEntitlements = true
             return
         }
         var willAutoRenew = true
@@ -132,6 +135,7 @@ final class EntitlementManager {
             willAutoRenew: willAutoRenew,
             isInFreeTrial: latest.offer?.type == .introductory
         )
+        hasLoadedEntitlements = true
     }
 
     func purchase(_ product: Product) async throws -> PurchaseOutcome {
