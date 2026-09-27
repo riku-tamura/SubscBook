@@ -314,7 +314,7 @@
 | `SettingsAdSection.swift` | `SettingsAdSection` | 無料プランのみ：広告を非表示にする（ペイウォール）、トラッキングの許可を変更 |
 | `SettingsAboutSection.swift` | `SettingsAboutSection` | 利用規約・プライバシーポリシー・バージョン |
 | `SettingsDataDeletionSection.swift` | `SettingsDataDeletionSection` | データの全削除 |
-| `SettingsDebugSection.swift` | `SettingsDebugSection` | Debug のみ：プラスの切り替え、登録済みの通知 |
+| `SettingsDebugSection.swift` | `SettingsDebugSection` | Debug のみ：プラスの切り替え、登録済みの通知、広告 ID（AdMob のテストデバイスの登録用） |
 | `PrivacyPolicyView.swift` | `PrivacyPolicyView` | プライバシーポリシーの本文（収集する情報・AI・通知・支払い・広告・解析ツール・削除・改定・お問い合わせ） |
 
 ### Formatting/

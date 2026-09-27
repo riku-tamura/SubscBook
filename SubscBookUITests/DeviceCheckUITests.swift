@@ -286,6 +286,20 @@ final class DeviceCheckUITests: XCTestCase {
         snap("13-3 登録済みの通知（オンに戻した後）")
     }
 
+    /// 広告 ID（IDFA）を読む。AdMob の「テストデバイス」に登録するため（結果に記録するだけで、失敗にはしない）
+    func test14_AdvertisingIdentifier() {
+        let app = launch(["-skipOnboarding"])
+        sleep(3)
+        tab(app, "設定")
+        let row = app.descendants(matching: .any)["debug.advertisingIdentifier"]
+        for _ in 0..<8 where !row.isHittable {
+            app.swipeUp()
+        }
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "広告 ID の行がない")
+        record(row.label, name: "14 広告 ID（IDFA）")
+        snap("14-1 広告 ID")
+    }
+
     /// 節約レポートの画像を写真に保存する
     func test08_SaveShareImage() {
         let app = launch(["-seedSampleData", "-skipOnboarding", "-forcePremium"])

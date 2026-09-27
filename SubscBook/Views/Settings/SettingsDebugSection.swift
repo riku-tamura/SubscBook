@@ -1,8 +1,10 @@
 #if DEBUG
+import AdSupport
+import AppTrackingTransparency
 import SwiftUI
 import UserNotifications
 
-/// 開発用：登録済みのローカル通知を確認する
+/// 開発用：プラスの切り替え、登録済みのローカル通知、広告 ID（AdMob のテストデバイスの登録用）
 struct SettingsDebugSection: View {
     @State private var requests: [UNNotificationRequest] = []
     @Environment(EntitlementManager.self) private var entitlements
@@ -27,8 +29,25 @@ struct SettingsDebugSection: View {
                 // 通知の設定を変えた後に開いても、今の状態を表示する
                 .task { await loadRequests() }
             }
+            // AdMob の「テストデバイス」に登録する ID。トラッキングを許可していないと、すべて0になる
+            LabeledContent("広告 ID（IDFA）") {
+                Text(advertisingIdentifier)
+                    .font(.caption2.monospaced())
+                    .textSelection(.enabled)
+            }
+            .accessibilityIdentifier("debug.advertisingIdentifier")
+            Button("広告 ID をコピー") {
+                UIPasteboard.general.string = advertisingIdentifier
+            }
         }
         .task { await loadRequests() }
+    }
+
+    private var advertisingIdentifier: String {
+        guard ATTrackingManager.trackingAuthorizationStatus == .authorized else {
+            return "トラッキングが許可されていません"
+        }
+        return ASIdentifierManager.shared().advertisingIdentifier.uuidString
     }
 
     private func loadRequests() async {
