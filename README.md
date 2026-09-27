@@ -27,6 +27,7 @@
 - [設計の原則](#設計の原則)
 - [ドキュメント一覧](#ドキュメント一覧)
 - [確認の状況](#確認の状況)
+- [ウェブサイト](#ウェブサイト)
 - [リリース前にやること](#リリース前にやること)
 
 ## 主な機能
@@ -197,20 +198,69 @@ subsWatch/
 | 本物の App Store（Sandbox）での購入 | 未確認（App Store Connect に商品を作った後に確認する） |
 | TestFlight | 未確認 |
 
+## ウェブサイト
+
+GitHub の Organization `hachimaki-app` のリポジトリ [hachimaki-app.github.io](https://github.com/hachimaki-app/hachimaki-app.github.io)（GitHub Pages）で公開しています。App Store Connect には次の URL を登録します。
+
+| ページ | URL | App Store Connect の項目 |
+|---|---|---|
+| トップ | `https://hachimaki-app.github.io/` | マーケティング URL |
+| サポート（問い合わせ先・よくある質問） | `https://hachimaki-app.github.io/subscbook/` | サポート URL |
+| プライバシーポリシー | `https://hachimaki-app.github.io/subscbook/privacy.html` | プライバシーポリシー URL |
+| app-ads.txt | `https://hachimaki-app.github.io/app-ads.txt` | （AdMob が確かめる） |
+
+アプリの文面や機能を変えたときにサイトも直す決まりは [docs/development.md](docs/development.md) にあります。
+
 ## リリース前にやること
 
-- [ ] Apple Developer Program（有料）に登録し、App Store Connect で有料App契約（税務情報・銀行口座）を結ぶ
-- [ ] Xcode の Signing で開発チーム（Team）を設定する
-- [ ] App Store Connect でアプリを作り、サブスクリプショングループ「サブスク帳プラス」に2商品を作る（ID と価格は `Products.storekit` と同じ。手順は [docs/app-store.md](docs/app-store.md)）
-- [x] ウェブサイトを用意する（`https://hachimaki-app.github.io/`、GitHub の Organization `hachimaki-app` で公開）とプライバシーポリシーを公開する（URL は [docs/app-store.md](docs/app-store.md)）
-- [x] 問い合わせ用のメールアドレスを用意して、サポートページを公開する（`https://hachimaki-app.github.io/subscbook/`）
-- [ ] 名前「サブスク帳」が App Store Connect で使えるか、商標（J-PlatPat）とあわせて確認する
+公開までの残りの作業です。（Claude）は Claude に頼めば対応できる作業、それ以外は開発者が行う作業です。
+
+### 登録と契約
+
+- [ ] Apple Developer Program（有料）に登録する
+- [ ] App Store Connect で有料App契約（税務情報・銀行口座）を結ぶ。これが有効になるまで、購入も Sandbox での購入テストもできない
+- [ ] App Store Small Business Program に申し込む（Apple の手数料が 30% → 15%）
+- [x] Google AdMob のアカウントを作る
+- [ ] AdMob の「お支払い」で、名前・住所・銀行口座・税務情報を登録する
+
+### ウェブサイト
+
+- [x] ウェブサイトを用意する（上の「ウェブサイト」）
+- [x] プライバシーポリシーを公開する（アプリ内の文面と同じ）
+- [x] 問い合わせ用のメールアドレスを用意して、サポートページを公開する
+- [x] 開発者のウェブサイトの直下に `app-ads.txt` を置く
+
+### 広告（AdMob）
+
 - [x] AdMob でアプリと広告ユニット（バナー・全画面）を作り、Release の `ADMOB_*` を本番の ID に差し替える（[docs/ads.md](docs/ads.md)）
-- [x] 開発者のウェブサイトの直下に `app-ads.txt` を置く（`https://hachimaki-app.github.io/app-ads.txt`）
 - [x] `Config/SubscBook-Info.plist` の SKAdNetwork の一覧を、AdMob のドキュメントの最新のもの（50件）にする
-- [ ] App Store で公開した後、AdMob でアプリを App Store と関連付ける（AdMob の審査が始まる）
+- [ ] 自分の iPhone を AdMob の「テストデバイス」に登録する（TestFlight の前に。本番の広告は自分でタップしない）
+- [ ] 任意：「ブロックのコントロール」で、アプリに合わない広告のカテゴリを止める
+
+### Xcode と App Store Connect
+
+- [ ] Xcode の Signing で開発チーム（有料の Developer Program のチーム）を設定する
+- [ ] 名前「サブスク帳」が App Store Connect で使えるか、商標（J-PlatPat）とあわせて確認する
+- [ ] App Store Connect でアプリを作る（Bundle ID `com.hachimaki.SubscBook`、プライマリ言語は日本語）
+- [ ] サブスクリプショングループ「サブスク帳プラス」に2商品を作る（ID と価格は `Products.storekit` と同じ。手順は [docs/app-store.md](docs/app-store.md)）
 - [ ] App のプライバシーを、広告で収集されるデータに合わせて登録する（[docs/app-store.md](docs/app-store.md)）
 - [ ] 配信地域を日本のみにする（同意確認の画面を実装していないため）
-- [ ] Apple Intelligence 対応の実機で AIコメントの表示を確かめる
-- [ ] Sandbox アカウントで購入・復元・期限切れを確かめる（`PurchaseUITests` と同じ流れ）
-- [ ] TestFlight で Release ビルドを確かめる
+- [ ] 年齢制限指定に答える（広告を表示することを踏まえる）
+- [ ] 説明文・キーワード・3つの URL（上の「ウェブサイト」）を入力する（文章は [docs/app-store.md](docs/app-store.md)）
+- [ ] 6.9インチのスクリーンショットを用意する（サンプルデータ入りの画面を、シミュレータで撮影できる。Claude）
+- [ ] Sandbox テスターを作る（「ユーザとアクセス」→「Sandbox」）
+
+### 実機での確認
+
+- [x] UI テスト（`SubscBookDeviceCheck` スキーム）15件を実機で実行する（上の「確認の状況」）
+- [ ] Sandbox アカウントで購入・復元・期限切れを確かめる（`PurchaseUITests` と同じ流れ。Claude）
+- [ ] 手で確かめる残りの項目：VoiceOver でチェックインに答える、機内モードで広告の場所が崩れない、設定で通知をオフにすると届かない、「契約を管理」から解約の画面が開く
+- [ ] Apple Intelligence 対応の実機（iPhone 15 Pro 以降・iOS 26 以降）で AIコメントの表示を確かめる
+- [ ] TestFlight で Release ビルドを確かめる（本番の広告 ID で、テスト広告が出ること）
+
+### 審査と公開後
+
+- [ ] 初回はアプリのバージョンと2つのサブスクリプションを一緒に審査に出す。審査用のメモは [docs/app-store.md](docs/app-store.md)
+- [ ] リジェクトされたら、指摘の文章をもとに修正する（Claude）
+- [ ] 公開した後、AdMob でアプリを App Store と関連付ける（AdMob の審査が始まる）。`app-ads.txt` が認識されたかも確かめる
+- [ ] AdMob から届く住所確認の PIN を入力する（売上が一定額になると郵送で届く）
