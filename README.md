@@ -176,6 +176,7 @@ subsWatch/
 - [ ] サポート URL とプライバシーポリシーの URL を用意する（ポリシーはアプリ内の文面をそのまま公開できます）
 - [ ] 名前「サブスク帳」が App Store Connect で使えるか、商標（J-PlatPat）とあわせて確認する
 - [ ] AdMob でアプリと広告ユニット（バナー・全画面）を作り、Release の `ADMOB_*` を本番の ID に差し替える（[docs/ads.md](docs/ads.md)）
+- [ ] 開発者のウェブサイトに `app-ads.txt` を置く（[docs/ads.md](docs/ads.md)）
 - [ ] `Config/SubscBook-Info.plist` の SKAdNetwork の一覧を、AdMob のドキュメントの最新のものにする
 - [ ] App のプライバシーを、広告で収集されるデータに合わせて登録する（[docs/app-store.md](docs/app-store.md)）
 - [ ] 配信地域を日本のみにする（同意確認の画面を実装していないため）

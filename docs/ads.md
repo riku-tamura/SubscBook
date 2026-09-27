@@ -44,6 +44,8 @@
 | チェックインを終えて閉じたとき | 今回1件以上答えたとき（途中でやめた・答えるものがなかったときは出さない） |
 | サブスクを新しく登録して閉じたとき | オンボーディング中の登録と、編集では出さない |
 
+表示中の広告は閉じるまで参照を持っておき（離すと閉じたときの通知が届かないことがある）、閉じたら次を読み込みます。
+
 閉じるアニメーション中は表示が無視されるため、`AppRouter.requestInterstitialAfterDismissal()` で依頼しておき、`MainTabView` の `onDismiss` で出します。ほかに待っている画面（ペイウォールなど）があればそちらを優先し、広告は出しません。
 
 回数のルール（`InterstitialAdPolicy`）：
@@ -55,6 +57,14 @@
 出す前に `canPresent(from:)` で表示できるか確かめ、読み込んでから時間がたって表示できない広告は捨てて読み込み直します。出した日時は、実際に表示されたとき（`adWillPresentFullScreenContent`）だけ記録します（表示に失敗しても回数の枠を使わないように）。
 
 アプリを初めて起動した日時と、出した日時は UserDefaults（`ads.firstLaunchDate`・`ads.interstitialShownDates`）に保存します。
+
+## 公開前に必要なこと
+
+1. AdMob でアプリ（iOS）と広告ユニット（アンカー型アダプティブバナー・全画面）を作り、Release の `ADMOB_*` を差し替える（下の「広告ユニット ID」）
+2. App Store に載せる開発者のウェブサイト（マーケティング URL またはサポート URL のドメイン）の直下に `app-ads.txt` を置く。中身は AdMob の「アプリ → app-ads.txt」に表示される1行（`google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0`）。置かないと広告の配信が制限される
+3. `SKAdNetworkItems` を最新の一覧にする（下の「広告の効果測定」）
+4. App Store Connect：App のプライバシーの申告と、配信地域を日本のみにする（[app-store.md](app-store.md)）
+5. AdMob の「ブロックのコントロール」で、アプリに合わない広告のカテゴリ（ギャンブル・出会いなど）を必要に応じて止める
 
 ## 広告ユニット ID
 

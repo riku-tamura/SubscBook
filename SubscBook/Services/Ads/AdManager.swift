@@ -19,6 +19,8 @@ final class AdManager: NSObject {
 
     @ObservationIgnored private var isStarting = false
     @ObservationIgnored private var interstitial: InterstitialAd?
+    /// 表示中の全画面広告。閉じるまで持っておく（離すと、閉じたときの通知が届かないことがある）
+    @ObservationIgnored private var presentingInterstitial: InterstitialAd?
     @ObservationIgnored private var isLoadingInterstitial = false
     @ObservationIgnored private let defaults: UserDefaults
     private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "SubscBook", category: "Ads")
@@ -88,8 +90,9 @@ final class AdManager: NSObject {
             return
         }
         // 出した日時は、実際に表示されたとき（adWillPresentFullScreenContent）に記録する
-        interstitial.present(from: nil)
+        presentingInterstitial = interstitial
         self.interstitial = nil
+        interstitial.present(from: nil)
     }
 
     private var shownDates: [Date] {
@@ -124,10 +127,12 @@ extension AdManager: FullScreenContentDelegate {
 
     /// 閉じたら次の全画面広告を読み込んでおく
     func adDidDismissFullScreenContent(_ ad: any FullScreenPresentingAd) {
+        presentingInterstitial = nil
         Task { await loadInterstitialIfNeeded() }
     }
 
     func ad(_ ad: any FullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: any Error) {
+        presentingInterstitial = nil
         Task { await loadInterstitialIfNeeded() }
     }
 }
