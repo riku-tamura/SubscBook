@@ -39,12 +39,17 @@ struct SettingsDebugSection: View {
             Button("広告 ID をコピー") {
                 UIPasteboard.general.string = advertisingIdentifier
             }
+            .disabled(!isTrackingAuthorized)
         }
         .task { await loadRequests() }
     }
 
+    private var isTrackingAuthorized: Bool {
+        ATTrackingManager.trackingAuthorizationStatus == .authorized
+    }
+
     private var advertisingIdentifier: String {
-        guard ATTrackingManager.trackingAuthorizationStatus == .authorized else {
+        guard isTrackingAuthorized else {
             return "トラッキングが許可されていません"
         }
         return ASIdentifierManager.shared().advertisingIdentifier.uuidString
