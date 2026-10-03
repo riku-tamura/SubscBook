@@ -69,7 +69,7 @@
 | ファイル | 主な型 | 内容 |
 |---|---|---|
 | `MonthlyInsightFacts.swift` | `MonthlyInsightFacts` | 今月のひとことを決める材料（件数・前月比・解約候補・重複・今月の解約）と、事実にない話題の語 |
-| `CancelReasonFacts.swift` | `CancelReasonFacts` | 解約候補の理由の材料と、AI に渡す箇条書き・キャッシュのキー |
+| `CancelReasonFacts.swift` | `CancelReasonFacts` | 解約候補の理由（AI が言い換える元の文）を選ぶための事実 |
 | `MonthlyInsight.swift` | `MonthlyInsight` | 今月のひとことの AI の出力形式（`@Generable`、iOS 26+） |
 | `CancelReason.swift` | `CancelReason` | 解約候補の理由の AI の出力形式（`@Generable`、iOS 26+） |
 | `InsightResult.swift` | `InsightResult` | コメントの結果（文と、AI で作れたか） |
@@ -134,12 +134,12 @@
 | ファイル | 主な型 | 内容 |
 |---|---|---|
 | `InsightService.swift` | `InsightService` | コメント生成の共通の形（AI 版とテンプレート版） |
-| `FoundationModelInsightService.swift` | `FoundationModelInsightService` | 端末内モデルでの生成（今月のひとことは定型文の言い換え、理由は事実から）。指示・条件・時間切れ・チェック・失敗時の定型文 |
-| `TemplateInsightService.swift` | `TemplateInsightService` | 定型のコメント。今月のひとことの「伝える内容」を選ぶ役も持つ |
+| `FoundationModelInsightService.swift` | `FoundationModelInsightService` | 端末内モデルでの生成（今月のひとことも解約候補の理由も、定型文の言い換え）。指示・条件・時間切れ・チェック・失敗時の定型文 |
+| `TemplateInsightService.swift` | `TemplateInsightService` | 定型のコメント。今月のひとことと解約候補の理由の「伝える内容」（AI が言い換える元の文）を選ぶ役も持つ |
 | `InsightProvider.swift` | `InsightProvider` | AI の可用性で実装を切り替え、キャッシュと同時要求のまとめを行う |
 | `InsightAvailability.swift` | `InsightAvailability` | AI が使えるかの判定と、設定画面の説明 |
 | `InsightFactsBuilder.swift` | `InsightFactsBuilder` | サブスクのデータから材料（事実）を組み立てる。前月比の判定 |
-| `InsightSanitizer.swift` | `InsightSanitizer` | AI の出力のチェック（長さ・目的と逆の表現・事実にない話題・数字や英字） |
+| `InsightSanitizer.swift` | `InsightSanitizer` | AI の出力のチェック（長さ・元の文の意味から外れた表現・事実にない話題・数字や英字） |
 | `InsightCache.swift` | `InsightCache` | AI が作ったコメントのキャッシュ（UserDefaults、今月分だけ） |
 | `Timeout.swift` | `withTimeout`・`TimeoutError`・`ResumeGate`・`TimerHolder` | 指定時間で処理を打ち切る関数。先に終わったら見張りのタスクも止める |
 

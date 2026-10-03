@@ -62,7 +62,8 @@ final class InsightProvider {
 
     func cancelReason(for facts: CancelReasonFacts, now: Date = .now, calendar: Calendar = .current) async -> String {
         let month = YearMonth(date: now, calendar: calendar)
-        let key = "\(month.key)|\(facts.cacheKey)"
+        // 言い換える元の文が同じなら、今月作ったものを使う
+        let key = "\(month.key)|\(facts.subscriptionID.uuidString)|\(TemplateInsightService.cancelReasonText(for: facts))"
         if let cached = cache.cancelReason(for: key) {
             return cached
         }
