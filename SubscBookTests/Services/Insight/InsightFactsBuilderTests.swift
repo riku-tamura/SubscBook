@@ -41,16 +41,14 @@ struct InsightFactsBuilderTests {
         #expect(facts.hiddenDuplicateCount == 1)
     }
 
-    @Test("解約候補の理由に渡す文には、数値とかぎ括弧を含めない")
-    func reasonPromptHasNoDigits() throws {
+    @Test("解約候補の理由は、同じジャンルの別の契約があるかで元の文を選ぶ")
+    func reasonFactsChooseTemplate() throws {
         let store = try TestStore()
         let subscriptions = makeSubscriptions(store)
         let suggestion = try #require(CancelSuggestionDetector.suggestions(for: subscriptions).first)
         let reasonFacts = InsightFactsBuilder.cancelReason(for: suggestion, among: subscriptions)
-        let prompt = reasonFacts.promptLines.joined()
-        #expect(prompt.rangeOfCharacter(from: .decimalDigits) == nil)
-        #expect(!prompt.contains("「"))
         #expect(reasonFacts.hasSameCategoryAlternative)
+        #expect(TemplateInsightService.cancelReasonText(for: reasonFacts).contains("同じジャンル"))
     }
 
     @Test("事実にない話題（解約候補・重複）に触れた AI の文は使わない")

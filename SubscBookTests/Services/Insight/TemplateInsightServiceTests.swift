@@ -22,4 +22,21 @@ struct TemplateInsightServiceTests {
             #expect(InsightSanitizer.sanitize(text, maxLength: 60) == text)
         }
     }
+
+    @Test("解約候補の理由は、同じジャンルの別の契約・年額かで選び、チェックを通る")
+    func cancelReasonTemplates() {
+        func facts(cycle: BillingCycle = .monthly, sameCategory: Bool = false) -> CancelReasonFacts {
+            CancelReasonFacts(
+                subscriptionID: UUID(), name: "U-NEXT", categoryName: "動画", unusedMonths: 2,
+                cycle: cycle, hasSameCategoryAlternative: sameCategory
+            )
+        }
+        #expect(TemplateInsightService.cancelReasonText(for: facts(sameCategory: true)).contains("同じジャンル"))
+        #expect(TemplateInsightService.cancelReasonText(for: facts(cycle: .yearly)).contains("次の更新"))
+        #expect(TemplateInsightService.cancelReasonText(for: facts()) == TemplateInsightService.cancelReasonDefault)
+        for text in [facts(sameCategory: true), facts(cycle: .yearly), facts()].map(TemplateInsightService.cancelReasonText(for:)) {
+            #expect(text.contains("「使っていない」と答えた月"))
+            #expect(InsightSanitizer.sanitize(text, maxLength: 80) == text)
+        }
+    }
 }

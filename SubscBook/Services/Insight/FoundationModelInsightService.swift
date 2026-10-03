@@ -30,8 +30,8 @@ nonisolated struct FoundationModelInsightService: InsightService {
     private let fallback = TemplateInsightService()
     private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "SubscBook", category: "Insight")
 
-    /// 何を伝えるかはアプリが決め（定型の文）、AI にはその言い換えだけを任せる。
-    /// 事実の箇条書きから自由に書かせると、事実と食い違う文や、ほかのサービスをすすめる文が混ざりやすかったため。
+    /// 何を伝えるかはアプリが決め（定型の文）、AI にはその言い換えだけを任せる（今月のひとことも、解約候補の理由も）。
+    /// 事実の箇条書きから自由に書かせると、事実と食い違う文や、ほかのサービスをすすめる文、文法の崩れた文が混ざりやすかったため。
     func monthlyComment(for facts: MonthlyInsightFacts) async -> InsightResult {
         let prompt = """
             次の文を、意味を変えずに、やさしいひとことコメントに言い換えてください。
@@ -50,12 +50,11 @@ nonisolated struct FoundationModelInsightService: InsightService {
 
     func cancelReason(for facts: CancelReasonFacts) async -> InsightResult {
         let prompt = """
-            次のサブスクを見直すきっかけになる理由を、ひとつか二つの文で書いてください。\
-            文の終わりは、見直してみませんか、のような提案にしてください。
-            \(facts.promptLines.joined(separator: "\n"))
+            次の文を、意味を変えずに、やさしい言い方に言い換えてください。
+            \(Self.withoutQuotes(TemplateInsightService.cancelReasonText(for: facts)))
             \(Self.rules)
             """
-        if let text = await generate(maxLength: 80, allowedTerms: facts.allowedTerms, operation: {
+        if let text = await generate(maxLength: 80, operation: {
             let session = LanguageModelSession(instructions: Self.instructions)
             return try await session.respond(to: prompt, generating: CancelReason.self, options: Self.reasonOptions)
                 .content.reason

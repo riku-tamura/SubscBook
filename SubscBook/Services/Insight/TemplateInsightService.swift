@@ -1,10 +1,11 @@
 import Foundation
 
 /// テンプレート文（8.6）。AI が使えない端末や、生成に失敗したときに使う。
-/// 月次のひとことは、AI が言い換える元の文にもなる（何を伝えるかはここで決める）。
+/// 月次のひとことと解約候補の理由は、AI が言い換える元の文にもなる（何を伝えるかはここで決める）。
+/// 文の言い回しは、実機（iPhone 17）の端末内モデルが意味を変えずに言い換えられたものにしている（docs/ai-insights.md の検証の結果）。
 nonisolated struct TemplateInsightService: InsightService {
-    static let monthlyDefault = "今月もサブスク帳にまとめています。気になるサブスクがないか見直してみましょう。"
-    static let cancelReasonDefault = "「使っていない」月が続いています。続けるか見直してみませんか？"
+    static let monthlyDefault = "今月の支払いをまとめました。契約中のサブスクを見直してみましょう。"
+    static let cancelReasonDefault = "「使っていない」と答えた月が続いています。続けるか見直してみませんか？"
 
     func monthlyComment(for facts: MonthlyInsightFacts) async -> InsightResult {
         InsightResult(text: Self.monthlyText(for: facts), isGenerated: false)
@@ -16,7 +17,7 @@ nonisolated struct TemplateInsightService: InsightService {
 
     static func monthlyText(for facts: MonthlyInsightFacts) -> String {
         if facts.hasCancelCandidates {
-            return "チェックインで「使っていない」という回答が続いているサブスクがあります。続けるか見直してみませんか？"
+            return "「使っていない」と答えた月が続いているサブスクがあります。続けるか見直してみませんか？"
         }
         if facts.hasDuplicates {
             return "同じジャンルのサブスクが重なっています。まとめられないか考えてみましょう。"
@@ -36,10 +37,10 @@ nonisolated struct TemplateInsightService: InsightService {
 
     static func cancelReasonText(for facts: CancelReasonFacts) -> String {
         if facts.hasSameCategoryAlternative {
-            return "「使っていない」月が続いていて、同じジャンルのサービスも契約中です。まとめられないか見直してみませんか？"
+            return "「使っていない」と答えた月が続いていて、同じジャンルのサブスクもほかに契約しています。まとめられないか見直してみませんか？"
         }
         if facts.cycle == .yearly {
-            return "「使っていない」月が続いています。次の更新の前に、続けるか考えてみませんか？"
+            return "「使っていない」と答えた月が続いています。次の更新の前に、続けるか考えてみませんか？"
         }
         return cancelReasonDefault
     }

@@ -300,6 +300,60 @@ final class DeviceCheckUITests: XCTestCase {
         snap("14-1 広告 ID")
     }
 
+    /// AIコメント（Apple Intelligence に対応した端末で動かす）：設定の AI の状態、ホームの「今月のひとこと」、
+    /// レポートの「今月の振り返り」、解約候補の理由を読んで記録する。非対応の端末では、定型のコメントになることを記録する。
+    func test15_AIInsights() {
+        let app = launch(["-seedSampleData", "-skipOnboarding", "-forcePremium"])
+        sleep(3)
+
+        tab(app, "設定")
+        let aiRow = element(app, containing: "AIコメント")
+        for _ in 0..<4 where !aiRow.isHittable {
+            app.swipeUp()
+        }
+        let aiNote = app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "コメントを")).firstMatch
+        record([aiRow.label, aiNote.exists ? aiNote.label : "-"].joined(separator: "\n"), name: "15 設定の AI の状態")
+        snap("15-1 設定（AI）")
+        let isAvailable = aiNote.exists && aiNote.label.contains("Apple Intelligence を使って")
+
+        tab(app, "ホーム")
+        let generatedHome = element(app, containing: "Apple Intelligence で作成")
+        if isAvailable {
+            XCTAssertTrue(generatedHome.waitForExistence(timeout: 90), "ホームのひとことが AI で作成されない")
+        }
+        sleep(2)
+        record(element(app, containing: "今月のひとこと").label, name: "15 ホームの今月のひとこと")
+        let homeCandidate = element(app, containing: "解約候補が")
+        if homeCandidate.exists {
+            record(homeCandidate.label, name: "15 ホームの解約候補")
+        }
+        snap("15-2 ホーム（AI）")
+
+        tab(app, "レポート")
+        let review = element(app, containing: "今月の振り返り")
+        for _ in 0..<4 where !review.isHittable {
+            app.swipeUp()
+        }
+        if isAvailable {
+            let generatedReport = app.descendants(matching: .any)
+                .matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "今月の振り返り", "Apple Intelligence で作成"))
+                .firstMatch
+            XCTAssertTrue(generatedReport.waitForExistence(timeout: 60), "レポートの振り返りが AI で作成されない")
+        }
+        record(review.label, name: "15 レポートの今月の振り返り")
+        snap("15-3 レポート（今月の振り返り）")
+
+        // 解約候補の行（サンプルデータでは U-NEXT）。理由は AI で作るので、少し待ってから読む
+        let candidateRows = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "U-NEXT"))
+        for _ in 0..<4 where !(candidateRows.firstMatch.exists && candidateRows.firstMatch.isHittable) {
+            app.swipeUp()
+        }
+        sleep(15)
+        let labels = candidateRows.allElementsBoundByIndex.map(\.label)
+        record(labels.isEmpty ? "（解約候補が見つからない）" : labels.joined(separator: "\n"), name: "15 レポートの解約候補の理由")
+        snap("15-4 レポート（解約候補の理由）")
+    }
+
     /// 節約レポートの画像を写真に保存する
     func test08_SaveShareImage() {
         let app = launch(["-seedSampleData", "-skipOnboarding", "-forcePremium"])
@@ -363,6 +417,10 @@ final class DeviceCheckUITests: XCTestCase {
     }
 
     // MARK: - 補助
+
+    private func element(_ app: XCUIApplication, containing text: String) -> XCUIElement {
+        app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", text)).firstMatch
+    }
 
     /// 設定の通知のスイッチを、指定した状態にする（設定のタブを開いた状態で呼ぶ）
     private func setToggles(_ app: XCUIApplication, _ labels: [String], on: Bool) {

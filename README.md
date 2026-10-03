@@ -89,7 +89,7 @@ Xcode プロジェクトの主な設定：
 
 実機で動かすときは、Target の「Signing & Capabilities」で開発チーム（Team）を設定してください。
 
-AIコメントはシミュレータでは生成されません（モデルがないため `ModelManagerError 1026` になり、定型のコメントを表示します）。AI の出力を確かめるときは、Apple Intelligence に対応した実機か、Mac の端末内モデルを使います（[docs/ai-insights.md](docs/ai-insights.md)）。
+AIコメントはシミュレータでは生成されません（モデルがないため `ModelManagerError 1026` になり、定型のコメントを表示します）。AI の出力を確かめるときは、Apple Intelligence に対応した実機を使います（Mac の端末内モデルより、実機のモデルのほうが意味を変えやすいため）（[docs/ai-insights.md](docs/ai-insights.md)）。
 
 ## テスト
 
@@ -111,7 +111,7 @@ xcodebuild -project SubscBook.xcodeproj -scheme SubscBook -destination 'platform
 xcodebuild -project SubscBook.xcodeproj -scheme SubscBookDeviceCheck -destination 'platform=iOS,id=<iPhone の UDID>' -allowProvisioningUpdates -resultBundlePath build/DeviceCheck.xcresult test
 ```
 
-- `DeviceCheckUITests`（14件）：オンボーディング・各画面・チェックイン・全画面広告・登録と解約・ダークモードと大きな文字・通知（登録された時刻、1〜2分後に実際に届く、通知から開く、設定でオフにすると消える）・画像の保存・アクセシビリティ監査・全削除・広告 ID の読み取り
+- `DeviceCheckUITests`（15件）：オンボーディング・各画面・チェックイン・全画面広告・登録と解約・ダークモードと大きな文字・通知（登録された時刻、1〜2分後に実際に届く、通知から開く、設定でオフにすると消える）・画像の保存・アクセシビリティ監査・全削除・広告 ID の読み取り・AIコメント
 - `PurchaseUITests`（4件）：StoreKit Testing で、年額（1週間無料）・月額の購入、期限切れ、購入の復元、契約の管理の画面（本物のお金はかからない）
 - `AppStoreScreenshotUITests`（2件）：App Store に載せるスクリーンショット（6.9インチのシミュレータで撮る。[docs/testing.md](docs/testing.md#app-store-のスクリーンショット)）
 - 実行中は iPhone の画面を点けたままにします。詳しくは [docs/testing.md](docs/testing.md) を見てください
@@ -197,7 +197,8 @@ subsWatch/
 | シミュレータ（iPhone 17・iPhone SE、iOS 26） | 全画面・ダークモード・いちばん大きな文字・小さい画面・通知・共有・全削除を確認済み |
 | 実機（iPhone 15・iOS 18.7.8） | UI テスト 18件がすべて通る。最低対応の iOS 18 で動くこと、通知が決まった時刻どおりに登録され、実際に届いて正しい画面が開くこと、設定でオフにすると消えること、トラッキングの許可、購入の流れと契約の管理の画面（StoreKit Testing）を確認済み |
 | 広告が届かないとき | 読み込みに失敗させたビルドで、バナーの場所が空かないことを確認済み（[docs/testing.md](docs/testing.md#手で確かめる項目)） |
-| AIコメント | Mac の端末内モデルでプロンプトを検証済み（[docs/ai-insights.md](docs/ai-insights.md)）。Apple Intelligence 対応の iPhone（15 Pro 以降・iOS 26 以降）での表示は未確認 |
+| 実機（iPhone 17・iOS 26.6.1） | UI テストのうち、オンボーディングから通知の時刻まで（`test01`〜`test11`）がすべて通る（残りは途中で止めたため未実行） |
+| AIコメント | iPhone 17（Apple Intelligence オン）で、ホーム・レポート・解約候補の理由が AI で作られることを確認。実機のモデルで言い換える元の文とチェックを調整し、意味が変わらないことを確かめた（[docs/ai-insights.md](docs/ai-insights.md)） |
 | 本物の App Store（Sandbox）での購入 | 未確認（App Store Connect に商品を作った後に確認する） |
 | TestFlight | 未確認 |
 
@@ -259,7 +260,7 @@ GitHub の Organization `hachimaki-app` のリポジトリ [hachimaki-app.github
 - [ ] Sandbox アカウントで購入・復元・期限切れを確かめる（`PurchaseUITests` と同じ流れ。Claude）
 - [x] 設定で通知をオフにすると届かない、「契約を管理」から解約の画面が開く、広告が届かないときにバナーの場所が空かない
 - [ ] VoiceOver をオンにして、チェックインに答えられることを手で確かめる（操作とボタンはあることを確認済み）
-- [ ] Apple Intelligence 対応の実機（iPhone 15 Pro 以降・iOS 26 以降）で AIコメントの表示を確かめる
+- [x] Apple Intelligence 対応の実機（iPhone 17・iOS 26.6.1）で AIコメントの表示を確かめる
 - [ ] TestFlight で Release ビルドを確かめる（本番の広告 ID で、テスト広告が出ること）
 
 ### 審査と公開後
